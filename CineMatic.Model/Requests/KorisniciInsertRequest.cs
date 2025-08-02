@@ -14,10 +14,12 @@ namespace CineMatic.Model.Requests
 
         public string KorisnickoIme { get; set; } = null!;
 
-        public byte[]? Slika { get; set; }
+        public string? SlikaBase64 { get; set; }
 
         public string Lozinka { get; set; }
 
         public string LozinkaPotvrda { get; set; }
+
+        public List<int> UlogaId { get; set; }
     }
 }

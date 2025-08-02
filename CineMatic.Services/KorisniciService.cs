@@ -50,6 +50,18 @@ namespace CineMatic.Services
             return query;
         }
 
+        public override Model.Korisnici GetById(int id)
+        {
+            var entity = Context.Korisnicis.Include(k => k.Ulogas).FirstOrDefault(k => k.Id == id);
+
+            if (entity == null)
+            {
+                return null;
+            }
+
+            return Mapper.Map<Model.Korisnici>(entity);
+        }
+
         public override void BeforeInsert(KorisniciInsertRequest request, Database.Korisnici entity)
         {
             if (request.Lozinka != request.LozinkaPotvrda)
@@ -59,6 +71,20 @@ namespace CineMatic.Services
 
             entity.PasswordSalt = GenerateSalt();
             entity.PasswordHash = GenerateHash(entity.PasswordSalt, request.LozinkaPotvrda);
+
+            if (!string.IsNullOrEmpty(request.SlikaBase64))
+            {
+                entity.Slika = Convert.FromBase64String(request.SlikaBase64);
+            }
+
+            foreach (var ulogaId in request.UlogaId)
+            {
+                var uloga = Context.Uloges.FirstOrDefault(u => u.Id == ulogaId);
+                if (uloga == null)
+                    throw new Exception($"Uloga sa ID {ulogaId} nije pronadjena");
+
+                entity.Ulogas.Add(uloga);
+            }
 
             base.BeforeInsert(request, entity);
         }
@@ -94,6 +120,24 @@ namespace CineMatic.Services
 
                 entity.PasswordSalt = GenerateSalt();
                 entity.PasswordHash = GenerateHash(entity.PasswordSalt, request.Lozinka);
+            }
+
+            if (!string.IsNullOrEmpty(request.SlikaBase64))
+            {
+                entity.Slika = Convert.FromBase64String(request.SlikaBase64);
+            }
+
+            if(request.UlogaId != null)
+            {
+                entity.Ulogas.Clear();
+                foreach (var ulogaId in request.UlogaId)
+                {
+                    var uloga = Context.Uloges.FirstOrDefault(u => u.Id == ulogaId);
+                    if (uloga == null)
+                        throw new Exception($"Uloga sa ID {ulogaId} nije pronadjena");
+
+                    entity.Ulogas.Add(uloga);
+                }
             }
         }
     }

@@ -17,7 +17,7 @@ namespace CineMatic.Model
 
         public string? Email { get; set; }
 
-        public byte[]? Slika { get; set; }
+        public string? SlikaBase64 { get; set; }
 
         public virtual ICollection<Uloge> Ulogas { get; set; } = new List<Uloge>();
     }
