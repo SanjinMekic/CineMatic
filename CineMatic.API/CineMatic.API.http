@@ -1,0 +1,6 @@
+@CineMatic.API_HostAddress = http://localhost:5219
+
+GET {{CineMatic.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
