@@ -1,4 +1,4 @@
-using CineMatic.Services;
+ï»¿using CineMatic.Services;
 using CineMatic.Services.Database;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
@@ -6,12 +6,13 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddTransient<ISjedištumService, SjedištumService>();
-builder.Services.AddTransient<IŽanroviService, ŽanroviService>();
+builder.Services.AddTransient<ISjediÅ¡tumService, SjediÅ¡tumService>();
+builder.Services.AddTransient<IÅ½anroviService, Å½anroviService>();
 builder.Services.AddTransient<IDobneRestrikcijeService, DobneRestrikcijeService>();
 builder.Services.AddTransient<IFAQKategorijeService, FAQKategorijeService>();
 builder.Services.AddTransient<IFAQsService, FAQsService>();
 builder.Services.AddTransient<IKorisniciService, KorisniciService>();
+builder.Services.AddTransient<IKategorijeHraneIpiÄ‡aService, KategorijeHraneIpiÄ‡aService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
