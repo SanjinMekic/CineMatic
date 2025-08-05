@@ -3,6 +3,7 @@ using CineMatic.Model.Requests;
 using CineMatic.Model.SearchObject;
 using CineMatic.Services.Database;
 using MapsterMapper;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,7 +26,26 @@ namespace CineMatic.Services
                 filteredQuery = query.Where(x => x.Pitanje.Contains(search.PitanjeOdgovorGTE) || x.Odgovor.Contains(search.PitanjeOdgovorGTE));
             }
 
+            filteredQuery = filteredQuery.Include(x => x.Kategorija);
+
             return filteredQuery;
+        }
+
+        public override void BeforeInsert(FAQsUpsertRequest request, Database.Faq entity)
+        {
+            base.BeforeInsert(request, entity);
+
+            var kategorija = Context.Faqkategorijes.FirstOrDefault(u => u.Id == request.KategorijaId);
+            if (kategorija == null)
+                throw new Exception($"Kategorija sa ID {request.KategorijaId} nije pronađena");
+        }
+
+        public override void BeforeUpdate(FAQsUpsertRequest request, Database.Faq entity)
+        {
+            base.BeforeUpdate(request, entity);
+            var kategorija = Context.Faqkategorijes.FirstOrDefault(u => u.Id == request.KategorijaId);
+            if (kategorija == null)
+                throw new Exception($"Kategorija sa ID {request.KategorijaId} nije pronađena");
         }
     }
 }
