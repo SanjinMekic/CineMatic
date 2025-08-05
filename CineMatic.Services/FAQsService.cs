@@ -11,12 +11,12 @@ using System.Threading.Tasks;
 
 namespace CineMatic.Services
 {
-    public class FAQsService : BaseCRUDService<FAQs, FAQsSearchObject, Faq, FAQsUpsertRequest, FAQsUpsertRequest>, IFAQsService
+    public class FAQsService : BaseCRUDService<Model.Faq, FAQsSearchObject, Database.Faq, FAQsUpsertRequest, FAQsUpsertRequest>, IFAQsService
     {
         public FAQsService(Ib210083Context context, IMapper mapper) : base(context, mapper)
         {
         }
-        public override IQueryable<Faq> AddFilter(FAQsSearchObject search, IQueryable<Faq> query)
+        public override IQueryable<Database.Faq> AddFilter(FAQsSearchObject search, IQueryable<Database.Faq> query)
         {
             var filteredQuery = base.AddFilter(search, query);
 

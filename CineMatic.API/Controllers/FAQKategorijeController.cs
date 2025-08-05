@@ -8,7 +8,7 @@ namespace CineMatic.API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class FAQKategorijeController : BaseCRUDController<FAQKategorije, FAQKategorijeSearchObject, FAQKategorijeUpsertRequest, FAQKategorijeUpsertRequest>
+    public class FAQKategorijeController : BaseCRUDController<Faqkategorije, FAQKategorijeSearchObject, FAQKategorijeUpsertRequest, FAQKategorijeUpsertRequest>
     {
         public FAQKategorijeController(IFAQKategorijeService service) : base(service)
         {

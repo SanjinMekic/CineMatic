@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CineMatic.Services
 {
-    public interface IFAQKategorijeService : ICRUDService<FAQKategorije, FAQKategorijeSearchObject, FAQKategorijeUpsertRequest, FAQKategorijeUpsertRequest>
+    public interface IFAQKategorijeService : ICRUDService<Faqkategorije, FAQKategorijeSearchObject, FAQKategorijeUpsertRequest, FAQKategorijeUpsertRequest>
     {
     }
 }
