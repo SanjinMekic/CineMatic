@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CineMatic.Model.Requests
 {
-    public partial class SaleUpsertRequest
+    public partial class SjedištumUpsertRequest
     {
         public string Naziv { get; set; }
     }
