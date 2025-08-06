@@ -50,6 +50,17 @@ namespace CineMatic.Services
             {
                 entity.Slika = Convert.FromBase64String(request.SlikaBase64);
             }
+
+            var kategorija = Context.KategorijeHraneIpićas.FirstOrDefault(u => u.Id == request.KategorijaId);
+            if (kategorija == null)
+                throw new Exception($"Kategorija sa ID {request.KategorijaId} nije pronađena");
+        }
+
+        public override void BeforeUpdate(HraneIpićaUpdateRequest request, HraneIpića entity)
+        {
+            var kategorija = Context.KategorijeHraneIpićas.FirstOrDefault(u => u.Id == request.KategorijaId);
+            if (kategorija == null)
+                throw new Exception($"Kategorija sa ID {request.KategorijaId} nije pronađena");
         }
     }
 }
