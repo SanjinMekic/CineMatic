@@ -206,9 +206,6 @@ public partial class Ib210083Context : DbContext
                 .HasMaxLength(100)
                 .IsUnicode(false);
             entity.Property(e => e.Opis).IsUnicode(false);
-            entity.Property(e => e.Type)
-                .HasMaxLength(50)
-                .IsUnicode(false);
 
             entity.HasOne(d => d.Kategorija).WithMany(p => p.HraneIpićas)
                 .HasForeignKey(d => d.KategorijaId)

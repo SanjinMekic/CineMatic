@@ -11,8 +11,6 @@ public partial class HraneIpića
 
     public string? Naziv { get; set; }
 
-    public string? Type { get; set; }
-
     public decimal? Cijena { get; set; }
 
     public string? Opis { get; set; }

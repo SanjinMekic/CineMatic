@@ -12,8 +12,6 @@ namespace CineMatic.Model
 
         public string? Naziv { get; set; }
 
-        public string? Type { get; set; }
-
         public decimal? Cijena { get; set; }
 
         public string? Opis { get; set; }
@@ -21,7 +19,5 @@ namespace CineMatic.Model
         public int? KoličinaUskladištu { get; set; }
 
         public virtual KategorijeHraneIpića? Kategorija { get; set; }
-
-        public virtual ICollection<Rezervacije> Rezervacijas { get; set; } = new List<Rezervacije>();
     }
 }
