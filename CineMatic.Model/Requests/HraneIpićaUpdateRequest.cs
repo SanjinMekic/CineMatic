@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace CineMatic.Model
+namespace CineMatic.Model.Requests
 {
-    public partial class HraneIpića
+    public class HraneIpićaUpdateRequest
     {
-        public int Id { get; set; }
-
         public int? KategorijaId { get; set; }
 
         public string? Naziv { get; set; }
@@ -17,8 +15,7 @@ namespace CineMatic.Model
         public string? Opis { get; set; }
 
         public int? KoličinaUskladištu { get; set; }
-        public string? SlikaBase64 { get; set; }
 
-        public virtual KategorijeHraneIpića? Kategorija { get; set; }
+        public string? SlikaBase64 { get; set; }
     }
 }
