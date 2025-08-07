@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace CineMatic.Model
+namespace CineMatic.Model.Requests
 {
-    public partial class Glumci
+    public class GlumciUpdateRequest
     {
-        public int Id { get; set; }
-
         public string? Ime { get; set; }
 
         public string? Prezime { get; set; }
