@@ -50,16 +50,38 @@ namespace CineMatic.Services
             return query;
         }
 
+        public override PagedResult<Model.Korisnici> GetPaged(KorisniciSearchObject search)
+        {
+            var pagedKorisnici = base.GetPaged(search);
+
+            foreach (var korisnik in pagedKorisnici.ResultList)
+            {
+                var databaseKorisnik = Context.Set<Database.Korisnici>().Find(korisnik.Id);
+                if (databaseKorisnik != null)
+                {
+                    korisnik.SlikaBase64 = databaseKorisnik.Slika != null ? Convert.ToBase64String(databaseKorisnik.Slika) : null;
+                }
+            }
+
+            return pagedKorisnici;
+        }
+
         public override Model.Korisnici GetById(int id)
         {
             var entity = Context.Korisnicis.Include(k => k.Ulogas).FirstOrDefault(k => k.Id == id);
 
-            if (entity == null)
+            if (entity != null)
+            {
+                var model = Mapper.Map<Model.Korisnici>(entity);    
+
+                model.SlikaBase64 = entity.Slika != null ? Convert.ToBase64String(entity.Slika) : null;
+
+                return model;
+            }
+            else
             {
                 return null;
             }
-
-            return Mapper.Map<Model.Korisnici>(entity);
         }
 
         public override void BeforeInsert(KorisniciInsertRequest request, Database.Korisnici entity)

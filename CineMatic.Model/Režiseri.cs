@@ -16,6 +16,6 @@ namespace CineMatic.Model
 
         public string? Opis { get; set; }
 
-        public byte[]? Slika { get; set; }
+        public string? SlikaBase64 { get; set; }
     }
 }
