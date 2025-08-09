@@ -16,6 +16,7 @@ builder.Services.AddTransient<IKategorijeHraneIpićaService, KategorijeHraneIpi�
 builder.Services.AddTransient<ISaleService, SaleService>();
 builder.Services.AddTransient<IHraneIpićaService, HraneIpićaService>();
 builder.Services.AddTransient<IGlumciService, GlumciService>();
+builder.Services.AddTransient<IRežiseriService, RežiseriService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

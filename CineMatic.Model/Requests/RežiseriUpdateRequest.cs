@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace CineMatic.Model
+namespace CineMatic.Model.Requests
 {
-    public partial class Režiseri
+    public class RežiseriUpdateRequest
     {
-        public int Id { get; set; }
-
         public string? Ime { get; set; }
 
         public string? Prezime { get; set; }
@@ -16,6 +14,6 @@ namespace CineMatic.Model
 
         public string? Opis { get; set; }
 
-        public byte[]? Slika { get; set; }
+        public string? SlikaBase64 { get; set; }
     }
 }
