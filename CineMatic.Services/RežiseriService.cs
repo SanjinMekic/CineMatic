@@ -67,6 +67,48 @@ namespace CineMatic.Services
             }
         }
 
+        public override Model.Režiseri Insert(RežiseriInsertRequest request)
+        {
+            var entity = Mapper.Map<Database.Režiseri>(request);
+
+            BeforeInsert(request, entity);
+
+            Context.Add(entity);
+            Context.SaveChanges();
+
+            var model = Mapper.Map<Model.Režiseri>(entity);
+
+            model.SlikaBase64 = entity.Slika != null
+                ? Convert.ToBase64String(entity.Slika)
+                : null;
+
+            return model;
+        }
+
+        public override Model.Režiseri Update(int id, RežiseriUpdateRequest request)
+        {
+            var set = Context.Set<Database.Režiseri>();
+
+            var entity = set.Find(id);
+
+            if (entity == null)
+                return null;
+
+            Mapper.Map(request, entity);
+
+            BeforeUpdate(request, entity);
+
+            Context.SaveChanges();
+
+            var model = Mapper.Map<Model.Režiseri>(entity);
+
+            model.SlikaBase64 = entity.Slika != null
+                ? Convert.ToBase64String(entity.Slika)
+                : null;
+
+            return model;
+        }
+
         public override void BeforeInsert(RežiseriInsertRequest request, Režiseri entity)
         {
             if (!string.IsNullOrEmpty(request.SlikaBase64))

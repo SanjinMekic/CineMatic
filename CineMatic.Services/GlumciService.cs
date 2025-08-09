@@ -67,6 +67,48 @@ namespace CineMatic.Services
             }
         }
 
+        public override Model.Glumci Insert(GLumciInsertRequest request)
+        {
+            var entity = Mapper.Map<Database.Glumci>(request);
+
+            BeforeInsert(request, entity);
+
+            Context.Add(entity);
+            Context.SaveChanges();
+
+            var model = Mapper.Map<Model.Glumci>(entity);
+
+            model.SlikaBase64 = entity.Slika != null
+                ? Convert.ToBase64String(entity.Slika)
+                : null;
+
+            return model;
+        }
+
+        public override Model.Glumci Update(int id, GlumciUpdateRequest request)
+        {
+            var set = Context.Set<Database.Glumci>();
+
+            var entity = set.Find(id);
+
+            if (entity == null)
+                return null;
+
+            Mapper.Map(request, entity);
+
+            BeforeUpdate(request, entity);
+
+            Context.SaveChanges();
+
+            var model = Mapper.Map<Model.Glumci>(entity);
+
+            model.SlikaBase64 = entity.Slika != null
+                ? Convert.ToBase64String(entity.Slika)
+                : null;
+
+            return model;
+        }
+
         public override void BeforeInsert(GLumciInsertRequest request, Glumci entity)
         {
             if (!string.IsNullOrEmpty(request.SlikaBase64))

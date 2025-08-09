@@ -79,6 +79,48 @@ namespace CineMatic.Services
             }
         }
 
+        public override Model.HraneIpića Insert(HraneIpićaInsertRequest request)
+        {
+            var entity = Mapper.Map<Database.HraneIpića>(request);
+
+            BeforeInsert(request, entity);
+
+            Context.Add(entity);
+            Context.SaveChanges();
+
+            var model = Mapper.Map<Model.HraneIpića>(entity);
+
+            model.SlikaBase64 = entity.Slika != null
+                ? Convert.ToBase64String(entity.Slika)
+                : null;
+
+            return model;
+        }
+
+        public override Model.HraneIpića Update(int id, HraneIpićaUpdateRequest request)
+        {
+            var set = Context.Set<Database.HraneIpića>();
+
+            var entity = set.Find(id);
+
+            if (entity == null)
+                return null;
+
+            Mapper.Map(request, entity);
+
+            BeforeUpdate(request, entity);
+
+            Context.SaveChanges();
+
+            var model = Mapper.Map<Model.HraneIpića>(entity);
+
+            model.SlikaBase64 = entity.Slika != null
+                ? Convert.ToBase64String(entity.Slika)
+                : null;
+
+            return model;
+        }
+
         public override void BeforeInsert(HraneIpićaInsertRequest request, HraneIpića entity)
         {
             if (!string.IsNullOrEmpty(request.SlikaBase64))
@@ -93,9 +135,14 @@ namespace CineMatic.Services
 
         public override void BeforeUpdate(HraneIpićaUpdateRequest request, HraneIpića entity)
         {
-            var kategorija = Context.KategorijeHraneIpićas.FirstOrDefault(u => u.Id == request.KategorijaId);
-            if (kategorija == null)
-                throw new Exception($"Kategorija sa ID {request.KategorijaId} nije pronađena");
+            if (request.KategorijaId.HasValue)
+            {
+                var kategorija = Context.KategorijeHraneIpićas
+                    .FirstOrDefault(u => u.Id == request.KategorijaId.Value);
+
+                if (kategorija == null)
+                    throw new Exception($"Kategorija sa ID {request.KategorijaId} nije pronađena");
+            }
         }
     }
 }

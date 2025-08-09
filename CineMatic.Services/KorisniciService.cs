@@ -84,6 +84,48 @@ namespace CineMatic.Services
             }
         }
 
+        public override Model.Korisnici Insert(KorisniciInsertRequest request)
+        {
+            var entity = Mapper.Map<Database.Korisnici>(request);
+
+            BeforeInsert(request, entity);
+
+            Context.Add(entity);
+            Context.SaveChanges();
+
+            var model = Mapper.Map<Model.Korisnici>(entity);
+
+            model.SlikaBase64 = entity.Slika != null
+                ? Convert.ToBase64String(entity.Slika)
+                : null;
+
+            return model;
+        }
+
+        public override Model.Korisnici Update(int id, KorisniciUpdateRequest request)
+        {
+            var set = Context.Set<Database.Korisnici>();
+
+            var entity = set.Find(id);
+
+            if (entity == null)
+                return null;
+
+            Mapper.Map(request, entity);
+
+            BeforeUpdate(request, entity);
+
+            Context.SaveChanges();
+
+            var model = Mapper.Map<Model.Korisnici>(entity);
+
+            model.SlikaBase64 = entity.Slika != null
+                ? Convert.ToBase64String(entity.Slika)
+                : null;
+
+            return model;
+        }
+
         public override void BeforeInsert(KorisniciInsertRequest request, Database.Korisnici entity)
         {
             if (request.Lozinka != request.LozinkaPotvrda)
