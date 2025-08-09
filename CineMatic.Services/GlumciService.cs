@@ -33,6 +33,40 @@ namespace CineMatic.Services
             return filteredQuery;
         }
 
+        public override Model.PagedResult<Model.Glumci> GetPaged(GlumciSearchObject search)
+        {
+            var pagedGlumci = base.GetPaged(search);
+
+            foreach (var glumac in pagedGlumci.ResultList)
+            {
+                var databaseGlumac = Context.Set<Database.Glumci>().Find(glumac.Id);
+                if(databaseGlumac != null)
+                {
+                    glumac.SlikaBase64 = databaseGlumac.Slika != null ? Convert.ToBase64String(databaseGlumac.Slika) : null;
+                }
+            }
+
+            return pagedGlumci;
+        }
+
+        public override Model.Glumci GetById(int id)
+        {
+            var entity = Context.Set<Database.Glumci>().Find(id);
+
+            if(entity != null)
+            {
+                var model = Mapper.Map<Model.Glumci>(entity);
+
+                model.SlikaBase64 = entity.Slika != null ? Convert.ToBase64String(entity.Slika) : null;
+
+                return model;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         public override void BeforeInsert(GLumciInsertRequest request, Glumci entity)
         {
             if (!string.IsNullOrEmpty(request.SlikaBase64))

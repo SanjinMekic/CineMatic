@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 
 namespace CineMatic.Services
 {
@@ -42,6 +43,40 @@ namespace CineMatic.Services
             }
 
             return query;
+        }
+
+        public override Model.PagedResult<Model.HraneIpića> GetPaged(HraneIpićaSearchObject search)
+        {
+            var pagedHraneIpića = base.GetPaged(search);
+
+            foreach (var hraneIpića in pagedHraneIpića.ResultList)
+            {
+                var databaseHraneIpića = Context.Set<Database.HraneIpića>().Find(hraneIpića.Id);
+                if (databaseHraneIpića != null)
+                {
+                    hraneIpića.SlikaBase64 = databaseHraneIpića.Slika != null ? Convert.ToBase64String(databaseHraneIpića.Slika) : null;
+                }
+            }
+
+            return pagedHraneIpića;
+        }
+
+        public override Model.HraneIpića GetById(int id)
+        {
+            var entity = Context.Set<Database.HraneIpića>().Include(x => x.Kategorija).FirstOrDefault(x => x.Id == id);
+
+            if (entity != null)
+            {
+                var model = Mapper.Map<Model.HraneIpića>(entity);
+
+                model.SlikaBase64 = entity.Slika != null ? Convert.ToBase64String(entity.Slika) : null;
+
+                return model;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         public override void BeforeInsert(HraneIpićaInsertRequest request, HraneIpića entity)
