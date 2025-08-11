@@ -20,15 +20,6 @@ namespace CineMatic.Model
 
         public virtual DobneRestrikcije? DobnaRestrikcija { get; set; }
 
-        public virtual ICollection<Projekcije> Projekcijes { get; set; } = new List<Projekcije>();
-
-        public virtual ICollection<Rezencije> Rezencijes { get; set; } = new List<Rezencije>();
-
-        public virtual ICollection<Glumci> Glumacs { get; set; } = new List<Glumci>();
-
-        public virtual ICollection<Režiseri> Režisers { get; set; } = new List<Režiseri>();
-
-        public virtual ICollection<Žanrovi> Žanrs { get; set; } = new List<Žanrovi>();
     }
 
 }
