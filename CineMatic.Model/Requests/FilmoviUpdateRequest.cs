@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace CineMatic.Model
+namespace CineMatic.Model.Requests
 {
-    public partial class Filmovi
+    public class FilmoviUpdateRequest
     {
-        public int Id { get; set; }
-
         public string? Naziv { get; set; }
 
         public int? Trajanje { get; set; }
@@ -17,7 +15,5 @@ namespace CineMatic.Model
         public string? SlikaBase64 { get; set; }
 
         public int? DobnaRestrikcijaId { get; set; }
-
-        public virtual DobneRestrikcije? DobnaRestrikcija { get; set; }
     }
 }
