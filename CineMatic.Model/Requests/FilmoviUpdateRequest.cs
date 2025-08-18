@@ -15,5 +15,9 @@ namespace CineMatic.Model.Requests
         public string? SlikaBase64 { get; set; }
 
         public int? DobnaRestrikcijaId { get; set; }
+
+        public List<int>? GlumciID { get; set; }
+        public List<int>? RežiseriID { get; set; }
+        public List<int>? ŽanroviID { get; set; }
     }
 }

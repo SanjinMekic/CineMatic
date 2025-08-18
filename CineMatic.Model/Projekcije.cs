@@ -24,10 +24,6 @@ namespace CineMatic.Model
 
         public virtual NačiniPrikazivanja? NačinProjekcije { get; set; }
 
-        public virtual ICollection<ProjekcijeSjedištum> ProjekcijeSjedišta { get; set; } = new List<ProjekcijeSjedištum>();
-
-        public virtual ICollection<Rezervacije> Rezervacijes { get; set; } = new List<Rezervacije>();
-
         public virtual Sale? Sala { get; set; }
     }
 }

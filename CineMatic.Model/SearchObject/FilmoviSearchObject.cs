@@ -8,5 +8,8 @@ namespace CineMatic.Model.SearchObject
     {
         public string? NazivGTE { get; set; }
         public bool? isDobneRestrikcijeIncluded { get; set; }
+        public bool? isGlumciIncluded { get; set; }
+        public bool? isRežiseriIncluded { get; set; }
+        public bool? isŽanroviIncluded { get; set; }
     }
 }
