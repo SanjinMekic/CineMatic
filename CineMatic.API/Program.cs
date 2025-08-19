@@ -21,6 +21,8 @@ builder.Services.AddTransient<IUlogeService, UlogeService>();
 builder.Services.AddTransient<INačiniPrikazivanjaService, NačiniPrikazivanjaService>();
 builder.Services.AddTransient<IRecenzijeService, RecenzijeService>();
 builder.Services.AddTransient<IFilmoviService, FilmoviService>();
+builder.Services.AddTransient<IProjekcijeService, ProjekcijeService>();
+builder.Services.AddTransient<IProjekcijeSjedištumService, ProjekcijeSjedištumService>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
