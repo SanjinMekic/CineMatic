@@ -24,6 +24,9 @@ builder.Services.AddTransient<IFilmoviService, FilmoviService>();
 builder.Services.AddTransient<IProjekcijeService, ProjekcijeService>();
 builder.Services.AddTransient<IProjekcijeSjedištumService, ProjekcijeSjedištumService>();
 
+var stripeSecretKey = builder.Configuration["Stripe:SecretKey"];
+builder.Services.AddTransient(sp => new UplateService(stripeSecretKey, sp.GetRequiredService<Ib210083Context>()));
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
