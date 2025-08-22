@@ -13,5 +13,16 @@ namespace CineMatic.API.Controllers
         public KorisniciController(IKorisniciService service) : base(service)
         {
         }
+
+        [HttpPost("login")]
+        public ActionResult<Model.Korisnici> Login([FromBody] LoginRequest loginRequest)
+        {
+            var user = (_service as IKorisniciService).Login(loginRequest.Username, loginRequest.Password);
+            if (user == null)
+            {
+                return Unauthorized("Pogresno korisnicko ime ili lozinka");
+            }
+            return Ok(user);
+        }
     }
 }

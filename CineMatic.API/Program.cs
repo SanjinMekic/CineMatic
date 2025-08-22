@@ -1,6 +1,8 @@
-﻿using CineMatic.Services;
+﻿using CineMatic.API;
+using CineMatic.Services;
 using CineMatic.Services.Database;
 using Mapster;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -27,6 +29,8 @@ builder.Services.AddTransient<IProjekcijeSjedištumService, ProjekcijeSjedištum
 var stripeSecretKey = builder.Configuration["Stripe:SecretKey"];
 builder.Services.AddTransient(sp => new UplateService(stripeSecretKey, sp.GetRequiredService<Ib210083Context>()));
 
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -36,6 +40,9 @@ var connectionString = builder.Configuration.GetConnectionString("CineMaticConne
 builder.Services.AddDbContext<Ib210083Context>(options => options.UseSqlServer(connectionString));
 builder.Services.AddMapster();
 TypeAdapterConfig.GlobalSettings.Default.IgnoreNullValues(true);
+
+builder.Services.AddAuthentication("BasicAuthentication")
+    .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("BasicAuthentication", null);
 
 var app = builder.Build();
 

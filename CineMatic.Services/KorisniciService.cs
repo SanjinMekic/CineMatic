@@ -3,10 +3,12 @@ using CineMatic.Model.Requests;
 using CineMatic.Model.SearchObject;
 using CineMatic.Services.Database;
 using MapsterMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,8 +17,10 @@ namespace CineMatic.Services
 {
     public class KorisniciService : BaseCRUDService<Model.Korisnici, KorisniciSearchObject, Database.Korisnici, KorisniciInsertRequest, KorisniciUpdateRequest>, IKorisniciService
     {
-        public KorisniciService(Ib210083Context context, IMapper mapper) : base(context, mapper)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public KorisniciService(Ib210083Context context, IMapper mapper, IHttpContextAccessor httpContextAccessor) : base(context, mapper)
         {
+            httpContextAccessor = _httpContextAccessor;
         }
 
         public override IQueryable<Database.Korisnici> AddFilter(KorisniciSearchObject search, IQueryable<Database.Korisnici> query)
@@ -203,6 +207,38 @@ namespace CineMatic.Services
                     entity.Ulogas.Add(uloga);
                 }
             }
+        }
+
+        public Model.Korisnici Login(string username, string password)
+        {
+            var entity = Context.Korisnicis.Include(x => x.Ulogas).FirstOrDefault(x => x.KorisnickoIme == username);
+
+            if (entity == null)
+                return null;
+
+            var hash = GenerateHash(entity.PasswordSalt, password);
+
+            if (hash != entity.PasswordHash)
+                return null;
+
+            return this.Mapper.Map<Model.Korisnici>(entity);
+        }
+
+        public int GetCurrentUserId()
+        {
+            var username = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(username))
+            {
+                throw new UnauthorizedAccessException("Korisnik nije autentifikovan.");
+            }
+
+            var user = Context.Korisnicis.FirstOrDefault(u => u.KorisnickoIme == username);
+            if (user == null)
+            {
+                throw new UnauthorizedAccessException("Korisnik nije pronadjen.");
+            }
+
+            return user.Id;
         }
     }
 }
