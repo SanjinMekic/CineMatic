@@ -1,16 +1,19 @@
 ﻿using CineMatic.Model;
+using CineMatic.Model.Messages;
 using CineMatic.Model.Requests;
 using CineMatic.Model.SearchObject;
 using CineMatic.Services.Database;
 using MapsterMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using RabbitMQ.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace CineMatic.Services
@@ -18,9 +21,11 @@ namespace CineMatic.Services
     public class KorisniciService : BaseCRUDService<Model.Korisnici, KorisniciSearchObject, Database.Korisnici, KorisniciInsertRequest, KorisniciUpdateRequest>, IKorisniciService
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public KorisniciService(Ib210083Context context, IMapper mapper, IHttpContextAccessor httpContextAccessor) : base(context, mapper)
+        private readonly IConnectionFactory _rabbitMqConnectionFactory;
+        public KorisniciService(Ib210083Context context, IMapper mapper, IHttpContextAccessor httpContextAccessor, IConnectionFactory rabbitMqConnectionFactory) : base(context, mapper)
         {
             httpContextAccessor = _httpContextAccessor;
+            _rabbitMqConnectionFactory = rabbitMqConnectionFactory;
         }
 
         public override IQueryable<Database.Korisnici> AddFilter(KorisniciSearchObject search, IQueryable<Database.Korisnici> query)
@@ -88,6 +93,33 @@ namespace CineMatic.Services
             }
         }
 
+        private void PublishRegistrationEvent(Model.Korisnici user)
+        {
+            using var connection = _rabbitMqConnectionFactory.CreateConnection();
+            using var channel = connection.CreateModel();
+
+            channel.QueueDeclare(queue: "user-registration",
+                                 durable: false,
+                                 exclusive: false,
+                                 autoDelete: false,
+                                 arguments: null);
+
+            var message = new UserRegistrationMessage
+            {
+                Email = user.Email,
+                Name = user.Ime
+            };
+
+            string serializedMessage = JsonSerializer.Serialize(message);
+            var body = Encoding.UTF8.GetBytes(serializedMessage);
+
+            channel.BasicPublish(exchange: "",
+                                 routingKey: "user-registration",
+                                 basicProperties: null,
+                                 body: body);
+
+        }
+
         public override Model.Korisnici Insert(KorisniciInsertRequest request)
         {
             var entity = Mapper.Map<Database.Korisnici>(request);
@@ -102,6 +134,8 @@ namespace CineMatic.Services
             model.SlikaBase64 = entity.Slika != null
                 ? Convert.ToBase64String(entity.Slika)
                 : null;
+
+            PublishRegistrationEvent(model);
 
             return model;
         }

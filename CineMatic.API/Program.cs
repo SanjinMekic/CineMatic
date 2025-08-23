@@ -4,8 +4,20 @@ using CineMatic.Services.Database;
 using Mapster;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
+using RabbitMQ.Client;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddSingleton<IConnectionFactory>(sp =>
+{
+    var hostname = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost";
+    return new ConnectionFactory()
+    {
+        HostName = hostname,
+        RequestedHeartbeat = TimeSpan.FromSeconds(60),
+        AutomaticRecoveryEnabled = true
+    };
+});
 
 // Add services to the container.
 builder.Services.AddTransient<ISjedištumService, SjedištumService>();

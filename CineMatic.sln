@@ -3,18 +3,20 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34728.123
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CineMatic.API", "CineMatic.API\CineMatic.API.csproj", "{5DCB1568-43F1-4180-8E8F-A521A250921A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CineMatic.API", "CineMatic.API\CineMatic.API.csproj", "{5DCB1568-43F1-4180-8E8F-A521A250921A}"
 	ProjectSection(ProjectDependencies) = postProject
 		{2CCB278B-97B4-40A5-8FA3-782380FC49D4} = {2CCB278B-97B4-40A5-8FA3-782380FC49D4}
 		{69A9A7E6-4417-4765-BB86-E0394251B723} = {69A9A7E6-4417-4765-BB86-E0394251B723}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CineMatic.Model", "CineMatic.Model\CineMatic.Model.csproj", "{69A9A7E6-4417-4765-BB86-E0394251B723}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CineMatic.Model", "CineMatic.Model\CineMatic.Model.csproj", "{69A9A7E6-4417-4765-BB86-E0394251B723}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CineMatic.Services", "CineMatic.Services\CineMatic.Services.csproj", "{2CCB278B-97B4-40A5-8FA3-782380FC49D4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CineMatic.Services", "CineMatic.Services\CineMatic.Services.csproj", "{2CCB278B-97B4-40A5-8FA3-782380FC49D4}"
 	ProjectSection(ProjectDependencies) = postProject
 		{69A9A7E6-4417-4765-BB86-E0394251B723} = {69A9A7E6-4417-4765-BB86-E0394251B723}
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CineMatic.EmailService", "CineMatic.EmailService\CineMatic.EmailService.csproj", "{4CF29DDF-0B7F-49B4-B1E1-40EAEEBA9470}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,6 +36,10 @@ Global
 		{2CCB278B-97B4-40A5-8FA3-782380FC49D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2CCB278B-97B4-40A5-8FA3-782380FC49D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2CCB278B-97B4-40A5-8FA3-782380FC49D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4CF29DDF-0B7F-49B4-B1E1-40EAEEBA9470}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4CF29DDF-0B7F-49B4-B1E1-40EAEEBA9470}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4CF29DDF-0B7F-49B4-B1E1-40EAEEBA9470}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4CF29DDF-0B7F-49B4-B1E1-40EAEEBA9470}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
