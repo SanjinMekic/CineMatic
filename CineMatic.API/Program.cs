@@ -10,6 +10,11 @@ using RabbitMQ.Client;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(5219); // http bez https-a
+});
+
 builder.Services.AddSingleton<IConnectionFactory>(sp =>
 {
     var hostname = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "localhost";
