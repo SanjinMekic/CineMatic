@@ -21,7 +21,7 @@ public partial class Korisnici
 
     public string? PasswordHash { get; set; }
 
-    public virtual ICollection<Rezencije> Rezencijes { get; set; } = new List<Rezencije>();
+    public virtual ICollection<Recenzije> Recenzijes { get; set; } = new List<Recenzije>();
 
     public virtual ICollection<Rezervacije> Rezervacijes { get; set; } = new List<Rezervacije>();
 

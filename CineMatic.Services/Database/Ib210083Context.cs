@@ -37,9 +37,11 @@ public partial class Ib210083Context : DbContext
 
     public virtual DbSet<ProjekcijeSjedištum> ProjekcijeSjedišta { get; set; }
 
-    public virtual DbSet<Rezencije> Rezencijes { get; set; }
+    public virtual DbSet<Recenzije> Recenzijes { get; set; }
 
     public virtual DbSet<Rezervacije> Rezervacijes { get; set; }
+
+    public virtual DbSet<RezervacijeHraneIpića> RezervacijeHraneIpićas { get; set; }
 
     public virtual DbSet<RezervacijeSjedištum> RezervacijeSjedišta { get; set; }
 
@@ -63,41 +65,36 @@ public partial class Ib210083Context : DbContext
     {
         modelBuilder.Entity<DobneRestrikcije>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__DobneRes__3214EC278A8E9A24");
+            entity.HasKey(e => e.Id).HasName("PK__DobneRes__3214EC27EB3B297F");
 
             entity.ToTable("DobneRestrikcije");
 
             entity.Property(e => e.Id).HasColumnName("ID");
-            entity.Property(e => e.Opis).IsUnicode(false);
-            entity.Property(e => e.Restrikcija)
-                .HasMaxLength(10)
-                .IsUnicode(false);
+            entity.Property(e => e.Restrikcija).HasMaxLength(10);
         });
 
         modelBuilder.Entity<Faq>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__FAQs__3214EC27E1E22682");
+            entity.HasKey(e => e.Id).HasName("PK__FAQs__3214EC27CDE5B83F");
 
             entity.ToTable("FAQs");
 
             entity.Property(e => e.Id).HasColumnName("ID");
             entity.Property(e => e.KategorijaId).HasColumnName("KategorijaID");
-            entity.Property(e => e.Odgovor).IsUnicode(false);
-            entity.Property(e => e.Pitanje).IsUnicode(false);
 
             entity.HasOne(d => d.Kategorija).WithMany(p => p.Faqs)
                 .HasForeignKey(d => d.KategorijaId)
                 .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK__FAQs__Kategorija__00200768");
+                .HasConstraintName("FK__FAQs__Kategorija__01142BA1");
         });
 
         modelBuilder.Entity<Faqkategorije>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__FAQKateg__3214EC278C0F5E3D");
+            entity.HasKey(e => e.Id).HasName("PK__FAQKateg__3214EC27C4CA802A");
 
             entity.ToTable("FAQKategorije");
 
-            entity.HasIndex(e => e.Naziv, "UQ__FAQKateg__603E81464DE608F7").IsUnique();
+            entity.HasIndex(e => e.Naziv, "UQ__FAQKateg__603E8146801BB03E").IsUnique();
 
             entity.Property(e => e.Id).HasColumnName("ID");
             entity.Property(e => e.Naziv)
@@ -107,16 +104,13 @@ public partial class Ib210083Context : DbContext
 
         modelBuilder.Entity<Filmovi>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Filmovi__3214EC27EE93C9FD");
+            entity.HasKey(e => e.Id).HasName("PK__Filmovi__3214EC27FBFA0D8C");
 
             entity.ToTable("Filmovi");
 
             entity.Property(e => e.Id).HasColumnName("ID");
             entity.Property(e => e.DobnaRestrikcijaId).HasColumnName("DobnaRestrikcijaID");
-            entity.Property(e => e.Naziv)
-                .HasMaxLength(100)
-                .IsUnicode(false);
-            entity.Property(e => e.Opis).IsUnicode(false);
+            entity.Property(e => e.Naziv).HasMaxLength(100);
 
             entity.HasOne(d => d.DobnaRestrikcija).WithMany(p => p.Filmovis)
                 .HasForeignKey(d => d.DobnaRestrikcijaId)
@@ -134,7 +128,7 @@ public partial class Ib210083Context : DbContext
                         .HasConstraintName("FK__FilmoviGl__FilmI__4BAC3F29"),
                     j =>
                     {
-                        j.HasKey("FilmId", "GlumacId").HasName("PK__FilmoviG__DA650C703AE8E7D0");
+                        j.HasKey("FilmId", "GlumacId").HasName("PK__FilmoviG__DA650C700805D8A1");
                         j.ToTable("FilmoviGlumci");
                         j.IndexerProperty<int>("FilmId").HasColumnName("FilmID");
                         j.IndexerProperty<int>("GlumacId").HasColumnName("GlumacID");
@@ -151,7 +145,7 @@ public partial class Ib210083Context : DbContext
                         .HasConstraintName("FK__FilmoviRe__FilmI__5165187F"),
                     j =>
                     {
-                        j.HasKey("FilmId", "RežiserId").HasName("PK__FilmoviR__DDCBEC4E99B67854");
+                        j.HasKey("FilmId", "RežiserId").HasName("PK__FilmoviR__DDCBEC4E35A2354A");
                         j.ToTable("FilmoviRežiseri");
                         j.IndexerProperty<int>("FilmId").HasColumnName("FilmID");
                         j.IndexerProperty<int>("RežiserId").HasColumnName("RežiserID");
@@ -168,7 +162,7 @@ public partial class Ib210083Context : DbContext
                         .HasConstraintName("FK__FilmoviŽa__FilmI__45F365D3"),
                     j =>
                     {
-                        j.HasKey("FilmId", "ŽanrId").HasName("PK__FilmoviŽ__3A8AE3102CD46D65");
+                        j.HasKey("FilmId", "ŽanrId").HasName("PK__FilmoviŽ__3A8AE31030E8A3EF");
                         j.ToTable("FilmoviŽanrovi");
                         j.IndexerProperty<int>("FilmId").HasColumnName("FilmID");
                         j.IndexerProperty<int>("ŽanrId").HasColumnName("ŽanrID");
@@ -177,24 +171,20 @@ public partial class Ib210083Context : DbContext
 
         modelBuilder.Entity<Glumci>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Glumci__3214EC277F6142F2");
+            entity.HasKey(e => e.Id).HasName("PK__Glumci__3214EC27771E84C4");
 
             entity.ToTable("Glumci");
 
             entity.Property(e => e.Id).HasColumnName("ID");
             entity.Property(e => e.DatumRodjenja).HasColumnType("datetime");
-            entity.Property(e => e.Ime)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+            entity.Property(e => e.Ime).HasMaxLength(50);
             entity.Property(e => e.Opis).IsUnicode(false);
-            entity.Property(e => e.Prezime)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+            entity.Property(e => e.Prezime).HasMaxLength(50);
         });
 
         modelBuilder.Entity<HraneIpića>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__HraneIPi__3214EC273CB590CD");
+            entity.HasKey(e => e.Id).HasName("PK__HraneIPi__3214EC278819989A");
 
             entity.ToTable("HraneIPića");
 
@@ -202,9 +192,7 @@ public partial class Ib210083Context : DbContext
             entity.Property(e => e.Cijena).HasColumnType("decimal(10, 2)");
             entity.Property(e => e.KategorijaId).HasColumnName("KategorijaID");
             entity.Property(e => e.KoličinaUskladištu).HasColumnName("KoličinaUSkladištu");
-            entity.Property(e => e.Naziv)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.Naziv).HasMaxLength(100);
             entity.Property(e => e.Opis).IsUnicode(false);
 
             entity.HasOne(d => d.Kategorija).WithMany(p => p.HraneIpićas)
@@ -214,19 +202,17 @@ public partial class Ib210083Context : DbContext
 
         modelBuilder.Entity<KategorijeHraneIpića>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Kategori__3214EC27A3A5AAAB");
+            entity.HasKey(e => e.Id).HasName("PK__Kategori__3214EC27A186A97E");
 
             entity.ToTable("KategorijeHraneIPića");
 
             entity.Property(e => e.Id).HasColumnName("ID");
-            entity.Property(e => e.Naziv)
-                .HasMaxLength(100)
-                .IsUnicode(false);
+            entity.Property(e => e.Naziv).HasMaxLength(100);
         });
 
         modelBuilder.Entity<Korisnici>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Korisnic__3214EC276731BE2E");
+            entity.HasKey(e => e.Id).HasName("PK__Korisnic__3214EC2710A3E7E3");
 
             entity.ToTable("Korisnici");
 
@@ -234,17 +220,11 @@ public partial class Ib210083Context : DbContext
             entity.Property(e => e.Email)
                 .HasMaxLength(100)
                 .IsUnicode(false);
-            entity.Property(e => e.Ime)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.KorisnickoIme)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+            entity.Property(e => e.Ime).HasMaxLength(50);
+            entity.Property(e => e.KorisnickoIme).HasMaxLength(50);
             entity.Property(e => e.PasswordHash).HasMaxLength(128);
             entity.Property(e => e.PasswordSalt).HasMaxLength(128);
-            entity.Property(e => e.Prezime)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+            entity.Property(e => e.Prezime).HasMaxLength(50);
 
             entity.HasMany(d => d.Ulogas).WithMany(p => p.Korisniks)
                 .UsingEntity<Dictionary<string, object>>(
@@ -257,7 +237,7 @@ public partial class Ib210083Context : DbContext
                         .HasConstraintName("FK__Korisnici__Koris__3B75D760"),
                     j =>
                     {
-                        j.HasKey("KorisnikId", "UlogaId").HasName("PK__Korisnic__2D7ADF5F9229CCE9");
+                        j.HasKey("KorisnikId", "UlogaId").HasName("PK__Korisnic__2D7ADF5FCF517FE3");
                         j.ToTable("KorisniciUloge");
                         j.IndexerProperty<int>("KorisnikId").HasColumnName("KorisnikID");
                         j.IndexerProperty<int>("UlogaId").HasColumnName("UlogaID");
@@ -266,19 +246,17 @@ public partial class Ib210083Context : DbContext
 
         modelBuilder.Entity<NačiniPrikazivanja>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__NačiniPr__3214EC27BEF46E98");
+            entity.HasKey(e => e.Id).HasName("PK__NačiniPr__3214EC27EFB314A2");
 
             entity.ToTable("NačiniPrikazivanja");
 
             entity.Property(e => e.Id).HasColumnName("ID");
-            entity.Property(e => e.Naziv)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+            entity.Property(e => e.Naziv).HasMaxLength(50);
         });
 
         modelBuilder.Entity<Projekcije>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Projekci__3214EC2746FA35AF");
+            entity.HasKey(e => e.Id).HasName("PK__Projekci__3214EC2754435A3E");
 
             entity.ToTable("Projekcije");
 
@@ -290,9 +268,7 @@ public partial class Ib210083Context : DbContext
             entity.Property(e => e.FilmId).HasColumnName("FilmID");
             entity.Property(e => e.NačinProjekcijeId).HasColumnName("NačinProjekcijeID");
             entity.Property(e => e.SalaId).HasColumnName("SalaID");
-            entity.Property(e => e.StateMachine)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+            entity.Property(e => e.Stanje).HasMaxLength(50);
 
             entity.HasOne(d => d.Film).WithMany(p => p.Projekcijes)
                 .HasForeignKey(d => d.FilmId)
@@ -312,7 +288,7 @@ public partial class Ib210083Context : DbContext
 
         modelBuilder.Entity<ProjekcijeSjedištum>(entity =>
         {
-            entity.HasKey(e => new { e.ProjekcijaId, e.SjedišteId }).HasName("PK__Projekci__75A0063C16B1CD20");
+            entity.HasKey(e => new { e.ProjekcijaId, e.SjedišteId }).HasName("PK__Projekci__75A0063CAEC53D95");
 
             entity.Property(e => e.ProjekcijaId).HasColumnName("ProjekcijaID");
             entity.Property(e => e.SjedišteId).HasColumnName("SjedišteID");
@@ -327,34 +303,33 @@ public partial class Ib210083Context : DbContext
                 .HasConstraintName("FK__Projekcij__Sjedi__619B8048");
         });
 
-        modelBuilder.Entity<Rezencije>(entity =>
+        modelBuilder.Entity<Recenzije>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Rezencij__3214EC276F262CC1");
+            entity.HasKey(e => e.Id).HasName("PK__Recenzij__3214EC27C0902DAC");
 
-            entity.ToTable("Rezencije");
+            entity.ToTable("Recenzije");
 
             entity.Property(e => e.Id).HasColumnName("ID");
             entity.Property(e => e.DatumIvrijeme)
                 .HasColumnType("datetime")
                 .HasColumnName("DatumIVrijeme");
             entity.Property(e => e.FilmId).HasColumnName("FilmID");
-            entity.Property(e => e.Komentar).IsUnicode(false);
             entity.Property(e => e.KorisnikId).HasColumnName("KorisnikID");
 
-            entity.HasOne(d => d.Film).WithMany(p => p.Rezencijes)
+            entity.HasOne(d => d.Film).WithMany(p => p.Recenzijes)
                 .HasForeignKey(d => d.FilmId)
                 .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK__Rezencije__FilmI__7A672E12");
+                .HasConstraintName("FK__Recenzije__FilmI__7B5B524B");
 
-            entity.HasOne(d => d.Korisnik).WithMany(p => p.Rezencijes)
+            entity.HasOne(d => d.Korisnik).WithMany(p => p.Recenzijes)
                 .HasForeignKey(d => d.KorisnikId)
                 .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK__Rezencije__Koris__797309D9");
+                .HasConstraintName("FK__Recenzije__Koris__7A672E12");
         });
 
         modelBuilder.Entity<Rezervacije>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Rezervac__3214EC270507CD00");
+            entity.HasKey(e => e.Id).HasName("PK__Rezervac__3214EC27E23FC007");
 
             entity.ToTable("Rezervacije");
 
@@ -385,28 +360,30 @@ public partial class Ib210083Context : DbContext
                 .HasForeignKey(d => d.UplataId)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("FK__Rezervaci__Uplat__6A30C649");
+        });
 
-            entity.HasMany(d => d.HranaIpićes).WithMany(p => p.Rezervacijas)
-                .UsingEntity<Dictionary<string, object>>(
-                    "RezervacijeHraneIpića",
-                    r => r.HasOne<HraneIpića>().WithMany()
-                        .HasForeignKey("HranaIpićeId")
-                        .HasConstraintName("FK__Rezervaci__Hrana__76969D2E"),
-                    l => l.HasOne<Rezervacije>().WithMany()
-                        .HasForeignKey("RezervacijaId")
-                        .HasConstraintName("FK__Rezervaci__Rezer__75A278F5"),
-                    j =>
-                    {
-                        j.HasKey("RezervacijaId", "HranaIpićeId").HasName("PK__Rezervac__FAB99010BC286475");
-                        j.ToTable("RezervacijeHraneIPića");
-                        j.IndexerProperty<int>("RezervacijaId").HasColumnName("RezervacijaID");
-                        j.IndexerProperty<int>("HranaIpićeId").HasColumnName("HranaIPićeID");
-                    });
+        modelBuilder.Entity<RezervacijeHraneIpića>(entity =>
+        {
+            entity.HasKey(e => new { e.RezervacijaId, e.HranaIpićeId }).HasName("PK__Rezervac__FAB9901029530086");
+
+            entity.ToTable("RezervacijeHraneIPića");
+
+            entity.Property(e => e.RezervacijaId).HasColumnName("RezervacijaID");
+            entity.Property(e => e.HranaIpićeId).HasColumnName("HranaIPićeID");
+            entity.Property(e => e.Kolicina).HasDefaultValue(1);
+
+            entity.HasOne(d => d.HranaIpiće).WithMany(p => p.RezervacijeHraneIpićas)
+                .HasForeignKey(d => d.HranaIpićeId)
+                .HasConstraintName("FK__Rezervaci__Hrana__778AC167");
+
+            entity.HasOne(d => d.Rezervacija).WithMany(p => p.RezervacijeHraneIpićas)
+                .HasForeignKey(d => d.RezervacijaId)
+                .HasConstraintName("FK__Rezervaci__Kolic__76969D2E");
         });
 
         modelBuilder.Entity<RezervacijeSjedištum>(entity =>
         {
-            entity.HasKey(e => new { e.RezervacijaId, e.SjedišteId }).HasName("PK__Rezervac__569D2F5A3414BCC0");
+            entity.HasKey(e => new { e.RezervacijaId, e.SjedišteId }).HasName("PK__Rezervac__569D2F5A402093A6");
 
             entity.Property(e => e.RezervacijaId).HasColumnName("RezervacijaID");
             entity.Property(e => e.SjedišteId).HasColumnName("SjedišteID");
@@ -425,58 +402,47 @@ public partial class Ib210083Context : DbContext
 
         modelBuilder.Entity<Režiseri>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Režiseri__3214EC278E888C9A");
+            entity.HasKey(e => e.Id).HasName("PK__Režiseri__3214EC27C61B6C33");
 
             entity.ToTable("Režiseri");
 
             entity.Property(e => e.Id).HasColumnName("ID");
             entity.Property(e => e.DatumRodjenja).HasColumnType("datetime");
-            entity.Property(e => e.Ime)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.Opis).IsUnicode(false);
-            entity.Property(e => e.Prezime)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+            entity.Property(e => e.Ime).HasMaxLength(50);
+            entity.Property(e => e.Prezime).HasMaxLength(50);
         });
 
         modelBuilder.Entity<Sale>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Sale__3214EC27ECFA65F4");
+            entity.HasKey(e => e.Id).HasName("PK__Sale__3214EC27EDFD2AA9");
 
             entity.ToTable("Sale");
 
             entity.Property(e => e.Id).HasColumnName("ID");
-            entity.Property(e => e.Naziv)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+            entity.Property(e => e.Naziv).HasMaxLength(50);
         });
 
         modelBuilder.Entity<Sjedištum>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Sjedišta__3214EC27F7E31D06");
+            entity.HasKey(e => e.Id).HasName("PK__Sjedišta__3214EC27AD8F9561");
 
             entity.Property(e => e.Id).HasColumnName("ID");
-            entity.Property(e => e.Naziv)
-                .HasMaxLength(10)
-                .IsUnicode(false);
+            entity.Property(e => e.Naziv).HasMaxLength(10);
         });
 
         modelBuilder.Entity<Uloge>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Uloge__3214EC27B1BA77FE");
+            entity.HasKey(e => e.Id).HasName("PK__Uloge__3214EC2740DE8020");
 
             entity.ToTable("Uloge");
 
             entity.Property(e => e.Id).HasColumnName("ID");
-            entity.Property(e => e.Naziv)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+            entity.Property(e => e.Naziv).HasMaxLength(50);
         });
 
         modelBuilder.Entity<Uplate>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Uplate__3214EC27D94A8290");
+            entity.HasKey(e => e.Id).HasName("PK__Uplate__3214EC27AEFE03B2");
 
             entity.ToTable("Uplate");
 
@@ -502,14 +468,12 @@ public partial class Ib210083Context : DbContext
 
         modelBuilder.Entity<Žanrovi>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__Žanrovi__3214EC27E5D4FF45");
+            entity.HasKey(e => e.Id).HasName("PK__Žanrovi__3214EC2781C6B829");
 
             entity.ToTable("Žanrovi");
 
             entity.Property(e => e.Id).HasColumnName("ID");
-            entity.Property(e => e.Naziv)
-                .HasMaxLength(50)
-                .IsUnicode(false);
+            entity.Property(e => e.Naziv).HasMaxLength(50);
         });
 
         OnModelCreatingPartial(modelBuilder);

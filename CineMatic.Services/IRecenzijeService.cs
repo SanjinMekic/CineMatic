@@ -9,7 +9,8 @@ using System.Threading.Tasks;
 
 namespace CineMatic.Services
 {
-    public interface IRecenzijeService : ICRUDService<Rezencije, RecenzijeSearchObject, RecenzijeInsertRequest, RecenzijeUpdateRequest>
+    public interface IRecenzijeService : ICRUDService<Recenzije, RecenzijeSearchObject, RecenzijeInsertRequest, RecenzijeUpdateRequest>
     {
+        Task<List<Recenzije>> GetByFilmIdAsync(int filmId);
     }
 }

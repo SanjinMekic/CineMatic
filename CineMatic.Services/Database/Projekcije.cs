@@ -17,7 +17,7 @@ public partial class Projekcije
 
     public decimal? Cijena { get; set; }
 
-    public string? StateMachine { get; set; }
+    public string? Stanje { get; set; }
 
     public virtual Filmovi? Film { get; set; }
 

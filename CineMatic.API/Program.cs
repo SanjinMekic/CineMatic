@@ -1,9 +1,11 @@
 ﻿using CineMatic.API;
+using CineMatic.API.Filters;
 using CineMatic.Services;
 using CineMatic.Services.Database;
 using Mapster;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using RabbitMQ.Client;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -37,16 +39,44 @@ builder.Services.AddTransient<IRecenzijeService, RecenzijeService>();
 builder.Services.AddTransient<IFilmoviService, FilmoviService>();
 builder.Services.AddTransient<IProjekcijeService, ProjekcijeService>();
 builder.Services.AddTransient<IProjekcijeSjedištumService, ProjekcijeSjedištumService>();
+builder.Services.AddTransient<IRezervacijeService, RezervacijeService>();
+builder.Services.AddTransient<IIzvjestajiService, IzvjestajiService>();
 
 var stripeSecretKey = builder.Configuration["Stripe:SecretKey"];
 builder.Services.AddTransient(sp => new UplateService(stripeSecretKey, sp.GetRequiredService<Ib210083Context>()));
 
 builder.Services.AddHttpContextAccessor();
 
+builder.Services.AddControllers(x =>
+{
+    x.Filters.Add<ExceptionFilter>();
+});
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddSwaggerGen(c =>
+    {
+        c.AddSecurityDefinition("basicAuth", new Microsoft.OpenApi.Models.OpenApiSecurityScheme()
+        {
+            Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+            Scheme = "basic"
+        });
+
+        c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement()
+        {
+            {
+                new OpenApiSecurityScheme
+                {
+                    Reference = new OpenApiReference{Type = ReferenceType.SecurityScheme, Id = "basicAuth"}
+                },
+                new string[]{}
+            }
+        });
+    });
+}
 
 var connectionString = builder.Configuration.GetConnectionString("CineMaticConnection");
 builder.Services.AddDbContext<Ib210083Context>(options => options.UseSqlServer(connectionString));
@@ -66,6 +96,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

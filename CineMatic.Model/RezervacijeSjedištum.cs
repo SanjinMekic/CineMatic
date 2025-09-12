@@ -10,10 +10,6 @@ namespace CineMatic.Model
 
         public int SjedišteId { get; set; }
 
-        public DateTime? DatumIvrijeme { get; set; }
-
-        public virtual Rezervacije Rezervacija { get; set; } = null!;
-
-        public virtual Sjedištum Sjedište { get; set; } = null!;
+        public virtual Sjedištum Sjedište { get; set; }
     }
 }

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CineMatic.Model
 {
-    public partial class Rezencije
+    public partial class Recenzije
     {
         public int Id { get; set; }
 

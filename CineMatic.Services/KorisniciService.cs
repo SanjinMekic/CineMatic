@@ -24,7 +24,7 @@ namespace CineMatic.Services
         private readonly IConnectionFactory _rabbitMqConnectionFactory;
         public KorisniciService(Ib210083Context context, IMapper mapper, IHttpContextAccessor httpContextAccessor, IConnectionFactory rabbitMqConnectionFactory) : base(context, mapper)
         {
-            httpContextAccessor = _httpContextAccessor;
+            _httpContextAccessor = httpContextAccessor;
             _rabbitMqConnectionFactory = rabbitMqConnectionFactory;
         }
 
@@ -135,7 +135,7 @@ namespace CineMatic.Services
                 ? Convert.ToBase64String(entity.Slika)
                 : null;
 
-            PublishRegistrationEvent(model);
+            //PublishRegistrationEvent(model);
 
             return model;
         }
@@ -231,14 +231,16 @@ namespace CineMatic.Services
 
             if(request.UlogaId != null)
             {
-                entity.Ulogas.Clear();
                 foreach (var ulogaId in request.UlogaId)
                 {
-                    var uloga = Context.Uloges.FirstOrDefault(u => u.Id == ulogaId);
-                    if (uloga == null)
-                        throw new Exception($"Uloga sa ID {ulogaId} nije pronadjena");
+                    if (!entity.Ulogas.Any(u => u.Id == ulogaId))
+                    {
+                        var uloga = Context.Uloges.FirstOrDefault(u => u.Id == ulogaId);
+                        if (uloga == null)
+                            throw new Exception($"Uloga sa ID {ulogaId} nije pronadjena");
 
-                    entity.Ulogas.Add(uloga);
+                        entity.Ulogas.Add(uloga);
+                    }
                 }
             }
         }
@@ -273,6 +275,14 @@ namespace CineMatic.Services
             }
 
             return user.Id;
+        }
+
+        public List<string> GetCurrentUserRoles()
+        {
+            var currentUserId = GetCurrentUserId();
+            var user = Context.Korisnicis.Include(u => u.Ulogas).FirstOrDefault(u => u.Id == currentUserId);
+
+            return user?.Ulogas?.Select(r => r.Naziv).ToList() ?? new List<string>();
         }
     }
 }

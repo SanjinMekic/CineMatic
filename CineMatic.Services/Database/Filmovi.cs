@@ -21,7 +21,7 @@ public partial class Filmovi
 
     public virtual ICollection<Projekcije> Projekcijes { get; set; } = new List<Projekcije>();
 
-    public virtual ICollection<Rezencije> Rezencijes { get; set; } = new List<Rezencije>();
+    public virtual ICollection<Recenzije> Recenzijes { get; set; } = new List<Recenzije>();
 
     public virtual ICollection<Glumci> Glumacs { get; set; } = new List<Glumci>();
 

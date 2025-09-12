@@ -21,5 +21,5 @@ public partial class HraneIpića
 
     public virtual KategorijeHraneIpića? Kategorija { get; set; }
 
-    public virtual ICollection<Rezervacije> Rezervacijas { get; set; } = new List<Rezervacije>();
+    public virtual ICollection<RezervacijeHraneIpića> RezervacijeHraneIpićas { get; set; } = new List<RezervacijeHraneIpića>();
 }

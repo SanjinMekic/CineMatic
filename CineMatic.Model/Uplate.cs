@@ -8,8 +8,6 @@ namespace CineMatic.Model
     {
         public int Id { get; set; }
 
-        public int? KorisnikId { get; set; }
-
         public string? Izdavač { get; set; }
 
         public string? TransakcijaId { get; set; }
@@ -17,9 +15,5 @@ namespace CineMatic.Model
         public decimal? Iznos { get; set; }
 
         public DateTime? DatumIvrijeme { get; set; }
-
-        public virtual Korisnici? Korisnik { get; set; }
-
-        public virtual ICollection<Rezervacije> Rezervacijes { get; set; } = new List<Rezervacije>();
     }
 }

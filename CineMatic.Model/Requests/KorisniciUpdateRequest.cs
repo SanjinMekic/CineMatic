@@ -20,6 +20,6 @@ namespace CineMatic.Model.Requests
 
         public string? LozinkaPotvrda { get; set; }
 
-        public List<int> UlogaId { get; set; } = new List<int>();   
+        public List<int>? UlogaId { get; set; }
     }
 }

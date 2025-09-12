@@ -43,9 +43,20 @@ namespace CineMatic.Services
                 filteredQuery = filteredQuery.Include(x => x.Sala);
             }
 
+            if (search.isŽanroviIncluded == true)
+            {
+                filteredQuery = filteredQuery.Include(x => x.Film.Žanrs);
+            }
+
             if (search.Datum.HasValue)
             {
                 filteredQuery = filteredQuery.Where(x => x.DatumIvrijeme.Value.Date == search.Datum.Value.Date);
+            }
+
+            if (search.ZanrId != null)
+            {
+                filteredQuery = filteredQuery
+                    .Where(x => x.Film.Žanrs.Any(z => z.Id == search.ZanrId.Value));
             }
 
             return filteredQuery;
@@ -64,6 +75,11 @@ namespace CineMatic.Services
                     {
                         projekcija.Film.SlikaBase64 = dbProjekcija.Film.Slika != null ? Convert.ToBase64String(dbProjekcija.Film.Slika) : null;
                     }
+                }
+
+                if(projekcija.DatumIvrijeme < DateTime.Now)
+                {
+                    projekcija.Stanje = "hidden";
                 }
             }
 
@@ -203,9 +219,9 @@ namespace CineMatic.Services
                 entity.Cijena = request.Cijena;
             }
 
-            if (!string.IsNullOrWhiteSpace(request.StateMachine))
+            if (!string.IsNullOrWhiteSpace(request.Stanje))
             {
-                entity.StateMachine = request.StateMachine;
+                entity.Stanje = request.Stanje;
             }
 
             Context.SaveChanges();
@@ -217,6 +233,11 @@ namespace CineMatic.Services
                 .FirstOrDefault(p => p.Id == id);
 
             return Mapper.Map<Model.Projekcije>(updatedEntity);
+        }
+
+        public override void Delete(int id)
+        {
+            throw new Exception("Brisanje projekcija nije dozvoljeno. Možete ih samo sakriti.");
         }
     }
 }

@@ -16,6 +16,6 @@ namespace CineMatic.Model.Requests
 
         public decimal Cijena { get; set; }
 
-        public string StateMachine { get; set; } = "hidden";
+        public string Stanje { get; set; } = "hidden";
     }
 }

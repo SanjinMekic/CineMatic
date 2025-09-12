@@ -100,13 +100,16 @@ namespace CineMatic.Services
         public override Model.HraneIpića Update(int id, HraneIpićaUpdateRequest request)
         {
             var set = Context.Set<Database.HraneIpića>();
-
             var entity = set.Find(id);
 
             if (entity == null)
                 return null;
 
             Mapper.Map(request, entity);
+
+            // OVO DODAJ:
+            if (!string.IsNullOrEmpty(request.SlikaBase64))
+                entity.Slika = Convert.FromBase64String(request.SlikaBase64);
 
             BeforeUpdate(request, entity);
 
