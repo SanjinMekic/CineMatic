@@ -1,3 +1,6 @@
+import 'package:cinematic_mobile/srceens/faq_screen.dart';
+import 'package:cinematic_mobile/srceens/profil_screen.dart';
+import 'package:cinematic_mobile/srceens/rezervacije_screen.dart';
 import 'package:flutter/material.dart';
 
 class MasterScreen extends StatefulWidget {
@@ -12,9 +15,9 @@ class _MasterScreenState extends State<MasterScreen> {
 
   static final List<Widget> _screens = <Widget>[
     Center(child: Text('Početna')),
-    Center(child: Text('Rezervacije')),
-    Center(child: Text('FAQ')),
-    Center(child: Text('Profil')),
+    RezervacijeScreen(),
+    FaqScreen(),
+    ProfilScreen(),
   ];
 
   void _onItemTapped(int index) {

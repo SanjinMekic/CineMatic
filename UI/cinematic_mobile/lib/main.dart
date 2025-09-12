@@ -1,4 +1,10 @@
 import 'package:cinematic_mobile/providers/auth_provider.dart';
+import 'package:cinematic_mobile/providers/faq_kategorija_provider.dart';
+import 'package:cinematic_mobile/providers/faq_provider.dart';
+import 'package:cinematic_mobile/providers/hranaPice_provider.dart';
+import 'package:cinematic_mobile/providers/korisnik_provider.dart';
+import 'package:cinematic_mobile/providers/rezervacija_provider.dart';
+import 'package:cinematic_mobile/providers/sjediste_provider.dart';
 import 'package:cinematic_mobile/srceens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -9,6 +15,24 @@ void main() {
       providers: [
         ChangeNotifierProvider<AuthProvider>(
           create: (_) => AuthProvider(),
+        ),
+        ChangeNotifierProvider<FaqKategorijaProvider>(
+          create: (_) => FaqKategorijaProvider(),
+        ),
+        ChangeNotifierProvider<FaqProvider>(
+          create: (_) => FaqProvider(),
+        ),
+        ChangeNotifierProvider<KorisnikProvider>(
+          create: (_) => KorisnikProvider(),
+        ),
+        ChangeNotifierProvider<RezervacijaProvider>(
+          create: (_) => RezervacijaProvider(),
+        ),
+        ChangeNotifierProvider<SjedisteProvider>(
+          create: (_) => SjedisteProvider(),
+        ),
+        ChangeNotifierProvider<HranaPiceProvider>(
+          create: (_) => HranaPiceProvider(),
         ),
       ],
       child: const MyApp(),

@@ -30,5 +30,20 @@ namespace CineMatic.API.Controllers
                 return BadRequest(new { Message = ex.Message });
             }
         }
+
+        [HttpGet("projekcijaKorisnik/{korisnikId}")]
+        [Authorize(Roles = "Korisnik")]
+        public ActionResult<List<Rezervacije>> GetReservationsByUserId(int korisnikId)
+        {
+            try
+            {
+                var rezervacije = ((RezervacijeService)_service).RezervacijaPoKorisnikId(korisnikId);
+                return Ok(rezervacije);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = ex.Message });
+            }
+        }
     }
 }
