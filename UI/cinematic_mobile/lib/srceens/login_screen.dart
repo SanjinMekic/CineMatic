@@ -73,48 +73,100 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Prijava")),
+      backgroundColor: Colors.blue[50],
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  controller: _usernameController,
-                  decoration: const InputDecoration(labelText: "Korisničko ime"),
-                  validator: (value) =>
-                      value == null || value.isEmpty ? "Unesite korisničko ime" : null,
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: const InputDecoration(labelText: "Lozinka"),
-                  obscureText: true,
-                  validator: (value) =>
-                      value == null || value.isEmpty ? "Unesite lozinku" : null,
-                ),
-                if (_passwordError != null) ...[
-                  const SizedBox(height: 12),
+          child: Card(
+            elevation: 8,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 36),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CircleAvatar(
+  radius: 48,
+  backgroundColor: Colors.white,
+  backgroundImage: AssetImage('assets/images/CineMaticPNG.png'),
+),
+                  const SizedBox(height: 18),
                   Text(
-                    _passwordError!,
-                    style: const TextStyle(color: Colors.red),
+                    "Dobrodošli!",
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue[900],
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  const Text(
+                    "Prijavite se na svoj CineMatic nalog",
+                    style: TextStyle(fontSize: 15, color: Colors.black54),
+                  ),
+                  const SizedBox(height: 28),
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          controller: _usernameController,
+                          decoration: InputDecoration(
+                            prefixIcon: const Icon(Icons.person),
+                            labelText: "Korisničko ime",
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          validator: (value) =>
+                              value == null || value.isEmpty ? "Unesite korisničko ime" : null,
+                        ),
+                        const SizedBox(height: 18),
+                        TextFormField(
+                          controller: _passwordController,
+                          decoration: InputDecoration(
+                            prefixIcon: const Icon(Icons.lock),
+                            labelText: "Lozinka",
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          ),
+                          obscureText: true,
+                          validator: (value) =>
+                              value == null || value.isEmpty ? "Unesite lozinku" : null,
+                        ),
+                        if (_passwordError != null) ...[
+                          const SizedBox(height: 14),
+                          Text(
+                            _passwordError!,
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        ],
+                        const SizedBox(height: 28),
+                        _isLoading
+                            ? const CircularProgressIndicator()
+                            : SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton.icon(
+                                  icon: const Icon(Icons.login, color: Colors.white),
+                                  label: const Text("Prijavi se"),
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(vertical: 14),
+                                    backgroundColor: Colors.blue,
+                                    foregroundColor: Colors.white,
+                                    textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    if (_formKey.currentState!.validate()) {
+                                      _login();
+                                    }
+                                  },
+                                ),
+                              ),
+                      ],
+                    ),
                   ),
                 ],
-                const SizedBox(height: 24),
-                _isLoading
-                    ? const CircularProgressIndicator()
-                    : ElevatedButton(
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            _login();
-                          }
-                        },
-                        child: const Text("Prijavi se"),
-                      ),
-              ],
+              ),
             ),
           ),
         ),

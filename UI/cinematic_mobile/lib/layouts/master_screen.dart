@@ -1,4 +1,5 @@
 import 'package:cinematic_mobile/srceens/faq_screen.dart';
+import 'package:cinematic_mobile/srceens/pocetna_screen.dart';
 import 'package:cinematic_mobile/srceens/profil_screen.dart';
 import 'package:cinematic_mobile/srceens/rezervacije_screen.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,7 @@ class _MasterScreenState extends State<MasterScreen> {
   int _selectedIndex = 0;
 
   static final List<Widget> _screens = <Widget>[
-    Center(child: Text('Početna')),
+    PocetnaScreen(),
     RezervacijeScreen(),
     FaqScreen(),
     ProfilScreen(),

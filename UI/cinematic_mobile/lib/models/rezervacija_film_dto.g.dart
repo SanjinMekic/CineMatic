@@ -8,31 +8,37 @@ part of 'rezervacija_film_dto.dart';
 
 RezervacijaFilmDTO _$RezervacijaFilmDTOFromJson(Map<String, dynamic> json) =>
     RezervacijaFilmDTO(
-      rezervacijaId: (json['rezervacijaId'] as num?)?.toInt(),
-      datumRezervacije:
-          json['datumRezervacije'] == null
-              ? null
-              : DateTime.parse(json['datumRezervacije'] as String),
-      nacinPlacanja: json['nacinPlacanja'] as String?,
-      projekcijaId: (json['projekcijaId'] as num?)?.toInt(),
-      datumProjekcije:
-          json['datumProjekcije'] == null
-              ? null
-              : DateTime.parse(json['datumProjekcije'] as String),
-      sjedistaIds:
-          (json['sjedistaIds'] as List<dynamic>?)
+        rezervacijaId: (json['rezervacijaId'] as num?)?.toInt(),
+        datumRezervacije:
+            json['datumRezervacije'] == null
+                ? null
+                : DateTime.parse(json['datumRezervacije'] as String),
+        nacinPlacanja: json['nacinPlacanja'] as String?,
+        projekcijaId: (json['projekcijaId'] as num?)?.toInt(),
+        datumProjekcije:
+            json['datumProjekcije'] == null
+                ? null
+                : DateTime.parse(json['datumProjekcije'] as String),
+        sjedistaIds:
+            (json['sjedistaIds'] as List<dynamic>?)
+                ?.map((e) => (e as num).toInt())
+                .toList(),
+        hranaPiceIds:
+            (json['hranaPiceIds'] as List<dynamic>?)
+                ?.map((e) => (e as num).toInt())
+                .toList(),
+        filmId: (json['filmId'] as num?)?.toInt(),
+        nazivFilma: json['nazivFilma'] as String?,
+        trajanjeFilma: (json['trajanjeFilma'] as num?)?.toInt(),
+        opis: json['opis'] as String?,
+        filmaSlikaBase64: json['filmaSlikaBase64'] as String?,
+      )
+      ..kolicine =
+          (json['kolicine'] as List<dynamic>?)
               ?.map((e) => (e as num).toInt())
-              .toList(),
-      hranaPiceIds:
-          (json['hranaPiceIds'] as List<dynamic>?)
-              ?.map((e) => (e as num).toInt())
-              .toList(),
-      filmId: (json['filmId'] as num?)?.toInt(),
-      nazivFilma: json['nazivFilma'] as String?,
-      trajanjeFilma: (json['trajanjeFilma'] as num?)?.toInt(),
-      opis: json['opis'] as String?,
-      filmaSlikaBase64: json['filmaSlikaBase64'] as String?,
-    );
+              .toList()
+      ..ukupnaCijena = (json['ukupnaCijena'] as num?)?.toDouble()
+      ..qrCodeBase64 = json['qrCodeBase64'] as String?;
 
 Map<String, dynamic> _$RezervacijaFilmDTOToJson(RezervacijaFilmDTO instance) =>
     <String, dynamic>{
@@ -43,6 +49,9 @@ Map<String, dynamic> _$RezervacijaFilmDTOToJson(RezervacijaFilmDTO instance) =>
       'datumProjekcije': instance.datumProjekcije?.toIso8601String(),
       'sjedistaIds': instance.sjedistaIds,
       'hranaPiceIds': instance.hranaPiceIds,
+      'kolicine': instance.kolicine,
+      'ukupnaCijena': instance.ukupnaCijena,
+      'qrCodeBase64': instance.qrCodeBase64,
       'filmId': instance.filmId,
       'nazivFilma': instance.nazivFilma,
       'trajanjeFilma': instance.trajanjeFilma,

@@ -1,0 +1,25 @@
+import 'dart:convert';
+import 'package:cinematic_mobile/models/recenzija.dart';
+import 'package:cinematic_mobile/providers/base_provider.dart';
+import 'package:http/http.dart' as http;
+
+class RecenzijaProvider extends BaseProvider<Recenzija> {
+  RecenzijaProvider() : super("Recenzije");
+
+  @override
+  Recenzija fromJson(data) => Recenzija.fromJson(data);
+
+  /// Dohvati recenzije za filmId preko /Recenzije/ByFilm/{filmId}
+  Future<List<Recenzija>> getByFilm(int filmId) async {
+    final url = Uri.parse('$baseUrl${endpoint}/ByFilm/$filmId');
+    final headers = createHeaders();
+    final response = await http.get(url, headers: headers);
+
+    if (response.statusCode == 200) {
+      final List data = jsonDecode(response.body);
+      return data.map((e) => Recenzija.fromJson(e)).toList();
+    } else {
+      throw Exception('Greška pri dohvatu recenzija za film');
+    }
+  }
+}

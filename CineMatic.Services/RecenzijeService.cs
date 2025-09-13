@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace CineMatic.Services
 {
-    public class RecenzijeService : BaseCRUDService<Model.Recenzije, RecenzijeSearchObject, Database.Rezencije, RecenzijeInsertRequest, RecenzijeUpdateRequest>, IRecenzijeService
+    public class RecenzijeService : BaseCRUDService<Model.Recenzije, RecenzijeSearchObject, Database.Recenzije, RecenzijeInsertRequest, RecenzijeUpdateRequest>, IRecenzijeService
     {
         readonly Ib210083Context _context;
         readonly IMapper _mapper;
@@ -25,7 +25,7 @@ namespace CineMatic.Services
             _korisniciService = korisniciService;
         }
 
-        public override IQueryable<Database.Rezencije> AddFilter(RecenzijeSearchObject search, IQueryable<Database.Rezencije> query)
+        public override IQueryable<Database.Recenzije> AddFilter(RecenzijeSearchObject search, IQueryable<Database.Recenzije> query)
         {
             var filteredQuery = base.AddFilter(search, query);
 
@@ -40,6 +40,29 @@ namespace CineMatic.Services
             }
 
             return filteredQuery;
+        }
+
+        public override Model.Recenzije GetById(int id)
+        {
+            var entity = Context.Recenzijes
+                .Include(r => r.Korisnik)
+                .Include(r => r.Film)
+                .FirstOrDefault(r => r.Id == id);
+
+            if (entity == null)
+            {
+                throw new Exception("Recenzija nije pronađena!");
+            }
+
+            var model = Mapper.Map<Model.Recenzije>(entity);
+
+            // Ako hoćeš da se slika korisnika vrati kao base64
+            if (entity.Korisnik?.Slika != null)
+            {
+                model.Korisnik.SlikaBase64 = Convert.ToBase64String(entity.Korisnik.Slika);
+            }
+
+            return model;
         }
 
         public override Model.Recenzije Insert(RecenzijeInsertRequest request)
@@ -123,13 +146,25 @@ namespace CineMatic.Services
 
         public async Task<List<Model.Recenzije>> GetByFilmIdAsync(int filmId)
         {
-            var query = _context.Recenzijes
-                .Include(x => x.Korisnik)
-                .Include(x => x.Film)
-                .Where(x => x.FilmId == filmId);
+            var entities = await _context.Recenzijes
+        .Include(x => x.Korisnik)
+        .Include(x => x.Film)
+        .Where(x => x.FilmId == filmId)
+        .ToListAsync();
 
-            var entities = await query.ToListAsync();
-            return _mapper.Map<List<Model.Recenzije>>(entities);
+            // Mapiraj u modele
+            var models = _mapper.Map<List<Model.Recenzije>>(entities);
+
+            // Dodaj base64 slike korisnika
+            for (int i = 0; i < entities.Count; i++)
+            {
+                if (entities[i].Korisnik?.Slika != null)
+                {
+                    models[i].Korisnik.SlikaBase64 = Convert.ToBase64String(entities[i].Korisnik.Slika);
+                }
+            }
+
+            return models;
         }
     }
 }

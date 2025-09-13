@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace CineMatic.Model.DTO
@@ -13,6 +14,9 @@ namespace CineMatic.Model.DTO
         public DateTime DatumProjekcije { get; set; }
         public List<int> SjedistaIds { get; set; } = new List<int>();
         public List<int> HranaPiceIds { get; set; } = new List<int>();
+        public List<int> Kolicine { get; set; } = new List<int>();
+        public Decimal UkupnaCijena { get; set; }
+        public string QRCodeBase64 { get; set; }
 
         public int FilmId { get; set; }
         public string? NazivFilma { get; set; }

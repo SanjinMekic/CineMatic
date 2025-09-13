@@ -480,10 +480,11 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
                                                       },
                                                       child: Text("Aktiviraj"),
                                                     ),
-                                            if (prikaziAktivne ||
-                                                (p.datumIvrijeme != null &&
-                                                    p.datumIvrijeme!
-                                                        .isAfter(DateTime.now())))
+                                            // Dugme UREDI samo za skrivene projekcije u budućnosti!
+                                            if (!prikaziAktivne &&
+                                                p.datumIvrijeme != null &&
+                                                p.datumIvrijeme!
+                                                    .isAfter(DateTime.now()))
                                               ElevatedButton(
                                                 style: ElevatedButton.styleFrom(
                                                   backgroundColor:

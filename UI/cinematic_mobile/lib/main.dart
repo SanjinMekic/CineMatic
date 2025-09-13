@@ -1,10 +1,17 @@
 import 'package:cinematic_mobile/providers/auth_provider.dart';
+import 'package:cinematic_mobile/providers/dobna_restrikcija_provider.dart';
 import 'package:cinematic_mobile/providers/faq_kategorija_provider.dart';
 import 'package:cinematic_mobile/providers/faq_provider.dart';
+import 'package:cinematic_mobile/providers/film_provider.dart';
+import 'package:cinematic_mobile/providers/glumac_provider.dart';
 import 'package:cinematic_mobile/providers/hranaPice_provider.dart';
 import 'package:cinematic_mobile/providers/korisnik_provider.dart';
+import 'package:cinematic_mobile/providers/projekcija_provider.dart';
+import 'package:cinematic_mobile/providers/recenzija_provider.dart';
 import 'package:cinematic_mobile/providers/rezervacija_provider.dart';
+import 'package:cinematic_mobile/providers/reziser_provider.dart';
 import 'package:cinematic_mobile/providers/sjediste_provider.dart';
+import 'package:cinematic_mobile/providers/zanr_provider.dart';
 import 'package:cinematic_mobile/srceens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -33,6 +40,27 @@ void main() {
         ),
         ChangeNotifierProvider<HranaPiceProvider>(
           create: (_) => HranaPiceProvider(),
+        ),
+        ChangeNotifierProvider<ProjekcijaProvider>(
+          create: (_) => ProjekcijaProvider(),
+        ),
+        ChangeNotifierProvider<FilmProvider>(
+          create: (_) => FilmProvider(),
+        ),
+        ChangeNotifierProvider<ZanrProvider>(
+          create: (_) => ZanrProvider(),
+        ),
+        ChangeNotifierProvider<GlumacProvider>(
+          create: (_) => GlumacProvider(),
+        ),
+        ChangeNotifierProvider<ReziserProvider>(
+          create: (_) => ReziserProvider(),
+        ),
+        ChangeNotifierProvider<DobnaRestrikcijaProvider>(
+          create: (_) => DobnaRestrikcijaProvider(),
+        ),
+        ChangeNotifierProvider<RecenzijaProvider>(
+          create: (_) => RecenzijaProvider(),
         ),
       ],
       child: const MyApp(),

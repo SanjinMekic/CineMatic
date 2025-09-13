@@ -42,6 +42,28 @@ class _RezervacijeScreenState extends State<RezervacijeScreen> {
     return DateFormat('HH:mm').format(date);
   }
 
+  String _formatCijena(double? cijena) {
+    if (cijena == null) return '-';
+    return "${cijena.toStringAsFixed(2)} KM";
+  }
+
+  String _formatHranaPiceSaKolicinama(
+    RezervacijaFilmDTO r,
+    List<HranaPice> hranaPice,
+  ) {
+    if (hranaPice.isEmpty) return '-';
+    if (r.kolicine == null || r.kolicine!.isEmpty) {
+      return hranaPice.map((h) => h.naziv ?? '').join(', ');
+    }
+    List<String> result = [];
+    for (int i = 0; i < hranaPice.length; i++) {
+      final naziv = hranaPice[i].naziv ?? '';
+      final kolicina = (i < (r.kolicine?.length ?? 0)) ? r.kolicine![i] : 1;
+      result.add("$naziv x$kolicina");
+    }
+    return result.join(', ');
+  }
+
   Future<void> _fetchRezervacije() async {
     setState(() => _isLoading = true);
     final rezervacijaProvider = Provider.of<RezervacijaProvider>(
@@ -120,6 +142,24 @@ class _RezervacijeScreenState extends State<RezervacijeScreen> {
     }
   }
 
+  void _prikaziQrDialog(String? qrBase64) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("QR kod rezervacije"),
+        content: qrBase64 != null
+            ? Image.memory(base64Decode(qrBase64))
+            : const Text("QR kod nije dostupan."),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("Zatvori"),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _potvrdiBrisanje(int rezervacijaId) {
     showDialog(
       context: context,
@@ -155,151 +195,206 @@ class _RezervacijeScreenState extends State<RezervacijeScreen> {
     final prikaz = prikaziAktivne ? aktivne : prethodne;
     return Scaffold(
       appBar: AppBar(title: const Text("Moje rezervacije")),
-      body:
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : Column(
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => setState(() => prikaziAktivne = true),
-                          child: Container(
-                            color:
-                                prikaziAktivne
-                                    ? Colors.blue[100]
-                                    : Colors.transparent,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            child: Center(
-                              child: Text(
-                                "Aktivne rezervacije",
-                                style: TextStyle(
-                                  fontWeight:
-                                      prikaziAktivne
-                                          ? FontWeight.bold
-                                          : FontWeight.normal,
-                                  color:
-                                      prikaziAktivne
-                                          ? Colors.blue
-                                          : Colors.black,
-                                ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => prikaziAktivne = true),
+                        child: Container(
+                          color: prikaziAktivne ? Colors.blue[100] : Colors.transparent,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          child: Center(
+                            child: Text(
+                              "Aktivne rezervacije",
+                              style: TextStyle(
+                                fontWeight: prikaziAktivne ? FontWeight.bold : FontWeight.normal,
+                                color: prikaziAktivne ? Colors.blue : Colors.black,
                               ),
                             ),
                           ),
                         ),
                       ),
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: () => setState(() => prikaziAktivne = false),
-                          child: Container(
-                            color:
-                                !prikaziAktivne
-                                    ? Colors.blue[100]
-                                    : Colors.transparent,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            child: Center(
-                              child: Text(
-                                "Prethodne rezervacije",
-                                style: TextStyle(
-                                  fontWeight:
-                                      !prikaziAktivne
-                                          ? FontWeight.bold
-                                          : FontWeight.normal,
-                                  color:
-                                      !prikaziAktivne
-                                          ? Colors.blue
-                                          : Colors.black,
-                                ),
+                    ),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => setState(() => prikaziAktivne = false),
+                        child: Container(
+                          color: !prikaziAktivne ? Colors.blue[100] : Colors.transparent,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          child: Center(
+                            child: Text(
+                              "Prethodne rezervacije",
+                              style: TextStyle(
+                                fontWeight: !prikaziAktivne ? FontWeight.bold : FontWeight.normal,
+                                color: !prikaziAktivne ? Colors.blue : Colors.black,
                               ),
                             ),
                           ),
                         ),
                       ),
-                    ],
-                  ),
-                  const Divider(height: 1),
-                  Expanded(
-                    child:
-                        prikaz.isEmpty
-                            ? Center(
-                              child: Text(
-                                prikaziAktivne
-                                    ? "Trenutno nemate aktivnih rezervacija."
-                                    : "Nemate prethodnih rezervacija.",
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.grey,
-                                ),
+                    ),
+                  ],
+                ),
+                const Divider(height: 1),
+                Expanded(
+                  child: prikaz.isEmpty
+                      ? Center(
+                          child: Text(
+                            prikaziAktivne
+                                ? "Trenutno nemate aktivnih rezervacija."
+                                : "Nemate prethodnih rezervacija.",
+                            style: const TextStyle(fontSize: 16, color: Colors.grey),
+                          ),
+                        )
+                      : ListView.builder(
+                          itemCount: prikaz.length,
+                          itemBuilder: (context, index) {
+                            final r = prikaz[index];
+                            final sjedista = _sjedistaMap[r.rezervacijaId ?? 0] ?? [];
+                            final hranaPice = _hranaPiceMap[r.rezervacijaId ?? 0] ?? [];
+                            return Card(
+                              margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              elevation: 4,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                            )
-                            : ListView.builder(
-                              itemCount: prikaz.length,
-                              itemBuilder: (context, index) {
-                                final r = prikaz[index];
-                                final sjedista =
-                                    _sjedistaMap[r.rezervacijaId ?? 0] ?? [];
-                                final hranaPice =
-                                    _hranaPiceMap[r.rezervacijaId ?? 0] ?? [];
-                                return Card(
-                                  margin: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 8,
-                                  ),
-                                  child: ListTile(
-                                    leading:
-                                        r.filmaSlikaBase64 != null
-                                            ? Image.memory(
-                                              base64Decode(r.filmaSlikaBase64!),
-                                              width: 50,
-                                              height: 50,
-                                              fit: BoxFit.cover,
-                                            )
-                                            : const Icon(Icons.movie, size: 40),
-                                    title: Text(r.nazivFilma ?? "Film"),
-                                    subtitle: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
                                       children: [
-                                        Text(
-                                          "Datum projekcije: ${_formatDatum(r.datumProjekcije)}",
-                                        ),
-                                        Text(
-                                          "Vrijeme projekcije: ${_formatVrijeme(r.datumProjekcije)}",
-                                        ),
-                                        Text(
-                                          "Način plaćanja: ${r.nacinPlacanja ?? '-'}",
-                                        ),
-                                        Text(
-                                          "Sjedista: ${sjedista.isNotEmpty ? sjedista.map((s) => s.naziv ?? '').join(', ') : '-'}",
-                                        ),
-                                        Text(
-                                          "Hrana i piće: ${hranaPice.isNotEmpty ? hranaPice.map((h) => h.naziv ?? '').join(', ') : '-'}",
+                                        r.filmaSlikaBase64 != null
+                                            ? ClipRRect(
+                                                borderRadius: BorderRadius.circular(8),
+                                                child: Image.memory(
+                                                  base64Decode(r.filmaSlikaBase64!),
+                                                  width: 60,
+                                                  height: 60,
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              )
+                                            : Container(
+                                                width: 60,
+                                                height: 60,
+                                                decoration: BoxDecoration(
+                                                  color: Colors.blue[50],
+                                                  borderRadius: BorderRadius.circular(8),
+                                                ),
+                                                child: const Icon(Icons.movie, size: 40, color: Colors.blue),
+                                              ),
+                                        const SizedBox(width: 16),
+                                        Expanded(
+                                          child: Text(
+                                            r.nazivFilma ?? "Film",
+                                            style: const TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
                                         ),
                                       ],
                                     ),
-                                    isThreeLine: true,
-                                    trailing:
-                                        prikaziAktivne
-                                            ? IconButton(
-                                              icon: const Icon(
-                                                Icons.delete,
-                                                color: Colors.red,
+                                    const SizedBox(height: 12),
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.calendar_today, size: 18, color: Colors.blueGrey),
+                                        const SizedBox(width: 6),
+                                        Text("Datum: ${_formatDatum(r.datumProjekcije)}"),
+                                        const SizedBox(width: 16),
+                                        const Icon(Icons.access_time, size: 18, color: Colors.blueGrey),
+                                        const SizedBox(width: 6),
+                                        Text("Vrijeme: ${_formatVrijeme(r.datumProjekcije)}"),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.payment, size: 18, color: Colors.blueGrey),
+                                        const SizedBox(width: 6),
+                                        Text("Način plaćanja: ${r.nacinPlacanja ?? '-'}"),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        const Icon(Icons.attach_money, size: 18, color: Colors.blueGrey),
+                                        const SizedBox(width: 6),
+                                        Text("Ukupna cijena: ${_formatCijena(r.ukupnaCijena)}"),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Icon(Icons.event_seat, size: 18, color: Colors.blueGrey),
+                                        const SizedBox(width: 6),
+                                        Expanded(
+                                          child: Text(
+                                            "Sjedista: ${sjedista.isNotEmpty ? sjedista.map((s) => s.naziv ?? '').join(', ') : '-'}",
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Icon(Icons.fastfood, size: 18, color: Colors.blueGrey),
+                                        const SizedBox(width: 6),
+                                        Expanded(
+                                          child: Text(
+                                            "Hrana i piće: ${_formatHranaPiceSaKolicinama(r, hranaPice)}",
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    if (prikaziAktivne)
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 12.0),
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.end,
+                                          children: [
+                                            ElevatedButton.icon(
+                                              icon: const Icon(Icons.qr_code, color: Colors.white),
+                                              label: const Text("Prikaži QR kod"),
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: Colors.blue,
+                                                foregroundColor: Colors.white,
                                               ),
-                                              tooltip: "Obriši rezervaciju",
-                                              onPressed:
-                                                  () => _potvrdiBrisanje(
-                                                    r.rezervacijaId ?? 0,
-                                                  ),
-                                            )
-                                            : null,
-                                  ),
-                                );
-                              },
-                            ),
-                  ),
-                ],
-              ),
+                                              onPressed: () => _prikaziQrDialog(r.qrCodeBase64),
+                                            ),
+                                            const SizedBox(width: 12),
+                                            ElevatedButton.icon(
+                                              icon: const Icon(Icons.delete, color: Colors.white),
+                                              label: const Text("Obriši"),
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: Colors.red,
+                                                foregroundColor: Colors.white,
+                                              ),
+                                              onPressed: () => _potvrdiBrisanje(r.rezervacijaId ?? 0),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                ),
+              ],
+            ),
     );
   }
 }

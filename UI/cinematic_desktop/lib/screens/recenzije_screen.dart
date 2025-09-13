@@ -3,6 +3,7 @@ import 'package:cinematic_desktop/providers/recenzija_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'dart:convert';
 
 class RecenzijeScreen extends StatefulWidget {
   final int filmId;
@@ -61,11 +62,30 @@ class _RecenzijeScreenState extends State<RecenzijeScreen> {
                   separatorBuilder: (_, __) => Divider(),
                   itemBuilder: (context, index) {
                     final r = _recenzije[index];
+                    Widget avatar;
+                    if (r.korisnik?.slikaBase64 != null &&
+                        r.korisnik!.slikaBase64!.isNotEmpty) {
+                      try {
+                        avatar = CircleAvatar(
+                          backgroundImage: MemoryImage(
+                            base64Decode(r.korisnik!.slikaBase64!),
+                          ),
+                          radius: 24,
+                        );
+                      } catch (_) {
+                        avatar = CircleAvatar(
+                          child: Icon(Icons.person),
+                          radius: 24,
+                        );
+                      }
+                    } else {
+                      avatar = CircleAvatar(
+                        child: Icon(Icons.person),
+                        radius: 24,
+                      );
+                    }
                     return ListTile(
-                      leading: CircleAvatar(
-                        child: Text(r.ocjena?.toString() ?? "-"),
-                        backgroundColor: Colors.blue[100],
-                      ),
+                      leading: avatar,
                       title: Text(r.korisnik?.korisnickoIme ?? "Nepoznat korisnik"),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

@@ -614,6 +614,9 @@ namespace CineMatic.Services
                  DatumProjekcije = r.Projekcija.DatumIvrijeme ?? DateTime.MinValue,
                  SjedistaIds = r.RezervacijeSjedišta.Select(rs => rs.SjedišteId).ToList(),
                  HranaPiceIds = r.RezervacijeHraneIpićas.Select(rs => rs.HranaIpićeId).ToList(),
+                 Kolicine = r.RezervacijeHraneIpićas.Select(rs => rs.Kolicina ?? 0).ToList(),
+                 QRCodeBase64 = r.QrcodeBase64,
+                 UkupnaCijena = r.UkupnaCijena ?? 0,
 
                  FilmId = r.Projekcija.Film.Id,
                  NazivFilma = r.Projekcija.Film.Naziv,

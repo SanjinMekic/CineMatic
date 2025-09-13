@@ -11,6 +11,9 @@ class RezervacijaFilmDTO {
   DateTime? datumProjekcije;
   List<int>? sjedistaIds;
   List<int>? hranaPiceIds;
+  List<int>? kolicine;
+  double? ukupnaCijena;
+  String? qrCodeBase64;
   int? filmId;
   String? nazivFilma;
   int? trajanjeFilma;
