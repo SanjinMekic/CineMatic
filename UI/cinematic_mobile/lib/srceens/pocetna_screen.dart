@@ -179,11 +179,20 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final prikazane = _projekcije
+    // Prikazuj samo jednu projekciju po filmu (po filmId)
+    final Map<int, Projekcija> jedinstveniFilmovi = {};
+    final aktivneProjekcije = _projekcije
         .where((p) =>
             p.stanje?.toLowerCase() == "aktivna" ||
             p.stanje?.toLowerCase() == "active")
         .toList();
+    for (var p in aktivneProjekcije) {
+      final film = p.film;
+      if (film != null && film.id != null && !jedinstveniFilmovi.containsKey(film.id)) {
+        jedinstveniFilmovi[film.id!] = p;
+      }
+    }
+    final prikazane = jedinstveniFilmovi.values.toList();
 
     return Scaffold(
       body: SafeArea(
@@ -229,12 +238,20 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
                                   child: Icon(Icons.movie, size: 48),
                                 );
                               }
+                              // Novi prikaz ispod naslova: trajanje i žanrovi
+                              final trajanje = p.film?.trajanje != null ? "${p.film!.trajanje} min" : null;
+                              final zanrovi = (p.film?.zanrs != null && p.film!.zanrs!.isNotEmpty)
+                                  ? p.film!.zanrs!.map((z) => z.naziv).join(', ')
+                                  : null;
                               return GestureDetector(
                                 onTap: () {
+                                  print('Otvoren filmId: ${p.film?.id}');
                                   Navigator.of(context).push(
                                     MaterialPageRoute(
-                                      builder: (context) =>
-                                          ProjekcijaDetaljiScreen(projekcija: p),
+                                      builder: (context) => ProjekcijaDetaljiScreen(
+                                        projekcija: p,
+                                        filmId: p.film?.id,
+                                      ),
                                     ),
                                   );
                                 },
@@ -250,15 +267,61 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
                                       slikaWidget,
                                       Padding(
                                         padding: const EdgeInsets.all(12.0),
-                                        child: Text(
-                                          p.film?.naziv ?? "Nepoznat film",
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                          textAlign: TextAlign.center,
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
+                                        child: Column(
+                                          children: [
+                                            Text(
+                                              p.film?.naziv ?? "Nepoznat film",
+                                              style: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            if (trajanje != null)
+                                              Padding(
+                                                padding: const EdgeInsets.only(top: 4.0),
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                    Icon(Icons.schedule, size: 18, color: Colors.grey[700]),
+                                                    const SizedBox(width: 5),
+                                                    Text(
+                                                      trajanje,
+                                                      style: TextStyle(
+                                                        fontSize: 15,
+                                                        color: Colors.grey[700],
+                                                      ),
+                                                      textAlign: TextAlign.center,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            if (zanrovi != null)
+                                              Padding(
+                                                padding: const EdgeInsets.only(top: 2.0),
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                    Icon(Icons.category, size: 18, color: Colors.blueGrey),
+                                                    const SizedBox(width: 5),
+                                                    Flexible(
+                                                      child: Text(
+                                                        zanrovi,
+                                                        style: TextStyle(
+                                                          fontSize: 14,
+                                                          color: Colors.blueGrey,
+                                                        ),
+                                                        textAlign: TextAlign.center,
+                                                        maxLines: 2,
+                                                        overflow: TextOverflow.ellipsis,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                          ],
                                         ),
                                       ),
                                     ],

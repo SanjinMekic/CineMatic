@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:cinematic_mobile/models/projekcija.dart';
 import 'package:cinematic_mobile/models/film.dart';
 import 'package:cinematic_mobile/providers/film_provider.dart';
+import 'package:cinematic_mobile/providers/projekcija_provider.dart';
+import 'package:cinematic_mobile/srceens/rezervisi_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -10,7 +12,13 @@ import 'recenzije_screen.dart';
 
 class ProjekcijaDetaljiScreen extends StatefulWidget {
   final Projekcija projekcija;
-  const ProjekcijaDetaljiScreen({super.key, required this.projekcija});
+  final int? filmId;
+
+  const ProjekcijaDetaljiScreen({
+    super.key,
+    required this.projekcija,
+    this.filmId,
+  });
 
   @override
   State<ProjekcijaDetaljiScreen> createState() => _ProjekcijaDetaljiScreenState();
@@ -18,16 +26,17 @@ class ProjekcijaDetaljiScreen extends StatefulWidget {
 
 class _ProjekcijaDetaljiScreenState extends State<ProjekcijaDetaljiScreen> {
   Film? _filmDetalji;
+  List<Projekcija> _projekcijeZaFilm = [];
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _fetchFilmDetalji();
+    _fetchFilmDetaljiIProjekcije();
   }
 
-  Future<void> _fetchFilmDetalji() async {
-    final filmId = widget.projekcija.filmId ?? widget.projekcija.film?.id;
+  Future<void> _fetchFilmDetaljiIProjekcije() async {
+    final filmId = widget.filmId ?? widget.projekcija.filmId ?? widget.projekcija.film?.id;
     if (filmId == null) {
       setState(() {
         _isLoading = false;
@@ -35,11 +44,20 @@ class _ProjekcijaDetaljiScreenState extends State<ProjekcijaDetaljiScreen> {
       return;
     }
     final filmProvider = Provider.of<FilmProvider>(context, listen: false);
+    final projekcijaProvider = Provider.of<ProjekcijaProvider>(context, listen: false);
+
     final film = await filmProvider.getById(filmId);
+    final projekcije = await projekcijaProvider.getByFilm(filmId);
+
     setState(() {
-      _filmDetalji = film;
-      _isLoading = false;
-    });
+  _filmDetalji = film;
+  _projekcijeZaFilm = projekcije.where((p) {
+    final isActive = p.stanje?.toLowerCase() == "active" || p.stanje?.toLowerCase() == "aktivna";
+    final isFuture = p.datumIvrijeme == null || p.datumIvrijeme!.isAfter(DateTime.now());
+    return isActive && isFuture;
+  }).toList();
+  _isLoading = false;
+});
   }
 
   Widget _buildCirclePerson({String? slikaBase64, required String ime, required VoidCallback? onTap}) {
@@ -61,7 +79,7 @@ class _ProjekcijaDetaljiScreenState extends State<ProjekcijaDetaljiScreen> {
             ),
             const SizedBox(height: 6),
             SizedBox(
-              height: 42, // Dovoljno za dva reda teksta
+              height: 42,
               child: Center(
                 child: Text(
                   ime,
@@ -78,16 +96,85 @@ class _ProjekcijaDetaljiScreenState extends State<ProjekcijaDetaljiScreen> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _projekcijaDetaljiCard(Projekcija projekcija) {
     String? datumStr;
     String? vrijemeStr;
-    if (widget.projekcija.datumIvrijeme != null) {
-      final dt = widget.projekcija.datumIvrijeme!;
+    if (projekcija.datumIvrijeme != null) {
+      final dt = projekcija.datumIvrijeme!;
       datumStr = DateFormat('dd.MM.yyyy.').format(dt);
       vrijemeStr = DateFormat('HH:mm').format(dt);
     }
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (datumStr != null)
+              ListTile(
+                leading: const Icon(Icons.calendar_today),
+                title: const Text("Datum projekcije"),
+                subtitle: Text(datumStr),
+              ),
+            if (vrijemeStr != null)
+              ListTile(
+                leading: const Icon(Icons.access_time),
+                title: const Text("Vrijeme projekcije"),
+                subtitle: Text(vrijemeStr),
+              ),
+            if (projekcija.sala?.naziv != null)
+              ListTile(
+                leading: const Icon(Icons.event_seat),
+                title: const Text("Sala"),
+                subtitle: Text(projekcija.sala!.naziv!),
+              ),
+            if (projekcija.nacinProjekcije != null)
+              ListTile(
+                leading: const Icon(Icons.theaters),
+                title: const Text("Tehnologija"),
+                subtitle: Text(projekcija.nacinProjekcije!.naziv ?? ""),
+              ),
+            if (projekcija.cijena != null)
+              ListTile(
+                leading: const Icon(Icons.attach_money),
+                title: const Text("Cijena"),
+                subtitle: Text("${projekcija.cijena} KM"),
+              ),
+            const SizedBox(height: 10),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.event_available),
+                label: const Text("Rezerviši"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  textStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => RezervisiScreen(projekcija: projekcija),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
+  @override
+  Widget build(BuildContext context) {
     final film = _filmDetalji ?? widget.projekcija.film;
 
     return Scaffold(
@@ -124,36 +211,6 @@ class _ProjekcijaDetaljiScreenState extends State<ProjekcijaDetaljiScreen> {
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 18),
-                  if (datumStr != null)
-                    ListTile(
-                      leading: const Icon(Icons.calendar_today),
-                      title: const Text("Datum projekcije"),
-                      subtitle: Text(datumStr),
-                    ),
-                  if (vrijemeStr != null)
-                    ListTile(
-                      leading: const Icon(Icons.access_time),
-                      title: const Text("Vrijeme projekcije"),
-                      subtitle: Text(vrijemeStr),
-                    ),
-                  if (widget.projekcija.sala?.naziv != null)
-                    ListTile(
-                      leading: const Icon(Icons.event_seat),
-                      title: const Text("Sala"),
-                      subtitle: Text(widget.projekcija.sala!.naziv!),
-                    ),
-                  if (widget.projekcija.nacinProjekcije != null)
-                    ListTile(
-                      leading: const Icon(Icons.theaters),
-                      title: const Text("Tehnologija"),
-                      subtitle: Text(widget.projekcija.nacinProjekcije!.naziv ?? ""),
-                    ),
-                  if (widget.projekcija.cijena != null)
-                    ListTile(
-                      leading: const Icon(Icons.attach_money),
-                      title: const Text("Cijena"),
-                      subtitle: Text("${widget.projekcija.cijena} KM"),
-                    ),
                   if (film?.dobnaRestrikcija != null)
                     ListTile(
                       leading: const Icon(Icons.child_care),
@@ -252,40 +309,35 @@ class _ProjekcijaDetaljiScreenState extends State<ProjekcijaDetaljiScreen> {
                         const SizedBox(height: 18),
                       ],
                     ),
+                  const SizedBox(height: 18),
+                  const Divider(thickness: 2),
+                  const SizedBox(height: 10),
+                  const Text(
+                    "Sve aktivne projekcije za ovaj film",
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.blue),
+                  ),
+                  const SizedBox(height: 10),
+                  _projekcijeZaFilm.isEmpty
+                      ? const Text("Nema dostupnih aktivnih projekcija za ovaj film.")
+                      : Column(
+                          children: _projekcijeZaFilm
+                              .map((p) => _projekcijaDetaljiCard(p))
+                              .toList(),
+                        ),
+                  const SizedBox(height: 24),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      icon: const Icon(Icons.event_available),
-                      label: const Text("Rezerviši"),
+                      icon: const Icon(Icons.reviews, color: Colors.white),
+                      label: const Text("Recenzije"),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        textStyle: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10)),
-                      ),
-                      onPressed: () {
-                        // TODO: Implementirati rezervaciju
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  SizedBox(
-                    width: double.infinity,
-                    child: OutlinedButton.icon(
-                      icon: const Icon(Icons.reviews, color: Colors.blue),
-                      label: const Text("Recenzije", style: TextStyle(color: Colors.blue)),
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        side: const BorderSide(color: Colors.blue, width: 1.5),
+                        textStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        foregroundColor: Colors.blue,
-                        textStyle: const TextStyle(
-                            fontSize: 17, fontWeight: FontWeight.bold),
                       ),
                       onPressed: () {
                         if (film?.id != null) {

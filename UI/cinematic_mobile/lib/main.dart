@@ -15,8 +15,12 @@ import 'package:cinematic_mobile/providers/zanr_provider.dart';
 import 'package:cinematic_mobile/srceens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  Stripe.publishableKey = ''; // OVDJE STAVI SVOJ STRIPE PUBLISHABLE KEY
+  await Stripe.instance.applySettings();
   runApp(
     MultiProvider(
       providers: [

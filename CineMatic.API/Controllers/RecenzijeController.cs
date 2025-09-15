@@ -38,7 +38,7 @@ namespace CineMatic.API.Controllers
         [HttpPut("{id}")]
         public override Recenzije Update(int id, RecenzijeUpdateRequest request)
         {
-            if (User.IsInRole("User"))
+            if (User.IsInRole("Korisnik"))
             {
                 return _service.Update(id, request);
             }

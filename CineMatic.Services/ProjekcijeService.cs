@@ -1,9 +1,11 @@
 ﻿using CineMatic.Model;
+using CineMatic.Model.DTO;
 using CineMatic.Model.Requests;
 using CineMatic.Model.SearchObject;
 using CineMatic.Services.Database;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.ML;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,8 +16,10 @@ namespace CineMatic.Services
 {
     public class ProjekcijeService : BaseCRUDService<Model.Projekcije, ProjekcijeSearchObject, Database.Projekcije, ProjekcijeInsertRequest, ProjekcijeUpdateRequest>, IProjekcijeService
     {
+        private readonly Ib210083Context _context;
         public ProjekcijeService(Ib210083Context context, IMapper mapper) : base(context, mapper)
         {
+            _context = context; 
         }
 
         public override IQueryable<Database.Projekcije> AddFilter(ProjekcijeSearchObject search, IQueryable<Database.Projekcije> query)
@@ -235,9 +239,41 @@ namespace CineMatic.Services
             return Mapper.Map<Model.Projekcije>(updatedEntity);
         }
 
+        public async Task<List<SjedisteDTO>> GetSjedistaZaProjekciju(int projekcijaId)
+        {
+            var projekcijeSjedišta = await _context.ProjekcijeSjedišta
+                .Where(ss => ss.ProjekcijaId == projekcijaId)
+                .Include(ss => ss.Sjedište)
+                .ToListAsync();
+
+            if (projekcijeSjedišta == null)
+            {
+                return null;
+            }
+
+            return projekcijeSjedišta.Select(ss => new SjedisteDTO
+            {
+                Id = ss.SjedišteId,
+                Naziv = ss.Sjedište.Naziv,
+                Rezervisano = ss.Rezervisano
+            }).ToList();
+        }
+
         public override void Delete(int id)
         {
             throw new Exception("Brisanje projekcija nije dozvoljeno. Možete ih samo sakriti.");
+        }
+
+        public List<Model.Projekcije> GetProjekcijePoFilmId(int filmId)
+        {
+            var query = Context.Projekcijes
+        .Include(s => s.Film)
+        .Include(s => s.Sala)
+        .Include(s => s.NačinProjekcije)
+        .Where(s => s.FilmId == filmId && s.Stanje == "active");
+
+            var projekcije = query.OrderBy(s => s.DatumIvrijeme).ToList();
+            return Mapper.Map<List<Model.Projekcije>>(projekcije);
         }
     }
 }

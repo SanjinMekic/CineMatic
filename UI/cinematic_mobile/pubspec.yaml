@@ -40,6 +40,7 @@ dependencies:
   intl: ^0.20.2
   flutter_form_builder: ^10.0.1
   file_picker: ^10.3.2
+  flutter_stripe: ^9.0.0
 
 dev_dependencies:
   flutter_test:
