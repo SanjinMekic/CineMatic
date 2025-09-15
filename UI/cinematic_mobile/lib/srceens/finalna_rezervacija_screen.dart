@@ -2,6 +2,7 @@ import 'package:cinematic_mobile/models/projekcija.dart';
 import 'package:cinematic_mobile/models/hrana_pice.dart';
 import 'package:cinematic_mobile/providers/rezervacija_provider.dart';
 import 'package:cinematic_mobile/providers/auth_provider.dart';
+import 'package:cinematic_mobile/providers/uplata_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -22,7 +23,8 @@ class PregledRezervacijeScreen extends StatefulWidget {
   });
 
   @override
-  State<PregledRezervacijeScreen> createState() => _PregledRezervacijeScreenState();
+  State<PregledRezervacijeScreen> createState() =>
+      _PregledRezervacijeScreenState();
 }
 
 class _PregledRezervacijeScreenState extends State<PregledRezervacijeScreen> {
@@ -51,7 +53,8 @@ class _PregledRezervacijeScreenState extends State<PregledRezervacijeScreen> {
   }
 
   double _ukupnaCijena() {
-    double cijenaKarte = (widget.projekcija.cijena ?? 0) * widget.sjedistaIds.length;
+    double cijenaKarte =
+        (widget.projekcija.cijena ?? 0) * widget.sjedistaIds.length;
     double cijenaHrane = 0;
     for (var h in widget.odabranaHranaPica) {
       final kolicina = widget.kolicineHranePica[h.id] ?? 1;
@@ -60,19 +63,25 @@ class _PregledRezervacijeScreenState extends State<PregledRezervacijeScreen> {
     return cijenaKarte + cijenaHrane;
   }
 
-  Future<void> _rezervisi(BuildContext context, {String stripePaymentIntentId = ""}) async {
+  Future<void> _rezervisi(
+    BuildContext context, {
+    String stripePaymentIntentId = "",
+  }) async {
     setState(() => _loading = true);
     final korisnikId = AuthProvider.korisnikId;
     if (korisnikId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Niste prijavljeni.")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Niste prijavljeni.")));
       setState(() => _loading = false);
       return;
     }
     final projekcijaId = widget.projekcija.id!;
     final hranaPiceIds = widget.odabranaHranaPica.map((h) => h.id).toList();
-    final kolicine = widget.odabranaHranaPica.map((h) => widget.kolicineHranePica[h.id] ?? 1).toList();
+    final kolicine =
+        widget.odabranaHranaPica
+            .map((h) => widget.kolicineHranePica[h.id] ?? 1)
+            .toList();
 
     final body = {
       "korisnikId": korisnikId,
@@ -83,7 +92,10 @@ class _PregledRezervacijeScreenState extends State<PregledRezervacijeScreen> {
       "stripePaymentIntentId": stripePaymentIntentId,
     };
 
-    final rezervacijaProvider = Provider.of<RezervacijaProvider>(context, listen: false);
+    final rezervacijaProvider = Provider.of<RezervacijaProvider>(
+      context,
+      listen: false,
+    );
 
     try {
       await rezervacijaProvider.insert(body);
@@ -92,39 +104,71 @@ class _PregledRezervacijeScreenState extends State<PregledRezervacijeScreen> {
       );
       Navigator.of(context).popUntil((route) => route.isFirst);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Greška pri rezervaciji: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Greška pri rezervaciji: $e")));
     }
     setState(() => _loading = false);
   }
 
   Future<String?> _payWithStripe() async {
-    // Ovdje bi trebao pozvati svoj backend da kreira PaymentIntent i vrati clientSecret
-    // Ovdje je samo primjer sa dummy clientSecret-om
-    const dummyClientSecret = "sk_test_dummy_client_secret";
-    if (_card == null || !_card!.complete) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Unesite ispravne podatke o kartici.")),
-      );
-      return null;
-    }
-    try {
-      await Stripe.instance.confirmPayment(
-        paymentIntentClientSecret: dummyClientSecret,
-        data: PaymentMethodParams.card(
-          paymentMethodData: PaymentMethodData(),
-        ),
-      );
-      // U pravoj aplikaciji, stripePaymentIntentId bi bio pravi id sa servera
-      return dummyClientSecret;
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Stripe greška: $e")),
-      );
-      return null;
-    }
+  if (_card == null || !_card!.complete) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Unesite ispravne podatke o kartici.")),
+    );
+    return null;
   }
+
+  String? clientSecret;
+
+  try {
+    final ukupnaCijena = _ukupnaCijena();
+    final amountInCents = (ukupnaCijena * 100).round();
+
+    final uplataProvider = UplataProvider();
+    final paymentIntentData = await uplataProvider.createPaymentIntent(
+      amountInCents,
+    );
+
+    clientSecret = paymentIntentData['clientSecret'];
+    if (clientSecret == null) {
+      throw Exception("Nije moguće dobiti clientSecret od servera.");
+    }
+
+    // 1. Kreiraj PaymentMethod iz forme
+    final paymentMethod = await Stripe.instance.createPaymentMethod(
+      params: PaymentMethodParams.card(
+        paymentMethodData: PaymentMethodData(),
+      ),
+    );
+
+    // 2. Potvrdi PaymentIntent sa tim PaymentMethodId
+    await Stripe.instance.confirmPayment(
+      paymentIntentClientSecret: clientSecret,
+      data: PaymentMethodParams.cardFromMethodId(
+        paymentMethodData: PaymentMethodDataCardFromMethod(
+          paymentMethodId: paymentMethod.id,
+        ),
+      ),
+    );
+
+    return clientSecret;
+  } catch (e) {
+    // Ako je greška "Unknown", provjeri status na backendu
+    if (e.toString().contains('Unknown') && clientSecret != null) {
+      final uplataProvider = UplataProvider();
+      final paymentIntentId = clientSecret.split('_secret').first;
+      final status = await uplataProvider.checkPaymentStatus(paymentIntentId);
+      if (status == 'succeeded') {
+        return clientSecret;
+      }
+    }
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text("Stripe greška: $e")));
+    return null;
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -133,9 +177,7 @@ class _PregledRezervacijeScreenState extends State<PregledRezervacijeScreen> {
     final cijenaKarte = widget.projekcija.cijena ?? 0;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Pregled rezervacije"),
-      ),
+      appBar: AppBar(title: const Text("Pregled rezervacije")),
       body: Padding(
         padding: const EdgeInsets.all(18),
         child: SingleChildScrollView(
@@ -144,24 +186,43 @@ class _PregledRezervacijeScreenState extends State<PregledRezervacijeScreen> {
             children: [
               Text(
                 widget.projekcija.film?.naziv ?? "Film",
-                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 18),
               Row(
                 children: [
-                  const Icon(Icons.calendar_today, size: 18, color: Colors.blueGrey),
+                  const Icon(
+                    Icons.calendar_today,
+                    size: 18,
+                    color: Colors.blueGrey,
+                  ),
                   const SizedBox(width: 6),
-                  Text("Datum: ${_formatDatum(widget.projekcija.datumIvrijeme)}"),
+                  Text(
+                    "Datum: ${_formatDatum(widget.projekcija.datumIvrijeme)}",
+                  ),
                   const SizedBox(width: 16),
-                  const Icon(Icons.access_time, size: 18, color: Colors.blueGrey),
+                  const Icon(
+                    Icons.access_time,
+                    size: 18,
+                    color: Colors.blueGrey,
+                  ),
                   const SizedBox(width: 6),
-                  Text("Vrijeme: ${_formatVrijeme(widget.projekcija.datumIvrijeme)}"),
+                  Text(
+                    "Vrijeme: ${_formatVrijeme(widget.projekcija.datumIvrijeme)}",
+                  ),
                 ],
               ),
               const SizedBox(height: 8),
               Row(
                 children: [
-                  const Icon(Icons.event_seat, size: 18, color: Colors.blueGrey),
+                  const Icon(
+                    Icons.event_seat,
+                    size: 18,
+                    color: Colors.blueGrey,
+                  ),
                   const SizedBox(width: 6),
                   Text("Sala: $salaNaziv"),
                 ],
@@ -177,7 +238,11 @@ class _PregledRezervacijeScreenState extends State<PregledRezervacijeScreen> {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  const Icon(Icons.attach_money, size: 18, color: Colors.blueGrey),
+                  const Icon(
+                    Icons.attach_money,
+                    size: 18,
+                    color: Colors.blueGrey,
+                  ),
                   const SizedBox(width: 6),
                   Text("Cijena po karti: ${cijenaKarte.toStringAsFixed(2)} KM"),
                 ],
@@ -186,7 +251,11 @@ class _PregledRezervacijeScreenState extends State<PregledRezervacijeScreen> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.event_seat, size: 18, color: Colors.blueGrey),
+                  const Icon(
+                    Icons.event_seat,
+                    size: 18,
+                    color: Colors.blueGrey,
+                  ),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
@@ -263,8 +332,8 @@ class _PregledRezervacijeScreenState extends State<PregledRezervacijeScreen> {
                           borderRadius: 12,
                           fontSize: 20,
                           textColor: Colors.black,
-                              placeholderColor: Colors.grey, // <-- placeholder je sivo
-    backgroundColor: Colors.white,
+                          placeholderColor: Colors.grey,
+                          backgroundColor: Colors.white,
                         ),
                       ),
                     ),
@@ -274,37 +343,59 @@ class _PregledRezervacijeScreenState extends State<PregledRezervacijeScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  icon: _loading
-                      ? const SizedBox(
-                          width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
-                      : const Icon(Icons.check),
+                  icon:
+                      _loading
+                          ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                          : const Icon(Icons.check),
                   label: const Text("Rezerviši"),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 14),
-                    textStyle: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                    textStyle: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.bold,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  onPressed: _loading
-                      ? null
-                      : () async {
-                          if (_nacinPlacanja == "stripe") {
-                            if (_card == null || !_card!.complete) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text("Unesite ispravne podatke o kartici.")),
+                  onPressed:
+                      _loading
+                          ? null
+                          : () async {
+                            if (_nacinPlacanja == "stripe") {
+                              if (_card == null || !_card!.complete) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      "Unesite ispravne podatke o kartici.",
+                                    ),
+                                  ),
+                                );
+                                return;
+                              }
+                              final stripePaymentIntentId =
+                                  await _payWithStripe();
+                              if (stripePaymentIntentId == null) return;
+                              await _rezervisi(
+                                context,
+                                stripePaymentIntentId:
+                                    stripePaymentIntentId
+                                        .split('_secret')
+                                        .first,
                               );
-                              return;
+                            } else {
+                              await _rezervisi(context);
                             }
-                            final stripePaymentIntentId = await _payWithStripe();
-                            if (stripePaymentIntentId == null) return;
-                            await _rezervisi(context, stripePaymentIntentId: stripePaymentIntentId);
-                          } else {
-                            await _rezervisi(context);
-                          }
-                        },
+                          },
                 ),
               ),
             ],

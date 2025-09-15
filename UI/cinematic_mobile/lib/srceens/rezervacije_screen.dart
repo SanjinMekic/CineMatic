@@ -374,15 +374,16 @@ class _RezervacijeScreenState extends State<RezervacijeScreen> {
                                               onPressed: () => _prikaziQrDialog(r.qrCodeBase64),
                                             ),
                                             const SizedBox(width: 12),
-                                            ElevatedButton.icon(
-                                              icon: const Icon(Icons.delete, color: Colors.white),
-                                              label: const Text("Obriši"),
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor: Colors.red,
-                                                foregroundColor: Colors.white,
+                                            if ((r.nacinPlacanja?.toLowerCase() ?? '') != 'stripe')
+                                              ElevatedButton.icon(
+                                                icon: const Icon(Icons.delete, color: Colors.white),
+                                                label: const Text("Obriši"),
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: Colors.red,
+                                                  foregroundColor: Colors.white,
+                                                ),
+                                                onPressed: () => _potvrdiBrisanje(r.rezervacijaId ?? 0),
                                               ),
-                                              onPressed: () => _potvrdiBrisanje(r.rezervacijaId ?? 0),
-                                            ),
                                           ],
                                         ),
                                       ),

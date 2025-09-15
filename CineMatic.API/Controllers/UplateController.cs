@@ -18,49 +18,13 @@ namespace CineMatic.API.Controllers
             _uplateService = uplateService;
         }
 
-        //[HttpPost("create-payment-intent")]
-        //public async Task<IActionResult> CreatePaymentIntent([FromBody] PaymentIntentCreateRequest request)
-        //{
-        //    try
-        //    {
-        //        var paymentIntent = await _uplateService.CreatePaymentIntentAsync(request.Iznos);
-        //        return Ok(new { clientSecret = paymentIntent.ClientSecret });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(new { error = ex.Message });
-        //    }
-        //}
-
-        [HttpPost("CreatePaymentIntent")]
-        public async Task<IActionResult> CreatePaymentIntent([FromQuery] int amount)
+        [HttpPost("create-payment-intent")]
+        public async Task<IActionResult> CreatePaymentIntent([FromBody] PaymentIntentCreateRequest request)
         {
             try
             {
-                // Kreiraj PaymentIntent odmah kao potvrđen
-                var options = new Stripe.PaymentIntentCreateOptions
-                {
-                    Amount = amount,
-                    Currency = "usd",
-                    Confirm = true, // Odmah potvrđuje uplatu
-                    AutomaticPaymentMethods = new Stripe.PaymentIntentAutomaticPaymentMethodsOptions
-                    {
-                        Enabled = true,
-                        AllowRedirects = "never" // Sprječava zahtjev za return_url
-                    },
-                    PaymentMethod = "pm_card_visa" // Test payment method (Stripe test kartica)
-                };
-
-                var service = new Stripe.PaymentIntentService();
-                var paymentIntent = await service.CreateAsync(options);
-
-                return Ok(new
-                {
-                    paymentIntent.Id,
-                    paymentIntent.Status,
-                    paymentIntent.Amount,
-                    paymentIntent.Currency
-                });
+                var paymentIntent = await _uplateService.CreatePaymentIntentAsync(request.Iznos);
+                return Ok(new { clientSecret = paymentIntent.ClientSecret });
             }
             catch (Exception ex)
             {
@@ -68,11 +32,18 @@ namespace CineMatic.API.Controllers
             }
         }
 
-        [HttpPost("ConfirmPayment")]
-        public IActionResult ConfirmPayment([FromQuery] string paymentIntentId, [FromQuery] decimal amount)
+        [HttpPost("status/{paymentIntentId}")]
+        public async Task<IActionResult> CheckPaymentStatus(string paymentIntentId)
         {
-            var result = _uplateService.ProcessStripePayment(paymentIntentId, amount);
-            return Ok(result);
+            try
+            {
+                var status = await _uplateService.CheckPaymentStatusAsync(paymentIntentId);
+                return Ok(new { status });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
         }
     }
 }

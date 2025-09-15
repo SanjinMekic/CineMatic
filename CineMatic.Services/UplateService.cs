@@ -28,7 +28,7 @@ namespace CineMatic.Services
                 throw new InvalidOperationException("Payment not successful.");
             }
 
-            var uplata = new Uplate
+            var payment = new Uplate
             {
                 Izdavač = "Stripe",
                 TransakcijaId = paymentIntent.Id,
@@ -36,10 +36,10 @@ namespace CineMatic.Services
                 DatumIvrijeme = DateTime.Now
             };
 
-            _context.Uplates.Add(uplata);
+            _context.Uplates.Add(payment);
             _context.SaveChanges();
 
-            return uplata;
+            return payment;
         }
 
         public async Task<PaymentIntent> CreatePaymentIntentAsync(int amount)
@@ -49,9 +49,19 @@ namespace CineMatic.Services
                 Amount = amount,
                 Currency = "usd",
                 PaymentMethodTypes = new List<string> { "card" },
+                ConfirmationMethod = "automatic",
+                Confirm = false
             };
             var service = new PaymentIntentService();
             return await service.CreateAsync(options);
+        }
+
+        public async Task<string> CheckPaymentStatusAsync(string paymentIntentId)
+        {
+            var service = new PaymentIntentService();
+            var paymentIntent = await service.GetAsync(paymentIntentId);
+
+            return paymentIntent.Status;
         }
     }
 }

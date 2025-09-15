@@ -11,6 +11,7 @@ import 'package:cinematic_mobile/providers/recenzija_provider.dart';
 import 'package:cinematic_mobile/providers/rezervacija_provider.dart';
 import 'package:cinematic_mobile/providers/reziser_provider.dart';
 import 'package:cinematic_mobile/providers/sjediste_provider.dart';
+import 'package:cinematic_mobile/providers/uplata_provider.dart';
 import 'package:cinematic_mobile/providers/zanr_provider.dart';
 import 'package:cinematic_mobile/srceens/login_screen.dart';
 import 'package:flutter/material.dart';
@@ -65,6 +66,9 @@ void main() async {
         ),
         ChangeNotifierProvider<RecenzijaProvider>(
           create: (_) => RecenzijaProvider(),
+        ),
+        ChangeNotifierProvider<UplataProvider>(
+          create: (_) => UplataProvider(),
         ),
       ],
       child: const MyApp(),

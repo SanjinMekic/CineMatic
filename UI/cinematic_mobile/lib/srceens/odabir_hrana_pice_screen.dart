@@ -42,9 +42,11 @@ class _HranaPiceScreenState extends State<HranaPiceScreen> {
 
   void _promijeniKolicinu(int id, int delta) {
     setState(() {
+      final artikal = _artikli.firstWhere((a) => a.id == id);
       final trenutna = _kolicine[id] ?? 0;
       final nova = trenutna + delta;
       if (nova < 0) return;
+      if (artikal.kolicinaUskladistu != null && nova > artikal.kolicinaUskladistu!) return; // Ne dozvoli više od lagera
       _kolicine[id] = nova;
     });
   }
@@ -67,47 +69,64 @@ class _HranaPiceScreenState extends State<HranaPiceScreen> {
                       itemBuilder: (context, index) {
                         final artikal = _artikli[index];
                         final kolicina = _kolicine[artikal.id] ?? 0;
+                        final maxKolicina = artikal.kolicinaUskladistu ?? 999999;
+
                         return Card(
-                          margin: const EdgeInsets.symmetric(vertical: 8),
-                          child: ListTile(
-                            leading: artikal.slikaBase64 != null
-    ? ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: Image.memory(
-          base64Decode(artikal.slikaBase64!),
-          width: 48,
-          height: 48,
-          fit: BoxFit.cover,
+  margin: const EdgeInsets.symmetric(vertical: 8),
+  child: Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+    child: Row(
+      children: [
+        artikal.slikaBase64 != null
+            ? ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.memory(
+                  base64Decode(artikal.slikaBase64!),
+                  width: 48,
+                  height: 48,
+                  fit: BoxFit.cover,
+                ),
+              )
+            : const Icon(Icons.fastfood, size: 32),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(artikal.naziv ?? "", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(
+                (artikal.cijena != null ? "${artikal.cijena!.toStringAsFixed(2)} KM" : "") +
+                (artikal.kolicinaUskladistu != null ? " | Na lageru: ${artikal.kolicinaUskladistu}" : ""),
+                style: const TextStyle(fontSize: 14, color: Colors.grey),
+              ),
+            ],
+          ),
         ),
-      )
-    : const Icon(Icons.fastfood, size: 32),
-                            title: Text(artikal.naziv ?? ""),
-                            subtitle: Text(
-                              artikal.cijena != null
-                                  ? "${artikal.cijena!.toStringAsFixed(2)} KM"
-                                  : "",
-                            ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.remove),
-                                  onPressed: kolicina > 0
-                                      ? () => _promijeniKolicinu(artikal.id, -1)
-                                      : null,
-                                ),
-                                Text(
-                                  kolicina.toString(),
-                                  style: const TextStyle(fontSize: 18),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.add),
-                                  onPressed: () => _promijeniKolicinu(artikal.id, 1),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.remove),
+              onPressed: kolicina > 0
+                  ? () => _promijeniKolicinu(artikal.id, -1)
+                  : null,
+            ),
+            Text(
+              kolicina.toString(),
+              style: const TextStyle(fontSize: 18),
+            ),
+            IconButton(
+              icon: const Icon(Icons.add),
+              onPressed: kolicina < maxKolicina
+                  ? () => _promijeniKolicinu(artikal.id, 1)
+                  : null,
+            ),
+          ],
+        ),
+      ],
+    ),
+  ),
+);
                       },
                     ),
                   ),
