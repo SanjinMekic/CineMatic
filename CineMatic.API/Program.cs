@@ -7,8 +7,12 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using RabbitMQ.Client;
+using DotNetEnv;
+
 
 var builder = WebApplication.CreateBuilder(args);
+
+Env.Load("../.env");
 
 builder.WebHost.ConfigureKestrel(options =>
 {
@@ -47,7 +51,7 @@ builder.Services.AddTransient<IProjekcijeSjedištumService, ProjekcijeSjedištum
 builder.Services.AddTransient<IRezervacijeService, RezervacijeService>();
 builder.Services.AddTransient<IIzvjestajiService, IzvjestajiService>();
 
-var stripeSecretKey = builder.Configuration["Stripe:SecretKey"];
+var stripeSecretKey = Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY");
 builder.Services.AddTransient(sp => new UplateService(stripeSecretKey, sp.GetRequiredService<Ib210083Context>()));
 
 builder.Services.AddHttpContextAccessor();

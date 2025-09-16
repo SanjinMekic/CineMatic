@@ -45,5 +45,20 @@ namespace CineMatic.API.Controllers
                 return BadRequest(new { Message = ex.Message });
             }
         }
+
+        [HttpPut("ponisti/{id}")]
+        [Authorize(Roles = "Administrator")]
+        public ActionResult<Rezervacije> PonistiKartu(int id)
+        {
+            try
+            {
+                ((RezervacijeService)_service).PonistiKartu(id);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

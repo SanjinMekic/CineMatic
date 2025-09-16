@@ -24,6 +24,7 @@ namespace CineMatic.Model
         public string? NačinPlaćanja { get; set; }
 
         public string? QrcodeBase64 { get; set; }
+        public bool? PonistenaKarta { get; set; }
 
         public virtual Korisnici? Korisnik { get; set; }
 

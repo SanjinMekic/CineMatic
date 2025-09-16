@@ -41,6 +41,8 @@ dependencies:
   flutter_form_builder: ^10.0.1
   file_picker: ^10.3.2
   flutter_stripe: ^9.0.0
+  mobile_scanner: ^3.5.0
+  flutter_dotenv: ^5.1.0
 
 dev_dependencies:
   flutter_test:
@@ -66,6 +68,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/images/CineMaticPNG.png
+    - .env
 
   # To add assets to your application, add an assets section, like this:
   # assets:

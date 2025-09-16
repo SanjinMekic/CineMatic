@@ -93,6 +93,7 @@ namespace CineMatic.Services
                     UkupnaCijena = entity.UkupnaCijena,
                     NačinPlaćanja = entity.NačinPlaćanja,
                     QrcodeBase64 = entity.QrcodeBase64,
+                    PonistenaKarta = entity.PonistenaKarta,
                     DatumIvrijeme = entity.DatumIvrijeme,
                     RezervacijeSjedišta = new List<Model.RezervacijeSjedištum>(),
                     RezervacijeHraneIpićas = new List<Model.RezervacijeHraneIpića>(),
@@ -208,7 +209,8 @@ namespace CineMatic.Services
                     BrojUlaznica = entity.BrojUlaznica,
                     UkupnaCijena = entity.UkupnaCijena,
                     NačinPlaćanja = entity.NačinPlaćanja,
-                    QrcodeBase64 = entity.QrcodeBase64
+                    QrcodeBase64 = entity.QrcodeBase64,
+                    PonistenaKarta = entity.PonistenaKarta
                 };
 
                 model.RezervacijeSjedišta = entity.RezervacijeSjedišta.Select(rs => new Model.RezervacijeSjedištum
@@ -327,6 +329,8 @@ namespace CineMatic.Services
                 }
 
                 var reservation = CreateReservationEntity(request, screening);
+
+                reservation.PonistenaKarta = false;
 
                 Context.Add(reservation);
                 Context.SaveChanges();
@@ -734,6 +738,24 @@ namespace CineMatic.Services
             }).ToList();
 
             return reservationModels;
+        }
+
+        public void PonistiKartu(int id)
+        {
+            var entity = _context.Rezervacijes.Find(id);
+
+            if (entity == null)
+            {
+                throw new KeyNotFoundException("Rezervacija nije pronađena!");
+            }
+
+            if (entity.PonistenaKarta == true)
+            {
+                throw new InvalidOperationException("Karta je već poništena!");
+            }
+
+            entity.PonistenaKarta = true;
+            _context.SaveChanges();
         }
     }
 }

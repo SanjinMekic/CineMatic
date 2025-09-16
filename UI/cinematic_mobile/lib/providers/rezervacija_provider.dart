@@ -34,4 +34,35 @@ class RezervacijaProvider extends BaseProvider<Rezervacija> {
       throw Exception('Greška pri dohvatu rezervacija');
     }
   }
+
+    Future<void> ponistiKartu(int rezervacijaId) async {
+  final url = Uri.parse('$baseUrl${endpoint}/ponisti/$rezervacijaId');
+  final headers = createHeaders();
+
+  final response = await http.put(url, headers: headers);
+
+  if (response.statusCode == 200) {
+    // Uspješno poništeno
+    return;
+  } else {
+    String message;
+    try {
+      final decoded = jsonDecode(response.body);
+      if (decoded is Map && decoded.containsKey('Message')) {
+        message = decoded['Message'];
+        // Prepoznaj tip greške po poruci
+        if (message.contains('Rezervacija nije pronađena')) {
+          message = 'Rezervacija nije pronađena!';
+        } else if (message.contains('Karta je već poništena')) {
+          message = 'Karta je već poništena!';
+        }
+      } else {
+        message = response.body.toString();
+      }
+    } catch (_) {
+      message = response.body.toString();
+    }
+    throw Exception(message);
+  }
+}
 }

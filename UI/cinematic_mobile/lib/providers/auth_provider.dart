@@ -16,6 +16,7 @@ class AuthProvider extends BaseProvider<Korisnik> {
   }
 
   Future<Korisnik?> login(String username, String password) async {
+    print('Pozivam login metodu');
     try {
       final url = Uri.parse("${baseUrl}Korisnici/login");
 
@@ -24,6 +25,8 @@ class AuthProvider extends BaseProvider<Korisnik> {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'username': username, 'password': password}),
       );
+
+      print('Login response: ${response.statusCode} ${response.body}');
 
       if (response.statusCode == 200) {
         final user = Korisnik.fromJson(jsonDecode(response.body));

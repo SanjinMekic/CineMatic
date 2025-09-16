@@ -23,6 +23,8 @@ public partial class Rezervacije
 
     public string? QrcodeBase64 { get; set; }
 
+    public bool? PonistenaKarta { get; set; }
+
     public virtual Korisnici? Korisnik { get; set; }
 
     public virtual Projekcije? Projekcija { get; set; }

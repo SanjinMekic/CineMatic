@@ -17,10 +17,13 @@ import 'package:cinematic_mobile/srceens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Stripe.publishableKey = ''; // OVDJE STAVI SVOJ STRIPE PUBLISHABLE KEY
+  await dotenv.load();
+
+  Stripe.publishableKey = dotenv.env['STRIPE_PUBLISHABLE_KEY'] ?? '';
   await Stripe.instance.applySettings();
   runApp(
     MultiProvider(
