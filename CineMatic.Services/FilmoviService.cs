@@ -1,4 +1,5 @@
-﻿using CineMatic.Model.Requests;
+﻿using CineMatic.Model.RecommenderSystemModels;
+using CineMatic.Model.Requests;
 using CineMatic.Model.SearchObject;
 using CineMatic.Services.Database;
 using MapsterMapper;
@@ -300,6 +301,27 @@ namespace CineMatic.Services
                     }
                 }
             }
+        }
+
+        public IEnumerable<FilmDTO> DohvatiSveFilmove()
+        {
+            var filmovi = Context.Filmovis.Include(m => m.Žanrs).Include(m => m.Glumacs).ToList();
+
+            var filmDto = new List<FilmDTO>();
+
+            foreach (var film in filmovi)
+            {
+                filmDto.Add(new FilmDTO
+                {
+                    Id = film.Id,
+                    Naslov = film.Naziv,
+                    Zanrovi = film.Žanrs.Select(g => g.Naziv).ToArray(),
+                    Glumci = film.Glumacs.Select(a => $"{a.Ime} {a.Prezime}").ToArray(),
+                    ImageBase64 = film.Slika != null ? Convert.ToBase64String(film.Slika) : null
+                });
+            }
+
+            return filmDto;
         }
     }
 }

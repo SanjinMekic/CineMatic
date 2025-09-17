@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using RabbitMQ.Client;
 using DotNetEnv;
+using CineMatic.Services.RecommenderSystem;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -50,6 +51,7 @@ builder.Services.AddTransient<IProjekcijeService, ProjekcijeService>();
 builder.Services.AddTransient<IProjekcijeSjedištumService, ProjekcijeSjedištumService>();
 builder.Services.AddTransient<IRezervacijeService, RezervacijeService>();
 builder.Services.AddTransient<IIzvjestajiService, IzvjestajiService>();
+builder.Services.AddTransient<IRecommenderService, RecommenderService>();
 
 var stripeSecretKey = Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY");
 builder.Services.AddTransient(sp => new UplateService(stripeSecretKey, sp.GetRequiredService<Ib210083Context>()));

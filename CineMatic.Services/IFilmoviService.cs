@@ -1,4 +1,5 @@
 ﻿using CineMatic.Model;
+using CineMatic.Model.RecommenderSystemModels;
 using CineMatic.Model.Requests;
 using CineMatic.Model.SearchObject;
 using System;
@@ -11,5 +12,6 @@ namespace CineMatic.Services
 {
     public interface IFilmoviService : ICRUDService<Filmovi, FilmoviSearchObject, FilmoviInsertRequest, FilmoviUpdateRequest>
     {
+        IEnumerable<FilmDTO> DohvatiSveFilmove();
     }
 }
