@@ -19,6 +19,8 @@ class _GlumacFormScreenState extends State<GlumacFormScreen> {
   String? _prezime;
   DateTime? _datumRodjenja;
   String? _opis;
+  String? _uspjesi;
+  String? _ulogeUfilmovima;
   String? _slikaBase64;
   bool _isLoading = false;
 
@@ -30,6 +32,8 @@ class _GlumacFormScreenState extends State<GlumacFormScreen> {
       _prezime = widget.item!.prezime;
       _datumRodjenja = widget.item!.datumRodjenja;
       _opis = widget.item!.opis;
+      _uspjesi = widget.item!.uspjesi;
+      _ulogeUfilmovima = widget.item!.ulogeUfilmovima;
       _slikaBase64 = widget.item!.slikaBase64;
     }
   }
@@ -55,6 +59,8 @@ class _GlumacFormScreenState extends State<GlumacFormScreen> {
       'prezime': _prezime,
       'datumRodjenja': _datumRodjenja?.toIso8601String(),
       'opis': _opis,
+      'uspjesi': _uspjesi,
+      'ulogeUfilmovima': _ulogeUfilmovima,
       'slikaBase64': _slikaBase64 ?? widget.item?.slikaBase64,
     };
 
@@ -107,6 +113,20 @@ class _GlumacFormScreenState extends State<GlumacFormScreen> {
                       decoration: InputDecoration(labelText: "Opis"),
                       maxLines: 3,
                       onSaved: (v) => _opis = v,
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      initialValue: _uspjesi,
+                      decoration: InputDecoration(labelText: "Uspjesi"),
+                      maxLines: 2,
+                      onSaved: (v) => _uspjesi = v,
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      initialValue: _ulogeUfilmovima,
+                      decoration: InputDecoration(labelText: "Uloge u filmovima"),
+                      maxLines: 2,
+                      onSaved: (v) => _ulogeUfilmovima = v,
                     ),
                     const SizedBox(height: 16),
                     Row(

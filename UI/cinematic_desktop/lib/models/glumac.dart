@@ -9,6 +9,8 @@ class Glumac {
   String? prezime;
   DateTime? datumRodjenja;
   String? opis;
+  String? uspjesi;           // Dodaj ovo polje
+  String? ulogeUfilmovima;   // Dodaj ovo polje
   String? slikaBase64;
 
   Glumac({
@@ -17,6 +19,8 @@ class Glumac {
     this.prezime,
     this.datumRodjenja,
     this.opis,
+    this.uspjesi,           // Dodaj u konstruktor
+    this.ulogeUfilmovima,   // Dodaj u konstruktor
     this.slikaBase64,
   });
 

@@ -17,5 +17,9 @@ public partial class Glumci
 
     public byte[]? Slika { get; set; }
 
+    public string? Uspjesi { get; set; }
+
+    public string? UlogeUfilmovima { get; set; }
+
     public virtual ICollection<Filmovi> Films { get; set; } = new List<Filmovi>();
 }

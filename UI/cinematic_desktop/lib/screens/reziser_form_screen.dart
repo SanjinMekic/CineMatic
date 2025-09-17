@@ -19,6 +19,8 @@ class _ReziserFormScreenState extends State<ReziserFormScreen> {
   String? _prezime;
   DateTime? _datumRodjenja;
   String? _opis;
+  String? _uspjesi;
+  String? _rezisiraniFilmovi;
   String? _slikaBase64;
   bool _isLoading = false;
 
@@ -30,6 +32,8 @@ class _ReziserFormScreenState extends State<ReziserFormScreen> {
       _prezime = widget.item!.prezime;
       _datumRodjenja = widget.item!.datumRodjenja;
       _opis = widget.item!.opis;
+      _uspjesi = widget.item!.uspjesi;
+      _rezisiraniFilmovi = widget.item!.rezisiraniFilmovi;
       _slikaBase64 = widget.item!.slikaBase64;
     }
   }
@@ -55,6 +59,8 @@ class _ReziserFormScreenState extends State<ReziserFormScreen> {
       'prezime': _prezime,
       'datumRodjenja': _datumRodjenja?.toIso8601String(),
       'opis': _opis,
+      'uspjesi': _uspjesi,
+      'rezisiraniFilmovi': _rezisiraniFilmovi,
       'slikaBase64': _slikaBase64 ?? widget.item?.slikaBase64,
     };
 
@@ -107,6 +113,20 @@ class _ReziserFormScreenState extends State<ReziserFormScreen> {
                       decoration: InputDecoration(labelText: "Opis"),
                       maxLines: 3,
                       onSaved: (v) => _opis = v,
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      initialValue: _uspjesi,
+                      decoration: InputDecoration(labelText: "Uspjesi"),
+                      maxLines: 2,
+                      onSaved: (v) => _uspjesi = v,
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      initialValue: _rezisiraniFilmovi,
+                      decoration: InputDecoration(labelText: "Režisirani filmovi"),
+                      maxLines: 2,
+                      onSaved: (v) => _rezisiraniFilmovi = v,
                     ),
                     const SizedBox(height: 16),
                     Row(

@@ -61,7 +61,9 @@ CREATE TABLE Glumci (
     Prezime NVARCHAR(50),
 	DatumRodjenja DATETIME,
 	Opis VARCHAR(MAX),
-    Slika VARBINARY(MAX)
+    Slika VARBINARY(MAX),
+	Uspjesi NVARCHAR(MAX),
+	UlogeUFilmovima NVARCHAR(MAX)
 );
 
 CREATE TABLE FilmoviGlumci (
@@ -78,7 +80,9 @@ CREATE TABLE Režiseri (
     Prezime NVARCHAR(50),
 	DatumRodjenja DATETIME,
 	Opis NVARCHAR(MAX),
-    Slika VARBINARY(MAX)
+    Slika VARBINARY(MAX),
+	Uspjesi NVARCHAR(MAX),
+	RezisiraniFilmovi NVARCHAR(MAX)
 );
 
 CREATE TABLE FilmoviRežiseri (
@@ -355,23 +359,97 @@ VALUES
 (15, 9); -- The Silence of the Lambs (Kriminalistički)
 
 -- Unos podataka u tabelu Glumci
-INSERT INTO Glumci (Ime, Prezime, DatumRodjenja, Opis, Slika)
+INSERT INTO Glumci (Ime, Prezime, DatumRodjenja, Opis, Slika, Uspjesi, UlogeUFilmovima)
 VALUES
-('Matthew', 'Broderick', '1962-03-21', 'Američki glumac poznat po ulozi u animiranom filmu The Lion King.', NULL),
-('Christian', 'Bale', '1974-01-30', 'Britanski glumac poznat po transformacijama ulogama, posebno kao Batman.', NULL),
-('Tom', 'Hanks', '1956-07-09', 'Američki glumac i producent, poznat po širokom spektru uloga i emotivnim izvedbama.', NULL),
-('Joaquin', 'Phoenix', '1974-10-28', 'Američki glumac poznat po intenzivnim i emocionalno zahtjevnim ulogama.', NULL),
-('Keanu', 'Reeves', '1964-09-02', 'Kanadski glumac poznat po ulozi u Matrix trilogiji i akcijskim filmovima.', NULL),
-('Leonardo', 'DiCaprio', '1974-11-11', 'Američki glumac i producent, dobitnik Oscara, poznat po brojnim dramskim ulogama.', NULL),
-('Marlon', 'Brando', '1924-04-03', 'Legendarni američki glumac i ikona filmske umjetnosti 20. stoljeća.', NULL),
-('John', 'Travolta', '1954-02-18', 'Američki glumac poznat po ulogama u glazbenim i kriminalističkim filmovima.', NULL),
-('Chris', 'Hemsworth', '1983-08-11', 'Australski glumac poznat po ulozi Thora u Marvel filmovima.', NULL),
-('Russell', 'Crowe', '1964-04-07', 'Novozelandsko-australski glumac, dobitnik Oscara, poznat po ulozi u filmu Gladiator.', NULL),
-('Tim', 'Robbins', '1958-10-16', 'Američki glumac, režiser i scenarist, poznat po ulozi u filmu The Shawshank Redemption.', NULL),
-('Matthew', 'McConaughey', '1969-11-04', 'Američki glumac poznat po šarmantnim i ozbiljnim ulogama, uključujući film Interstellar.', NULL),
-('Brad', 'Pitt', '1963-12-18', 'Američki glumac i producent, poznat po raznovrsnim ulogama i filmskom utjecaju.', NULL),
-('Mark', 'Hamill', '1951-09-25', 'Američki glumac najpoznatiji po ulozi Lukea Skywalkera u Star Wars sagama.', NULL),
-('Jodie', 'Foster', '1962-11-19', 'Američka glumica i režiserka, poznata po inteligentnim i snažnim ulogama.', NULL);
+('Matthew', 'Broderick', '1962-03-21',
+ 'Američki glumac poznat po ulozi u animiranom filmu The Lion King.',
+ NULL,
+ 'Dobitnik Tony nagrade; Glas Simbe u originalnom The Lion King (1994).',
+ 'The Lion King (Simba), Ferris Bueller''s Day Off (Ferris Bueller)'),
+
+('Christian', 'Bale', '1974-01-30',
+ 'Britanski glumac poznat po transformacijama ulogama, posebno kao Batman.',
+ NULL,
+ 'Oscar za The Fighter (2011); poznat po ekstremnim fizičkim transformacijama.',
+ 'The Dark Knight Trilogy (Batman), American Psycho (Patrick Bateman)'),
+
+('Tom', 'Hanks', '1956-07-09',
+ 'Američki glumac i producent, poznat po širokom spektru uloga i emotivnim izvedbama.',
+ NULL,
+ '2 Oscara (Philadelphia, Forrest Gump); dobitnik Presidential Medal of Freedom.',
+ 'Forrest Gump (Forrest Gump), Cast Away (Chuck Noland), Toy Story (Woody)'),
+
+('Joaquin', 'Phoenix', '1974-10-28',
+ 'Američki glumac poznat po intenzivnim i emocionalno zahtjevnim ulogama.',
+ NULL,
+ 'Oscar za Jokera (2020); Zlatni globus za Walk the Line.',
+ 'Joker (Arthur Fleck), Walk the Line (Johnny Cash), Gladiator (Commodus)'),
+
+('Keanu', 'Reeves', '1964-09-02',
+ 'Kanadski glumac poznat po ulozi u Matrix trilogiji i akcijskim filmovima.',
+ NULL,
+ 'MTV nagrade za akcione uloge; kultni status u akcionim franšizama.',
+ 'The Matrix (Neo), John Wick (John Wick), Speed (Jack Traven)'),
+
+('Leonardo', 'DiCaprio', '1974-11-11',
+ 'Američki glumac i producent, dobitnik Oscara, poznat po brojnim dramskim ulogama.',
+ NULL,
+ 'Oscar za The Revenant; višestruke nominacije za Oscara i Zlatni globus.',
+ 'Titanic (Jack Dawson), The Wolf of Wall Street (Jordan Belfort), Inception (Dom Cobb)'),
+
+('Marlon', 'Brando', '1924-04-03',
+ 'Legendarni američki glumac i ikona filmske umjetnosti 20. stoljeća.',
+ NULL,
+ '2 Oscara (On the Waterfront, The Godfather); revolucionar glumačkog stila.',
+ 'The Godfather (Vito Corleone), Apocalypse Now (Colonel Kurtz)'),
+
+('John', 'Travolta', '1954-02-18',
+ 'Američki glumac poznat po ulogama u glazbenim i kriminalističkim filmovima.',
+ NULL,
+ 'Nominacije za Oscara; Golden Globe dobitnik.',
+ 'Grease (Danny Zuko), Pulp Fiction (Vincent Vega), Saturday Night Fever (Tony Manero)'),
+
+('Chris', 'Hemsworth', '1983-08-11',
+ 'Australski glumac poznat po ulozi Thora u Marvel filmovima.',
+ NULL,
+ 'Teen Choice i MTV nagrade; globalna popularnost kroz Marvel Cinematic Universe.',
+ 'Thor (Thor), The Avengers (Thor), Extraction (Tyler Rake)'),
+
+('Russell', 'Crowe', '1964-04-07',
+ 'Novozelandsko-australski glumac, dobitnik Oscara, poznat po ulozi u filmu Gladiator.',
+ NULL,
+ 'Oscar za Gladiatora; više BAFTA i Golden Globe nagrada.',
+ 'Gladiator (Maximus), A Beautiful Mind (John Nash), Les Misérables (Javert)'),
+
+('Tim', 'Robbins', '1958-10-16',
+ 'Američki glumac, režiser i scenarist, poznat po ulozi u filmu The Shawshank Redemption.',
+ NULL,
+ 'Oscar za Mystic River; aktivist i producent.',
+ 'The Shawshank Redemption (Andy Dufresne), Mystic River (Dave Boyle)'),
+
+('Matthew', 'McConaughey', '1969-11-04',
+ 'Američki glumac poznat po šarmantnim i ozbiljnim ulogama, uključujući film Interstellar.',
+ NULL,
+ 'Oscar za Dallas Buyers Club; poznat po "McConaissance" fazi karijere.',
+ 'Dallas Buyers Club (Ron Woodroof), Interstellar (Cooper), True Detective (Rust Cohle)'),
+
+('Brad', 'Pitt', '1963-12-18',
+ 'Američki glumac i producent, poznat po raznovrsnim ulogama i filmskom utjecaju.',
+ NULL,
+ 'Oscar kao producent (12 Years a Slave) i za glumu (Once Upon a Time in Hollywood).',
+ 'Fight Club (Tyler Durden), Once Upon a Time in Hollywood (Cliff Booth), Troy (Achilles)'),
+
+('Mark', 'Hamill', '1951-09-25',
+ 'Američki glumac najpoznatiji po ulozi Lukea Skywalkera u Star Wars sagama.',
+ NULL,
+ 'Ikona pop kulture; dobitnik nagrada za glasovnu glumu (Joker u animacijama).',
+ 'Star Wars (Luke Skywalker), Batman: The Animated Series (Joker – glas)'),
+
+('Jodie', 'Foster', '1962-11-19',
+ 'Američka glumica i režiserka, poznata po inteligentnim i snažnim ulogama.',
+ NULL,
+ '2 Oscara (The Accused, Silence of the Lambs).',
+ 'The Silence of the Lambs (Clarice Starling), The Accused (Sarah Tobias)');
 
 -- Unos podataka u tabelu FilmoviGlumci
 INSERT INTO FilmoviGlumci (FilmID, GlumacID)
@@ -393,23 +471,52 @@ VALUES
 (15, 15); -- The Silence of the Lambs - Jodie Foster
 
 -- Unos podataka u tabelu Režiseri
-INSERT INTO Režiseri (Ime, Prezime, DatumRodjenja, Opis, Slika)
+INSERT INTO Režiseri (Ime, Prezime, DatumRodjenja, Opis, Slika, Uspjesi, RezisiraniFilmovi)
 VALUES
-('Jon', 'Favreau', '1966-10-19', 'Američki režiser, producent i glumac, poznat po režiranju The Lion King remakea.', NULL),
-('Christopher', 'Nolan', '1970-07-30', 'Britanski režiser poznat po složenim narativima i vizualno impresivnim filmovima.', NULL),
-('Robert', 'Zemeckis', '1951-05-14', 'Američki režiser i scenarist, poznat po inovacijama u vizualnim efektima.', NULL),
-('Todd', 'Phillips', '1970-12-20', 'Američki režiser poznat po komedijama i dramama, uključujući Joker.', NULL),
-('Lana', 'Wachowski', '1965-06-21', 'Američka režiserka poznata po režiji kultnog Matrix serijala.', NULL),
-('Christopher', 'Nolan', '1970-07-30', 'Britanski režiser poznat po složenim narativima i vizualno impresivnim filmovima.', NULL),
-('Francis', 'Ford Coppola', '1939-04-07', 'Američki režiser, jedan od najutjecajnijih filmskih stvaralaca svih vremena.', NULL),
-('Quentin', 'Tarantino', '1963-03-27', 'Američki režiser poznat po stiliziranom nasilju i jedinstvenom dijalogu.', NULL),
-('Anthony', 'Russo', '1970-02-03', 'Američki režiser koji zajedno s bratom režira Marvelove blockbustere.', NULL),
-('Ridley', 'Scott', '1937-11-30', 'Britanski režiser poznat po epskim filmovima i naučno-fantastičnim klasicima.', NULL),
-('Frank', 'Darabont', '1959-01-28', 'Američki režiser poznat po adaptacijama djela Stephena Kinga.', NULL),
-('Christopher', 'Nolan', '1970-07-30', 'Britanski režiser poznat po složenim narativima i vizualno impresivnim filmovima.', NULL),
-('David', 'Fincher', '1962-08-28', 'Američki režiser poznat po mračnim, psihološkim trilerima.', NULL),
-('George', 'Lucas', '1944-05-14', 'Američki režiser i producent, tvorac Star Wars i Indiana Jones serijala.', NULL),
-('Jonathan', 'Demme', '1944-02-22', 'Američki režiser, poznat po filmu The Silence of the Lambs.', NULL);
+('Jon', 'Favreau', '1966-10-19', 'Američki režiser, producent i glumac, poznat po režiranju The Lion King remakea.', NULL,
+ 'Primetime Emmy nominacija; Saturn Award', 
+ 'Elf, Iron Man, Chef, The Mandalorian'),
+('Christopher', 'Nolan', '1970-07-30', 'Britanski režiser poznat po složenim narativima i vizualno impresivnim filmovima.', NULL,
+ 'Academy Award nominacije; BAFTA nagrade; Golden Globe nominacije', 
+ 'Memento, The Prestige, Dunkirk, Tenet, Inception, The Dark Knight Trilogy'),
+('Robert', 'Zemeckis', '1951-05-14', 'Američki režiser i scenarist, poznat po inovacijama u vizualnim efektima.', NULL,
+ 'Academy Award; Saturn Award', 
+ 'Romancing the Stone, Who Framed Roger Rabbit, Back to the Future Trilogy, Forrest Gump, Cast Away'),
+('Todd', 'Phillips', '1970-12-20', 'Američki režiser poznat po komedijama i dramama, uključujući Joker.', NULL,
+ 'Academy Award nominacija; Golden Globe nominacija', 
+ 'Old School, The Hangover Trilogy, Joker, War Dogs'),
+('Lana', 'Wachowski', '1965-06-21', 'Američka režiserka poznata po režiji kultnog Matrix serijala.', NULL,
+ 'Saturn Award; BAFTA nominacija', 
+ 'Matrix Trilogy, Cloud Atlas, Jupiter Ascending, Speed Racer'),
+('Guillermo', 'del Toro', '1964-10-09', 'Meksički režiser poznat po fantastičnim i horor filmovima.', NULL,
+ 'Academy Award; Golden Globe', 'Pans Labyrinth, Pacific Rim, The Shape of Water, Crimson Peak'),
+('Francis', 'Ford Coppola', '1939-04-07', 'Američki režiser, jedan od najutjecajnijih filmskih stvaralaca svih vremena.', NULL,
+ 'Academy Award za režiju i produkciju; Golden Globe', 
+ 'The Godfather Trilogy, Apocalypse Now, The Conversation, Dracula'),
+('Quentin', 'Tarantino', '1963-03-27', 'Američki režiser poznat po stiliziranom nasilju i jedinstvenom dijalogu.', NULL,
+ 'Academy Award; Golden Globe; BAFTA', 
+ 'Reservoir Dogs, Pulp Fiction, Kill Bill, Django Unchained, Once Upon a Time in Hollywood'),
+('Anthony', 'Russo', '1970-02-03', 'Američki režiser koji zajedno s bratom režira Marvelove blockbustere.', NULL,
+ 'Primetime Emmy; Saturn Award', 
+ 'Captain America: The Winter Soldier, Avengers: Infinity War, Avengers: Endgame, Cherry'),
+('Ridley', 'Scott', '1937-11-30', 'Britanski režiser poznat po epskim filmovima i naučno-fantastičnim klasicima.', NULL,
+ 'BAFTA; Golden Globe; Academy Award nominacija', 
+ 'Alien, Blade Runner, Gladiator, The Martian, Kingdom of Heaven'),
+('Frank', 'Darabont', '1959-01-28', 'Američki režiser poznat po adaptacijama djela Stephena Kinga.', NULL,
+ 'Academy Award nominacija; Saturn Award', 
+ 'The Shawshank Redemption, The Green Mile, The Mist'),
+('Sofia', 'Coppola', '1971-05-14', 'Američka režiserka poznata po intimnim dramama i vizualno stiliziranim filmovima.', NULL,
+ 'Academy Award nominacija; Golden Globe', 
+ 'Lost in Translation, Marie Antoinette, The Virgin Suicides'),
+('David', 'Fincher', '1962-08-28', 'Američki režiser poznat po mračnim, psihološkim trilerima.', NULL,
+ 'Golden Globe; BAFTA; Academy Award nominacija', 
+ 'Se7en, Fight Club, Zodiac, Gone Girl, The Social Network'),
+('George', 'Lucas', '1944-05-14', 'Američki režiser i producent, tvorac Star Wars i Indiana Jones serijala.', NULL,
+ 'Academy Award; George Lucas Award; Irving G. Thalberg Memorial Award', 
+ 'Star Wars Saga, Indiana Jones Saga, THX 1138'),
+('Jonathan', 'Demme', '1944-02-22', 'Američki režiser, poznat po filmu The Silence of the Lambs.', NULL,
+ 'Academy Award za režiju; Golden Globe; BAFTA', 
+ 'The Silence of the Lambs, Philadelphia, Rachel Getting Married');
 
 -- Unos podataka u tabelu FilmoviRežiseri
 INSERT INTO FilmoviRežiseri (FilmID, RežiserID)

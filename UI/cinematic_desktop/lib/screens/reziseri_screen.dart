@@ -85,21 +85,122 @@ class _ReziseriScreenState extends State<ReziseriScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text("${reziser.ime ?? ''} ${reziser.prezime ?? ''}"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
+        title: Row(
           children: [
-            _buildImage(reziser.slikaBase64),
-            const SizedBox(height: 16),
-            if (reziser.datumRodjenja != null)
-              Text(
-                "Datum rođenja: ${reziser.datumRodjenja!.toLocal().toString().split(' ')[0]}",
-                style: TextStyle(fontWeight: FontWeight.w500),
+            CircleAvatar(
+              radius: 28,
+              backgroundImage: reziser.slikaBase64 != null && reziser.slikaBase64!.isNotEmpty
+                  ? MemoryImage(base64Decode(reziser.slikaBase64!))
+                  : null,
+              child: (reziser.slikaBase64 == null || reziser.slikaBase64!.isEmpty)
+                  ? Icon(Icons.person, size: 32)
+                  : null,
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                "${reziser.ime ?? ''} ${reziser.prezime ?? ''}",
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                overflow: TextOverflow.ellipsis,
               ),
-            const SizedBox(height: 8),
-            if (reziser.opis != null && reziser.opis!.isNotEmpty)
-              Text(reziser.opis!),
+            ),
           ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (reziser.datumRodjenja != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    children: [
+                      Icon(Icons.cake, color: Colors.purple, size: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        "Datum rođenja: ${reziser.datumRodjenja!.toLocal().toString().split(' ')[0]}",
+                        style: TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
+                ),
+              if (reziser.opis != null && reziser.opis!.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.info_outline, color: Colors.blue, size: 20),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          reziser.opis!,
+                          style: TextStyle(fontSize: 15),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              if (reziser.uspjesi != null && reziser.uspjesi!.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.emoji_events, color: Colors.amber, size: 20),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Uspjesi:",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.amber[800],
+                              ),
+                            ),
+                            Text(
+                              reziser.uspjesi!,
+                              style: TextStyle(fontSize: 15),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              if (reziser.rezisiraniFilmovi != null && reziser.rezisiraniFilmovi!.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.movie, color: Colors.redAccent, size: 20),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Režisirani filmovi:",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.redAccent,
+                              ),
+                            ),
+                            Text(
+                              reziser.rezisiraniFilmovi!,
+                              style: TextStyle(fontSize: 15),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
         ),
         actions: [
           TextButton(

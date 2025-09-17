@@ -16,6 +16,8 @@ Reziser _$ReziserFromJson(Map<String, dynamic> json) => Reziser(
           : DateTime.parse(json['datumRodjenja'] as String),
   opis: json['opis'] as String?,
   slikaBase64: json['slikaBase64'] as String?,
+  uspjesi: json['uspjesi'] as String?,
+  rezisiraniFilmovi: json['rezisiraniFilmovi'] as String?,
 );
 
 Map<String, dynamic> _$ReziserToJson(Reziser instance) => <String, dynamic>{
@@ -25,4 +27,6 @@ Map<String, dynamic> _$ReziserToJson(Reziser instance) => <String, dynamic>{
   'datumRodjenja': instance.datumRodjenja?.toIso8601String(),
   'opis': instance.opis,
   'slikaBase64': instance.slikaBase64,
+  'uspjesi': instance.uspjesi,
+  'rezisiraniFilmovi': instance.rezisiraniFilmovi,
 };

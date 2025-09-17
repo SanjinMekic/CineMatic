@@ -16,6 +16,10 @@ namespace CineMatic.Model
 
         public string? Opis { get; set; }
 
+        public string? Uspjesi { get; set; }
+
+        public string? UlogeUfilmovima { get; set; }
+
         public string? SlikaBase64 { get; set; }
     }
 }

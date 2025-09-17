@@ -17,5 +17,9 @@ public partial class Režiseri
 
     public byte[]? Slika { get; set; }
 
+    public string? Uspjesi { get; set; }
+
+    public string? RezisiraniFilmovi { get; set; }
+
     public virtual ICollection<Filmovi> Films { get; set; } = new List<Filmovi>();
 }
