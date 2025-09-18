@@ -10,8 +10,8 @@ class Reziser {
   DateTime? datumRodjenja;
   String? opis;
   String? slikaBase64;
-  String? uspjesi;             // Dodaj ovo polje
-  String? rezisiraniFilmovi;   // Dodaj ovo polje
+  String? uspjesi;
+  String? rezisiraniFilmovi;
 
   Reziser({
     required this.id,
@@ -20,8 +20,8 @@ class Reziser {
     this.datumRodjenja,
     this.opis,
     this.slikaBase64,
-    this.uspjesi,             // Dodaj u konstruktor
-    this.rezisiraniFilmovi,   // Dodaj u konstruktor
+    this.uspjesi,
+    this.rezisiraniFilmovi,
   });
 
   factory Reziser.fromJson(Map<String, dynamic> json) => _$ReziserFromJson(json);

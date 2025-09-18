@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:cinematic_mobile/models/projekcija.dart';
 import 'package:cinematic_mobile/models/film.dart';
+import 'package:cinematic_mobile/models/preporuceni_film.dart';
 import 'package:cinematic_mobile/providers/film_provider.dart';
 import 'package:cinematic_mobile/providers/projekcija_provider.dart';
 import 'package:cinematic_mobile/srceens/rezervisi_screen.dart';
@@ -29,10 +30,15 @@ class _ProjekcijaDetaljiScreenState extends State<ProjekcijaDetaljiScreen> {
   List<Projekcija> _projekcijeZaFilm = [];
   bool _isLoading = true;
 
+  // Dodaj za preporuke
+  List<PreporuceniFilm> _preporuceniFilmovi = [];
+  bool _preporukeLoading = true;
+
   @override
   void initState() {
     super.initState();
     _fetchFilmDetaljiIProjekcije();
+    _fetchPreporuke();
   }
 
   Future<void> _fetchFilmDetaljiIProjekcije() async {
@@ -50,15 +56,38 @@ class _ProjekcijaDetaljiScreenState extends State<ProjekcijaDetaljiScreen> {
     final projekcije = await projekcijaProvider.getByFilm(filmId);
 
     setState(() {
-  _filmDetalji = film;
-  _projekcijeZaFilm = projekcije.where((p) {
-    final isActive = p.stanje?.toLowerCase() == "active" || p.stanje?.toLowerCase() == "aktivna";
-    final isFuture = p.datumIvrijeme == null || p.datumIvrijeme!.isAfter(DateTime.now());
-    return isActive && isFuture;
-  }).toList();
-  _isLoading = false;
-});
+      _filmDetalji = film;
+      _projekcijeZaFilm = projekcije.where((p) {
+        final isActive = p.stanje?.toLowerCase() == "active" || p.stanje?.toLowerCase() == "aktivna";
+        final isFuture = p.datumIvrijeme == null || p.datumIvrijeme!.isAfter(DateTime.now());
+        return isActive && isFuture;
+      }).toList();
+      _isLoading = false;
+    });
   }
+
+Future<void> _fetchPreporuke() async {
+  try {
+    print('Pozivam _fetchPreporuke');
+    final filmProvider = Provider.of<FilmProvider>(context, listen: false);
+    final filmId = widget.filmId ?? widget.projekcija.filmId ?? widget.projekcija.film?.id;
+    print('filmId: $filmId');
+    if (filmId != null) {
+      final preporuke = await filmProvider.getRecommendations(filmId);
+      print('Preporuke: $preporuke');
+      setState(() {
+        _preporuceniFilmovi = preporuke;
+        _preporukeLoading = false;
+      });
+    }
+  } catch (e, stack) {
+    print('Greška u _fetchPreporuke: $e');
+    print(stack);
+    setState(() {
+      _preporukeLoading = false;
+    });
+  }
+}
 
   Widget _buildCirclePerson({String? slikaBase64, required String ime, required VoidCallback? onTap}) {
     return GestureDetector(
@@ -172,6 +201,67 @@ class _ProjekcijaDetaljiScreenState extends State<ProjekcijaDetaljiScreen> {
       ),
     );
   }
+
+  Widget _buildPreporuceniFilmCard(PreporuceniFilm film) {
+  return GestureDetector(
+    onTap: () {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (context) => ProjekcijaDetaljiScreen(
+            projekcija: widget.projekcija,
+            filmId: film.id,
+          ),
+        ),
+      );
+    },
+    child: Card(
+      elevation: 5,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      child: Container(
+        width: 180,
+        height: 230,
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            film.imageBase64 != null
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(14),
+                    child: Image.memory(
+                      base64Decode(film.imageBase64!),
+                      width: 152,
+                      height: 120,
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                : Container(
+                    width: 152,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: const Icon(Icons.movie, size: 48),
+                  ),
+            const SizedBox(height: 14),
+            Flexible(
+              child: Text(
+                film.naslov,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 17,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -350,6 +440,30 @@ class _ProjekcijaDetaljiScreenState extends State<ProjekcijaDetaljiScreen> {
                       },
                     ),
                   ),
+                  // --- PREPORUKE ---
+                  const SizedBox(height: 32),
+                  if (_preporukeLoading)
+                    const Center(child: CircularProgressIndicator())
+                  else if (_preporuceniFilmovi.isNotEmpty) ...[
+                    const Text(
+                      "Preporučujemo za vas",
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.deepPurple),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      height: 230,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: _preporuceniFilmovi.length,
+                        separatorBuilder: (_, __) => const SizedBox(width: 16),
+                        itemBuilder: (context, index) {
+                          final f = _preporuceniFilmovi[index];
+                          return _buildPreporuceniFilmCard(f);
+                        },
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
