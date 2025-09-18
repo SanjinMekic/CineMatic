@@ -9,6 +9,8 @@ using Microsoft.OpenApi.Models;
 using RabbitMQ.Client;
 using DotNetEnv;
 using CineMatic.Services.RecommenderSystem;
+using CineMatic.Services.ImageSeeder;
+using CineMatic.Services.UserAdminSeed;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -52,6 +54,14 @@ builder.Services.AddTransient<IProjekcijeSjedištumService, ProjekcijeSjedištum
 builder.Services.AddTransient<IRezervacijeService, RezervacijeService>();
 builder.Services.AddTransient<IIzvjestajiService, IzvjestajiService>();
 builder.Services.AddTransient<IRecommenderService, RecommenderService>();
+builder.Services.AddTransient<IUserAdminSeed, UserAdminSeed>();
+builder.Services.AddTransient<IImageSeeder>(sp =>
+{
+    var env = sp.GetRequiredService<IWebHostEnvironment>();
+    var imageFolderPath = Path.Combine(env.ContentRootPath, "Images");
+    var context = sp.GetRequiredService<Ib210083Context>();
+    return new ImageSeeder(context, imageFolderPath);
+});
 
 var stripeSecretKey = Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY");
 builder.Services.AddTransient(sp => new UplateService(stripeSecretKey, sp.GetRequiredService<Ib210083Context>()));
@@ -113,5 +123,22 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var adminUserSeeder = services.GetRequiredService<IUserAdminSeed>();
+        await adminUserSeeder.Ucitaj();
+        var imageSeeder = services.GetRequiredService<IImageSeeder>();
+        await imageSeeder.UcitajSlike();
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Greška prilikom pokretanja seedera.");
+    }
+}
 
 app.Run();
