@@ -31,6 +31,7 @@ class _PregledRezervacijeScreenState extends State<PregledRezervacijeScreen> {
   String _nacinPlacanja = "gotovina";
   CardFieldInputDetails? _card;
   bool _loading = false;
+  bool _buttonDisabled = false; // Dodano za blokiranje dugmeta
 
   String _formatDatum(DateTime? date) {
     if (date == null) return '-';
@@ -67,13 +68,19 @@ class _PregledRezervacijeScreenState extends State<PregledRezervacijeScreen> {
     BuildContext context, {
     String stripePaymentIntentId = "",
   }) async {
-    setState(() => _loading = true);
+    setState(() {
+      _loading = true;
+      _buttonDisabled = true;
+    });
     final korisnikId = AuthProvider.korisnikId;
     if (korisnikId == null) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text("Niste prijavljeni.")));
-      setState(() => _loading = false);
+      setState(() {
+        _loading = false;
+        _buttonDisabled = false;
+      });
       return;
     }
     final projekcijaId = widget.projekcija.id!;
@@ -108,67 +115,70 @@ class _PregledRezervacijeScreenState extends State<PregledRezervacijeScreen> {
         context,
       ).showSnackBar(SnackBar(content: Text("Greška pri rezervaciji: $e")));
     }
-    setState(() => _loading = false);
+    setState(() {
+      _loading = false;
+      _buttonDisabled = false;
+    });
   }
 
   Future<String?> _payWithStripe() async {
-  if (_card == null || !_card!.complete) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Unesite ispravne podatke o kartici.")),
-    );
-    return null;
-  }
-
-  String? clientSecret;
-
-  try {
-    final ukupnaCijena = _ukupnaCijena();
-    final amountInCents = (ukupnaCijena * 100).round();
-
-    final uplataProvider = UplataProvider();
-    final paymentIntentData = await uplataProvider.createPaymentIntent(
-      amountInCents,
-    );
-
-    clientSecret = paymentIntentData['clientSecret'];
-    if (clientSecret == null) {
-      throw Exception("Nije moguće dobiti clientSecret od servera.");
+    if (_card == null || !_card!.complete) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Unesite ispravne podatke o kartici.")),
+      );
+      return null;
     }
 
-    // 1. Kreiraj PaymentMethod iz forme
-    final paymentMethod = await Stripe.instance.createPaymentMethod(
-      params: PaymentMethodParams.card(
-        paymentMethodData: PaymentMethodData(),
-      ),
-    );
+    String? clientSecret;
 
-    // 2. Potvrdi PaymentIntent sa tim PaymentMethodId
-    await Stripe.instance.confirmPayment(
-      paymentIntentClientSecret: clientSecret,
-      data: PaymentMethodParams.cardFromMethodId(
-        paymentMethodData: PaymentMethodDataCardFromMethod(
-          paymentMethodId: paymentMethod.id,
-        ),
-      ),
-    );
+    try {
+      final ukupnaCijena = _ukupnaCijena();
+      final amountInCents = (ukupnaCijena * 100).round();
 
-    return clientSecret;
-  } catch (e) {
-    // Ako je greška "Unknown", provjeri status na backendu
-    if (e.toString().contains('Unknown') && clientSecret != null) {
       final uplataProvider = UplataProvider();
-      final paymentIntentId = clientSecret.split('_secret').first;
-      final status = await uplataProvider.checkPaymentStatus(paymentIntentId);
-      if (status == 'succeeded') {
-        return clientSecret;
+      final paymentIntentData = await uplataProvider.createPaymentIntent(
+        amountInCents,
+      );
+
+      clientSecret = paymentIntentData['clientSecret'];
+      if (clientSecret == null) {
+        throw Exception("Nije moguće dobiti clientSecret od servera.");
       }
+
+      // 1. Kreiraj PaymentMethod iz forme
+      final paymentMethod = await Stripe.instance.createPaymentMethod(
+        params: PaymentMethodParams.card(
+          paymentMethodData: PaymentMethodData(),
+        ),
+      );
+
+      // 2. Potvrdi PaymentIntent sa tim PaymentMethodId
+      await Stripe.instance.confirmPayment(
+        paymentIntentClientSecret: clientSecret,
+        data: PaymentMethodParams.cardFromMethodId(
+          paymentMethodData: PaymentMethodDataCardFromMethod(
+            paymentMethodId: paymentMethod.id,
+          ),
+        ),
+      );
+
+      return clientSecret;
+    } catch (e) {
+      // Ako je greška "Unknown", provjeri status na backendu
+      if (e.toString().contains('Unknown') && clientSecret != null) {
+        final uplataProvider = UplataProvider();
+        final paymentIntentId = clientSecret.split('_secret').first;
+        final status = await uplataProvider.checkPaymentStatus(paymentIntentId);
+        if (status == 'succeeded') {
+          return clientSecret;
+        }
+      }
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Stripe greška: $e")));
+      return null;
     }
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text("Stripe greška: $e")));
-    return null;
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -343,17 +353,16 @@ class _PregledRezervacijeScreenState extends State<PregledRezervacijeScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  icon:
-                      _loading
-                          ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                          : const Icon(Icons.check),
+                  icon: _loading
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Icon(Icons.check),
                   label: const Text("Rezerviši"),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
@@ -367,35 +376,43 @@ class _PregledRezervacijeScreenState extends State<PregledRezervacijeScreen> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  onPressed:
-                      _loading
-                          ? null
-                          : () async {
-                            if (_nacinPlacanja == "stripe") {
-                              if (_card == null || !_card!.complete) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      "Unesite ispravne podatke o kartici.",
-                                    ),
+                  onPressed: _loading || _buttonDisabled
+                      ? null
+                      : () async {
+                          setState(() {
+                            _buttonDisabled = true;
+                          });
+                          if (_nacinPlacanja == "stripe") {
+                            if (_card == null || !_card!.complete) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    "Unesite ispravne podatke o kartici.",
                                   ),
-                                );
-                                return;
-                              }
-                              final stripePaymentIntentId =
-                                  await _payWithStripe();
-                              if (stripePaymentIntentId == null) return;
-                              await _rezervisi(
-                                context,
-                                stripePaymentIntentId:
-                                    stripePaymentIntentId
-                                        .split('_secret')
-                                        .first,
+                                ),
                               );
-                            } else {
-                              await _rezervisi(context);
+                              setState(() {
+                                _buttonDisabled = false;
+                              });
+                              return;
                             }
-                          },
+                            final stripePaymentIntentId =
+                                await _payWithStripe();
+                            if (stripePaymentIntentId == null) {
+                              setState(() {
+                                _buttonDisabled = false;
+                              });
+                              return;
+                            }
+                            await _rezervisi(
+                              context,
+                              stripePaymentIntentId:
+                                  stripePaymentIntentId.split('_secret').first,
+                            );
+                          } else {
+                            await _rezervisi(context);
+                          }
+                        },
                 ),
               ),
             ],
