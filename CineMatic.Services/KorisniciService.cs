@@ -188,6 +188,8 @@ namespace CineMatic.Services
                 entity.Ulogas.Add(uloga);
             }
 
+            entity.Obrisan = false;
+
             base.BeforeInsert(request, entity);
         }
         public static string GenerateSalt()
@@ -252,6 +254,9 @@ namespace CineMatic.Services
             if (entity == null)
                 return null;
 
+            if (entity.Obrisan == true)
+                return null;
+
             var hash = GenerateHash(entity.PasswordSalt, password);
 
             if (hash != entity.PasswordHash)
@@ -274,7 +279,48 @@ namespace CineMatic.Services
                 throw new UnauthorizedAccessException("Korisnik nije pronadjen.");
             }
 
+            if (user.Obrisan == true)
+            {
+                throw new UnauthorizedAccessException("Korisnik nije pronadjen.");
+            }
+
             return user.Id;
+        }
+
+        public override void Delete(int id)
+        {
+            var set = Context.Set<Database.Korisnici>();
+
+            var entity = set.Find(id);
+
+            if (entity == null)
+                throw new KeyNotFoundException($"Korisnik sa ID {id} nije pronađen.");
+
+            if (entity.Obrisan == true)
+                return;
+
+            entity.Obrisan = true;
+
+            Context.Update(entity);
+            Context.SaveChanges();
+        }
+
+        public void AktivirajObrisanogKorisnika(int id)
+        {
+            var set = Context.Set<Database.Korisnici>();
+
+            var entity = set.Find(id);
+
+            if (entity == null)
+                throw new KeyNotFoundException($"Korisnik sa ID {id} nije pronađen.");
+
+            if (entity.Obrisan == false)
+                return;
+
+            entity.Obrisan = false;
+
+            Context.Update(entity);
+            Context.SaveChanges();
         }
 
         public List<string> GetCurrentUserRoles()

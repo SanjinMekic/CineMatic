@@ -21,6 +21,8 @@ public partial class Korisnici
 
     public string? PasswordHash { get; set; }
 
+    public bool? Obrisan { get; set; }
+
     public virtual ICollection<Recenzije> Recenzijes { get; set; } = new List<Recenzije>();
 
     public virtual ICollection<Rezervacije> Rezervacijes { get; set; } = new List<Rezervacije>();

@@ -111,11 +111,27 @@ class _KorisniciAdminiScreenState extends State<KorisniciAdminiScreen> {
     }
   }
 
+  Future<void> _aktivirajObrisanogKorisnika(Korisnik korisnik) async {
+    final provider = Provider.of<KorisnikProvider>(context, listen: false);
+    try {
+      await provider.aktivirajObrisanogKorisnika(korisnik.id);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Korisnik je uspješno aktiviran.")),
+      );
+      _fetchKorisnici();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Greška: ${e.toString()}")),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final admini = _korisnici.where(_isAdmin).toList();
-    final blagajnici = _korisnici.where((k) => _isBlagajnik(k) && !_isAdmin(k)).toList();
-    final obicni = _korisnici.where((k) => !_isAdmin(k) && !_isBlagajnik(k)).toList();
+    final admini = _korisnici.where((k) => _isAdmin(k) && (k.obrisan != true)).toList();
+    final blagajnici = _korisnici.where((k) => _isBlagajnik(k) && !_isAdmin(k) && (k.obrisan != true)).toList();
+    final obicni = _korisnici.where((k) => !_isAdmin(k) && !_isBlagajnik(k) && (k.obrisan != true)).toList();
+    final obrisani = _korisnici.where((k) => k.obrisan == true).toList();
 
     return Scaffold(
       body:
@@ -373,6 +389,82 @@ class _KorisniciAdminiScreenState extends State<KorisniciAdminiScreen> {
                                     ),
                                   )
                                   .toList(),
+                        ),
+                    const SizedBox(height: 32),
+                    Text(
+                      "Obrisani korisnici",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red[700],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    obrisani.isEmpty
+                        ? const Text("Nema obrisanih korisnika.")
+                        : Column(
+                          children: obrisani
+                              .map(
+                                (k) => ListTile(
+                                  leading: CircleAvatar(
+                                    backgroundImage: k.slikaBase64 != null
+                                        ? MemoryImage(base64Decode(k.slikaBase64!))
+                                        : null,
+                                    child: k.slikaBase64 == null
+                                        ? Icon(Icons.person)
+                                        : null,
+                                  ),
+                                  title: Text(
+                                    "${k.ime ?? ""} ${k.prezime ?? ""}",
+                                    style: TextStyle(color: Colors.red[700]),
+                                  ),
+                                  subtitle: Text(k.korisnickoIme ?? ""),
+                                  trailing: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        k.email ?? "",
+                                        style: TextStyle(
+                                          color: Colors.grey[700],
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      ElevatedButton.icon(
+                                        icon: Icon(Icons.check_circle, color: Colors.white),
+                                        label: Text("Aktiviraj"),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.green,
+                                          foregroundColor: Colors.white,
+                                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                        ),
+                                        onPressed: () async {
+                                          final potvrdi = await showDialog<bool>(
+                                            context: context,
+                                            builder: (context) => AlertDialog(
+                                              title: Text("Aktiviraj korisnika"),
+                                              content: Text("Da li ste sigurni da želite aktivirati korisnika \"${k.ime ?? ""} ${k.prezime ?? ""}\"?"),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () => Navigator.of(context).pop(false),
+                                                  child: Text("Otkaži"),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () => Navigator.of(context).pop(true),
+                                                  child: Text("Aktiviraj", style: TextStyle(color: Colors.green)),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                          if (potvrdi == true) {
+                                            await _aktivirajObrisanogKorisnika(k);
+                                          }
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                              .toList(),
                         ),
                   ],
                 ),

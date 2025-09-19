@@ -19,6 +19,8 @@ namespace CineMatic.Model
 
         public string? SlikaBase64 { get; set; }
 
+        public bool? Obrisan { get; set; }
+
         public virtual ICollection<Uloge> Ulogas { get; set; } = new List<Uloge>();
     }
 

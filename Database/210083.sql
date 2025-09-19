@@ -11,6 +11,7 @@ CREATE TABLE Korisnici (
     Slika VARBINARY(MAX),
     PasswordSalt NVARCHAR(128),
     PasswordHash NVARCHAR(128),
+	Obrisan BIT DEFAULT 0
 );
 
 CREATE TABLE Uloge (

@@ -89,6 +89,121 @@ class _ProfilScreenState extends State<ProfilScreen> {
     );
   }
 
+  Future<void> _obrisiNalog() async {
+    final provider = Provider.of<KorisnikProvider>(context, listen: false);
+    final id = AuthProvider.korisnikId;
+    if (id == null) return;
+
+    try {
+      await provider.delete(id);
+      AuthProvider.username = null;
+      AuthProvider.password = null;
+      AuthProvider.korisnikId = null;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Korisnički nalog je obrisan.")),
+      );
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+        (route) => false,
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Greška pri brisanju naloga: $e")),
+      );
+    }
+  }
+
+  void _showDeleteDialog() {
+  String sifra = '';
+  String? errorMsg;
+  showDialog(
+    context: context,
+    builder: (context) {
+      return StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text("Potvrda brisanja naloga"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                "Unesite svoju šifru za potvrdu brisanja naloga:",
+                style: TextStyle(fontSize: 15),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: "Šifra",
+                  border: OutlineInputBorder(),
+                ),
+                onChanged: (v) {
+                  sifra = v;
+                  if (errorMsg != null) setState(() => errorMsg = null);
+                },
+              ),
+              if (errorMsg != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  errorMsg!,
+                  style: const TextStyle(color: Colors.red, fontSize: 14),
+                ),
+              ],
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("Otkaži"),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              onPressed: () async {
+                if (sifra != AuthProvider.password) {
+                  setState(() {
+                    errorMsg = "Pogrešna šifra!";
+                  });
+                  return;
+                }
+                Navigator.of(context).pop();
+                final potvrda = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text("Jeste li sigurni?"),
+                    content: const Text(
+                      "Ova akcija je nepovratna. Da li zaista želite obrisati svoj korisnički nalog?",
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: const Text("Ne"),
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors.white,
+                        ),
+                        onPressed: () => Navigator.of(context).pop(true),
+                        child: const Text("Da, obriši"),
+                      ),
+                    ],
+                  ),
+                );
+                if (potvrda == true) {
+                  await _obrisiNalog();
+                }
+              },
+              child: const Text("Obriši nalog"),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -195,6 +310,22 @@ class _ProfilScreenState extends State<ProfilScreen> {
                               color: Colors.blue,
                               decoration: TextDecoration.underline,
                               fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: GestureDetector(
+                          onTap: _showDeleteDialog,
+                          child: const Text(
+                            "Obrišite korisnički nalog?",
+                            style: TextStyle(
+                              color: Colors.red,
+                              decoration: TextDecoration.underline,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),

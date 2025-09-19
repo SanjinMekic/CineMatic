@@ -12,8 +12,10 @@ namespace CineMatic.API.Controllers
     [AllowAnonymous]
     public class KorisniciController : BaseCRUDController<Korisnici, KorisniciSearchObject, KorisniciInsertRequest, KorisniciUpdateRequest>
     {
+        private readonly IKorisniciService _service;
         public KorisniciController(IKorisniciService service) : base(service)
         {
+            _service = service;
         }
 
         [HttpPost("login")]
@@ -25,6 +27,20 @@ namespace CineMatic.API.Controllers
                 return Unauthorized("Pogresno korisnicko ime ili lozinka");
             }
             return Ok(user);
+        }
+
+        [HttpPut("{id}/aktiviraj")]
+        public IActionResult AktivirajObrisanogKorisnika(int id)
+        {
+            try
+            {
+                _service.AktivirajObrisanogKorisnika(id);
+                return Ok($"Korisnik sa ID {id} je uspješno aktiviran.");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
         }
     }
 }

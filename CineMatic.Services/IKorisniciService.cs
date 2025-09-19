@@ -14,5 +14,6 @@ namespace CineMatic.Services
         Korisnici Login(string username, string password);
         int GetCurrentUserId();
         List<string> GetCurrentUserRoles();
+        void AktivirajObrisanogKorisnika(int id);
     }
 }
