@@ -46,6 +46,20 @@ class _RecenzijeScreenState extends State<RecenzijeScreen> {
     }
   }
 
+  Widget _buildAvatar(Recenzija r) {
+    if (r.korisnik?.slikaBase64 != null && r.korisnik!.slikaBase64!.isNotEmpty) {
+      try {
+        return CircleAvatar(
+          backgroundImage: MemoryImage(base64Decode(r.korisnik!.slikaBase64!)),
+          radius: 28,
+        );
+      } catch (_) {
+        return CircleAvatar(child: Icon(Icons.person), radius: 28);
+      }
+    }
+    return CircleAvatar(child: Icon(Icons.person), radius: 28);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,84 +73,97 @@ class _RecenzijeScreenState extends State<RecenzijeScreen> {
               : ListView.separated(
                   padding: const EdgeInsets.all(24),
                   itemCount: _recenzije.length,
-                  separatorBuilder: (_, __) => Divider(),
+                  separatorBuilder: (_, __) => SizedBox(height: 18),
                   itemBuilder: (context, index) {
                     final r = _recenzije[index];
-                    Widget avatar;
-                    if (r.korisnik?.slikaBase64 != null &&
-                        r.korisnik!.slikaBase64!.isNotEmpty) {
-                      try {
-                        avatar = CircleAvatar(
-                          backgroundImage: MemoryImage(
-                            base64Decode(r.korisnik!.slikaBase64!),
-                          ),
-                          radius: 24,
-                        );
-                      } catch (_) {
-                        avatar = CircleAvatar(
-                          child: Icon(Icons.person),
-                          radius: 24,
-                        );
-                      }
-                    } else {
-                      avatar = CircleAvatar(
-                        child: Icon(Icons.person),
-                        radius: 24,
-                      );
-                    }
-                    return ListTile(
-                      leading: avatar,
-                      title: Text(r.korisnik?.korisnickoIme ?? "Nepoznat korisnik"),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (r.komentar != null && r.komentar!.isNotEmpty)
-                            Text(r.komentar!),
-                          if (r.datumIvrijeme != null)
-                            Text(
-                              DateFormat('dd.MM.yyyy. HH:mm').format(r.datumIvrijeme!),
-                              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                            ),
-                        ],
+                    return Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
                       ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (r.ocjena != null)
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: List.generate(
-                                r.ocjena!,
-                                (i) => Icon(Icons.star, color: Colors.amber, size: 18),
+                      child: Padding(
+                        padding: const EdgeInsets.all(18.0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildAvatar(r),
+                            const SizedBox(width: 18),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    r.korisnik?.korisnickoIme ?? "Nepoznat korisnik",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 17,
+                                    ),
+                                  ),
+                                  if (r.komentar != null && r.komentar!.isNotEmpty)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 4.0),
+                                      child: Text(
+                                        r.komentar!,
+                                        style: TextStyle(fontSize: 16),
+                                      ),
+                                    ),
+                                  if (r.datumIvrijeme != null)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 2.0),
+                                      child: Text(
+                                        DateFormat('dd.MM.yyyy. HH:mm').format(r.datumIvrijeme!),
+                                        style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                                      ),
+                                    ),
+                                  if (r.ocjena != null)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 4.0),
+                                      child: Row(
+                                        children: List.generate(
+                                          r.ocjena!,
+                                          (i) => Icon(Icons.star, color: Colors.amber, size: 20),
+                                        ),
+                                      ),
+                                    ),
+                                ],
                               ),
                             ),
-                          IconButton(
-                            icon: Icon(Icons.delete, color: Colors.red),
-                            tooltip: "Obriši recenziju",
-                            onPressed: () async {
-                              final potvrdi = await showDialog<bool>(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  title: Text("Potvrda brisanja"),
-                                  content: Text("Da li ste sigurni da želite obrisati ovu recenziju?"),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.of(context).pop(false),
-                                      child: Text("Otkaži"),
-                                    ),
-                                    TextButton(
-                                      onPressed: () => Navigator.of(context).pop(true),
-                                      child: Text("Obriši", style: TextStyle(color: Colors.red)),
-                                    ),
-                                  ],
+                            const SizedBox(width: 16),
+                            Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Tooltip(
+                                  message: "Obriši recenziju",
+                                  child: IconButton(
+                                    icon: Icon(Icons.delete, color: Colors.red),
+                                    onPressed: () async {
+                                      final potvrdi = await showDialog<bool>(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title: Text("Potvrda brisanja"),
+                                          content: Text("Da li ste sigurni da želite obrisati ovu recenziju?"),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () => Navigator.of(context).pop(false),
+                                              child: Text("Otkaži"),
+                                            ),
+                                            TextButton(
+                                              onPressed: () => Navigator.of(context).pop(true),
+                                              child: Text("Obriši", style: TextStyle(color: Colors.red)),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                      if (potvrdi == true) {
+                                        await _obrisiRecenziju(r.id!);
+                                      }
+                                    },
+                                  ),
                                 ),
-                              );
-                              if (potvrdi == true) {
-                                await _obrisiRecenziju(r.id!);
-                              }
-                            },
-                          ),
-                        ],
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   },
