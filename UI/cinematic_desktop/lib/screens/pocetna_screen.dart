@@ -86,7 +86,6 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
       children: [
         Row(
           children: [
-            // Naziv
             Expanded(
               child: TextField(
                 controller: _nazivController,
@@ -104,7 +103,6 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
               ),
             ),
             const SizedBox(width: 8),
-            // Žanr
             Expanded(
               child: DropdownButtonFormField<int>(
                 value: _odabraniZanrId,
@@ -139,7 +137,6 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
               ),
             ),
             const SizedBox(width: 8),
-            // Datum (samo za aktivne)
             if (prikaziAktivne)
               Expanded(
                 child: InkWell(
@@ -221,7 +218,6 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            // Dugme za dodavanje projekcije - zauzima cijelu širinu
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
@@ -254,7 +250,7 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
                     if (!prikaziAktivne) {
                       setState(() {
                         prikaziAktivne = true;
-                        _odabraniDatum = null; // reset datum pri promjeni taba
+                        _odabraniDatum = null;
                       });
                       _loadProjekcije();
                     }
@@ -277,7 +273,7 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
                     if (prikaziAktivne) {
                       setState(() {
                         prikaziAktivne = false;
-                        _odabraniDatum = null; // reset datum pri promjeni taba
+                        _odabraniDatum = null;
                       });
                       _loadProjekcije();
                     }
@@ -306,20 +302,23 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
                       ? Text("Nema projekcija.")
                       : LayoutBuilder(
                         builder: (context, constraints) {
-                          // Responsive broj kolona
                           int crossAxisCount = 1;
                           if (constraints.maxWidth > 1400) {
                             crossAxisCount = 3;
                           } else if (constraints.maxWidth > 1000) {
                             crossAxisCount = 2;
                           }
+                          // Fiksna visina kartice
+                          double cardHeight = 550;
                           return GridView.builder(
                             gridDelegate:
                                 SliverGridDelegateWithFixedCrossAxisCount(
                                   crossAxisCount: crossAxisCount,
                                   crossAxisSpacing: 24,
                                   mainAxisSpacing: 24,
-                                  childAspectRatio: 0.95,
+                                  childAspectRatio:
+                                      constraints.maxWidth /
+                                      (crossAxisCount * cardHeight),
                                 ),
                             itemCount: prikazane.length,
                             itemBuilder: (context, index) {
@@ -359,307 +358,364 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
                                   child: Icon(Icons.movie, size: 48),
                                 );
                               }
-                              return Card(
-                                elevation: 5,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.stretch,
-                                    children: [
-                                      slikaWidget,
-                                      const SizedBox(height: 12),
-                                      Text(
-                                        p.film?.naziv ?? "Nepoznat film",
-                                        style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
+                              return SizedBox(
+                                height: cardHeight,
+                                child: Card(
+                                  elevation: 5,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: [
+                                        slikaWidget,
+                                        const SizedBox(height: 12),
+                                        Text(
+                                          p.film?.naziv ?? "Nepoznat film",
+                                          style: TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                          textAlign: TextAlign.center,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
                                         ),
-                                        textAlign: TextAlign.center,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      const SizedBox(height: 8),
-                                      // DUGMAD ISPOD NASLOVA FILMA
-                                      SingleChildScrollView(
-                                        scrollDirection: Axis.horizontal,
-                                        child: Row(
-                                          mainAxisAlignment: prikaziAktivne
-                                              ? MainAxisAlignment.center
-                                              : MainAxisAlignment.start,
-                                          children: [
-                                            if (prikaziAktivne)
-                                              ElevatedButton(
-                                                style: ElevatedButton.styleFrom(
-                                                  backgroundColor:
-                                                      Colors.orange,
-                                                  foregroundColor:
-                                                      Colors.white,
-                                                  padding:
-                                                      EdgeInsets.symmetric(
-                                                        horizontal: 12,
-                                                        vertical: 8,
-                                                      ),
-                                                ),
-                                                onPressed: () async {
-                                                  await _sakrijProjekciju(
-                                                    p,
-                                                  );
-                                                },
-                                                child: Text("Sakrij"),
-                                              ),
-                                            ElevatedButton.icon(
-                                              icon: Icon(Icons.list_alt),
-                                              label: Text(
-                                                "Pogledaj rezervacije",
-                                              ),
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor:
-                                                    Colors.indigo,
-                                                foregroundColor:
-                                                    Colors.white,
-                                                padding:
-                                                    EdgeInsets.symmetric(
-                                                      horizontal: 10,
-                                                      vertical: 8,
-                                                    ),
-                                              ),
-                                              onPressed: () {
-                                                Navigator.of(
-                                                  context,
-                                                ).push(
-                                                  MaterialPageRoute(
-                                                    builder:
-                                                        (_) =>
-                                                            RezervacijeScreen(
-                                                              projekcijaId:
-                                                                  p.id!,
-                                                            ),
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                            if (!prikaziAktivne)
-                                              (p.datumIvrijeme != null &&
-                                                      p.datumIvrijeme!
-                                                          .isBefore(DateTime.now()))
-                                                  ? Padding(
-                                                      padding: const EdgeInsets
-                                                          .symmetric(
-                                                          horizontal: 10,
-                                                          vertical: 8),
-                                                      child: Text(
-                                                        "Završena projekcija",
-                                                        style: TextStyle(
-                                                          color: Colors.grey,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontSize: 15,
+                                        const SizedBox(height: 8),
+                                        SingleChildScrollView(
+                                          scrollDirection: Axis.horizontal,
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                prikaziAktivne
+                                                    ? MainAxisAlignment.center
+                                                    : MainAxisAlignment.start,
+                                            children:
+                                                [
+                                                      if (prikaziAktivne)
+                                                        ElevatedButton(
+                                                          style: ElevatedButton.styleFrom(
+                                                            backgroundColor:
+                                                                Colors.orange,
+                                                            foregroundColor:
+                                                                Colors.white,
+                                                            padding:
+                                                                EdgeInsets.symmetric(
+                                                                  horizontal:
+                                                                      12,
+                                                                  vertical: 8,
+                                                                ),
+                                                          ),
+                                                          onPressed: () async {
+                                                            await _sakrijProjekciju(
+                                                              p,
+                                                            );
+                                                          },
+                                                          child: Text("Sakrij"),
                                                         ),
+                                                      ElevatedButton.icon(
+                                                        icon: Icon(
+                                                          Icons.list_alt,
+                                                        ),
+                                                        label: Text(
+                                                          "Pogledaj rezervacije",
+                                                        ),
+                                                        style: ElevatedButton.styleFrom(
+                                                          backgroundColor:
+                                                              Colors.indigo,
+                                                          foregroundColor:
+                                                              Colors.white,
+                                                          padding:
+                                                              EdgeInsets.symmetric(
+                                                                horizontal: 10,
+                                                                vertical: 8,
+                                                              ),
+                                                        ),
+                                                        onPressed: () {
+                                                          Navigator.of(
+                                                            context,
+                                                          ).push(
+                                                            MaterialPageRoute(
+                                                              builder:
+                                                                  (
+                                                                    _,
+                                                                  ) => RezervacijeScreen(
+                                                                    projekcijaId:
+                                                                        p.id!,
+                                                                  ),
+                                                            ),
+                                                          );
+                                                        },
+                                                      ),
+                                                      if (!prikaziAktivne)
+                                                        (p.datumIvrijeme !=
+                                                                    null &&
+                                                                p.datumIvrijeme!
+                                                                    .isBefore(
+                                                                      DateTime.now(),
+                                                                    ))
+                                                            ? Padding(
+                                                              padding:
+                                                                  const EdgeInsets.symmetric(
+                                                                    horizontal:
+                                                                        10,
+                                                                    vertical: 8,
+                                                                  ),
+                                                              child: Text(
+                                                                "Završena projekcija",
+                                                                style: TextStyle(
+                                                                  color:
+                                                                      Colors
+                                                                          .grey,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  fontSize: 15,
+                                                                ),
+                                                              ),
+                                                            )
+                                                            : ElevatedButton(
+                                                              style: ElevatedButton.styleFrom(
+                                                                backgroundColor:
+                                                                    Colors
+                                                                        .green,
+                                                                foregroundColor:
+                                                                    Colors
+                                                                        .white,
+                                                                padding:
+                                                                    EdgeInsets.symmetric(
+                                                                      horizontal:
+                                                                          10,
+                                                                      vertical:
+                                                                          8,
+                                                                    ),
+                                                              ),
+                                                              onPressed: () async {
+                                                                await _aktivirajProjekciju(
+                                                                  p,
+                                                                );
+                                                              },
+                                                              child: Text(
+                                                                "Aktiviraj",
+                                                              ),
+                                                            ),
+                                                      if (!prikaziAktivne &&
+                                                          p.datumIvrijeme !=
+                                                              null &&
+                                                          p.datumIvrijeme!
+                                                              .isAfter(
+                                                                DateTime.now(),
+                                                              ))
+                                                        ElevatedButton(
+                                                          style: ElevatedButton.styleFrom(
+                                                            backgroundColor:
+                                                                Colors.blue,
+                                                            foregroundColor:
+                                                                Colors.white,
+                                                            padding:
+                                                                EdgeInsets.symmetric(
+                                                                  horizontal:
+                                                                      10,
+                                                                  vertical: 8,
+                                                                ),
+                                                          ),
+                                                          onPressed: () async {
+                                                            final result = await Navigator.of(
+                                                              context,
+                                                            ).push(
+                                                              MaterialPageRoute(
+                                                                builder:
+                                                                    (
+                                                                      _,
+                                                                    ) => DodajProjekcijuScreen(
+                                                                      projekcija:
+                                                                          p,
+                                                                    ),
+                                                              ),
+                                                            );
+                                                            if (result == true)
+                                                              _loadProjekcije();
+                                                          },
+                                                          child: Text("Uredi"),
+                                                        ),
+                                                    ]
+                                                    .map(
+                                                      (w) => Padding(
+                                                        padding:
+                                                            const EdgeInsets.only(
+                                                              right: 8.0,
+                                                            ),
+                                                        child: w,
                                                       ),
                                                     )
-                                                  : ElevatedButton(
-                                                      style: ElevatedButton
-                                                          .styleFrom(
-                                                        backgroundColor:
-                                                            Colors.green,
-                                                        foregroundColor:
-                                                            Colors.white,
-                                                        padding: EdgeInsets
-                                                            .symmetric(
-                                                                horizontal: 10,
-                                                                vertical: 8),
-                                                      ),
-                                                      onPressed: () async {
-                                                        await _aktivirajProjekciju(
-                                                          p,
-                                                        );
-                                                      },
-                                                      child: Text("Aktiviraj"),
-                                                    ),
-                                            // Dugme UREDI samo za skrivene projekcije u budućnosti!
-                                            if (!prikaziAktivne &&
-                                                p.datumIvrijeme != null &&
-                                                p.datumIvrijeme!
-                                                    .isAfter(DateTime.now()))
-                                              ElevatedButton(
-                                                style: ElevatedButton.styleFrom(
-                                                  backgroundColor:
-                                                      Colors.blue,
-                                                  foregroundColor:
-                                                      Colors.white,
-                                                  padding:
-                                                      EdgeInsets.symmetric(
-                                                          horizontal: 10,
-                                                          vertical: 8),
-                                                ),
-                                                onPressed: () async {
-                                                  final result =
-                                                      await Navigator.of(
-                                                    context,
-                                                  ).push(
-                                                    MaterialPageRoute(
-                                                      builder: (_) =>
-                                                          DodajProjekcijuScreen(
-                                                        projekcija: p,
-                                                      ),
-                                                    ),
-                                                  );
-                                                  if (result == true)
-                                                    _loadProjekcije();
-                                                },
-                                                child: Text("Uredi"),
-                                              ),
-                                          ].map((w) => Padding(
-                                            padding: const EdgeInsets.only(right: 8.0),
-                                            child: w,
-                                          )).toList(),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 8),
-                                      if (datumStr != null)
-                                        Row(
-                                          children: [
-                                            Icon(
-                                              Icons.calendar_today,
-                                              size: 18,
-                                              color: Colors.grey[700],
-                                            ),
-                                            const SizedBox(width: 6),
-                                            Flexible(
-                                              child: Text(
-                                                datumStr,
-                                                style: TextStyle(fontSize: 16),
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      if (vrijemeStr != null)
-                                        Row(
-                                          children: [
-                                            Icon(
-                                              Icons.access_time,
-                                              size: 18,
-                                              color: Colors.grey[700],
-                                            ),
-                                            const SizedBox(width: 6),
-                                            Flexible(
-                                              child: Text(
-                                                vrijemeStr,
-                                                style: TextStyle(fontSize: 16),
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      if (p.sala?.naziv != null)
-                                        Row(
-                                          children: [
-                                            Icon(
-                                              Icons.event_seat,
-                                              size: 18,
-                                              color: Colors.grey[700],
-                                            ),
-                                            const SizedBox(width: 6),
-                                            Flexible(
-                                              child: Text(
-                                                "Sala: ${p.sala!.naziv}",
-                                                style: TextStyle(fontSize: 16),
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      if (p.nacinProjekcije != null)
-                                        Row(
-                                          children: [
-                                            Icon(
-                                              Icons.theaters,
-                                              size: 18,
-                                              color: Colors.grey[700],
-                                            ),
-                                            const SizedBox(width: 6),
-                                            Flexible(
-                                              child: Text(
-                                                "Tehnologija: ${p.nacinProjekcije!.naziv}",
-                                                style: TextStyle(fontSize: 16),
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      if (p.cijena != null)
-                                        Row(
-                                          children: [
-                                            Icon(
-                                              Icons.attach_money,
-                                              size: 18,
-                                              color: Colors.grey[700],
-                                            ),
-                                            const SizedBox(width: 6),
-                                            Flexible(
-                                              child: Text(
-                                                "Cijena: ${p.cijena} KM",
-                                                style: TextStyle(fontSize: 16),
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      if (p.film?.zanrs != null &&
-                                          p.film!.zanrs!.isNotEmpty)
-                                        Padding(
-                                          padding: const EdgeInsets.only(
-                                            top: 6.0,
+                                                    .toList(),
                                           ),
-                                          child: Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
+                                        ),
+                                        const SizedBox(height: 8),
+                                        if (datumStr != null)
+                                          Row(
                                             children: [
                                               Icon(
-                                                Icons.category,
+                                                Icons.calendar_today,
                                                 size: 18,
                                                 color: Colors.grey[700],
                                               ),
                                               const SizedBox(width: 6),
-                                              Expanded(
+                                              Flexible(
                                                 child: Text(
-                                                  "Žanrovi: ${p.film!.zanrs!.map((z) => z.naziv).join(', ')}",
+                                                  datumStr,
                                                   style: TextStyle(
                                                     fontSize: 16,
                                                   ),
-                                                  maxLines: 2,
                                                   overflow:
                                                       TextOverflow.ellipsis,
                                                 ),
                                               ),
                                             ],
                                           ),
-                                        ),
-                                      const Spacer(),
-                                      Divider(),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.start,
-                                        children: [
-                                          Flexible(
-                                            child: Text(
-                                              (p.stanje ?? "").toUpperCase(),
-                                              style: TextStyle(
-                                                color: prikaziAktivne
-                                                    ? Colors.green
-                                                    : Colors.red,
-                                                fontWeight: FontWeight.bold,
+                                        if (vrijemeStr != null)
+                                          Row(
+                                            children: [
+                                              Icon(
+                                                Icons.access_time,
+                                                size: 18,
+                                                color: Colors.grey[700],
                                               ),
-                                              overflow: TextOverflow.ellipsis,
+                                              const SizedBox(width: 6),
+                                              Flexible(
+                                                child: Text(
+                                                  vrijemeStr,
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                  ),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        if (p.sala?.naziv != null)
+                                          Row(
+                                            children: [
+                                              Icon(
+                                                Icons.event_seat,
+                                                size: 18,
+                                                color: Colors.grey[700],
+                                              ),
+                                              const SizedBox(width: 6),
+                                              Flexible(
+                                                child: Text(
+                                                  "Sala: ${p.sala!.naziv}",
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                  ),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        if (p.nacinProjekcije != null)
+                                          Row(
+                                            children: [
+                                              Icon(
+                                                Icons.theaters,
+                                                size: 18,
+                                                color: Colors.grey[700],
+                                              ),
+                                              const SizedBox(width: 6),
+                                              Flexible(
+                                                child: Text(
+                                                  "Tehnologija: ${p.nacinProjekcije!.naziv}",
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                  ),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        if (p.cijena != null)
+                                          Row(
+                                            children: [
+                                              Icon(
+                                                Icons.attach_money,
+                                                size: 18,
+                                                color: Colors.grey[700],
+                                              ),
+                                              const SizedBox(width: 6),
+                                              Flexible(
+                                                child: Text(
+                                                  "Cijena: ${p.cijena} KM",
+                                                  style: TextStyle(
+                                                    fontSize: 16,
+                                                  ),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        if (p.film?.zanrs != null &&
+                                            p.film!.zanrs!.isNotEmpty)
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              top: 6.0,
+                                            ),
+                                            child: Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Icon(
+                                                  Icons.category,
+                                                  size: 18,
+                                                  color: Colors.grey[700],
+                                                ),
+                                                const SizedBox(width: 6),
+                                                Expanded(
+                                                  child: Text(
+                                                    "Žanrovi: ${p.film!.zanrs!.map((z) => z.naziv).join(', ')}",
+                                                    style: TextStyle(
+                                                      fontSize: 16,
+                                                    ),
+                                                    maxLines: 2,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                              ],
                                             ),
                                           ),
-                                        ],
-                                      ),
-                                    ],
+                                        const Spacer(),
+                                        Divider(),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.start,
+                                          children: [
+                                            Flexible(
+                                              child: Text(
+                                                p.stanje?.toLowerCase() ==
+                                                            "active" ||
+                                                        p.stanje?.toLowerCase() ==
+                                                            "aktivna"
+                                                    ? "AKTIVNA"
+                                                    : "SAKRIVENA",
+                                                style: TextStyle(
+                                                  color:
+                                                      prikaziAktivne
+                                                          ? Colors.green
+                                                          : Colors.red,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               );
