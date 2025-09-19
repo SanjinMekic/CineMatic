@@ -42,7 +42,7 @@ class _LoginPageState extends State<LoginPage> {
         AuthProvider.password = password;
         AuthProvider.setUser(response);
 
-        if (_isAdmin(response)) {
+        if (_isBlagajnik(response)) {
           Navigator.of(context).pushReplacement(
             MaterialPageRoute(
               builder: (context) => const PonistavanjeKartiScreen(),
@@ -73,9 +73,9 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  bool _isAdmin(Korisnik user) {
+  bool _isBlagajnik(Korisnik user) {
     final roles = user.ulogas;
-    return roles != null && roles.any((role) => role.naziv!.toLowerCase() == 'administrator');
+    return roles != null && roles.any((role) => role.naziv!.toLowerCase() == 'blagajnik');
   }
 
   bool _isKorisnik(Korisnik user) {

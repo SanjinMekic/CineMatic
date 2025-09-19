@@ -17,12 +17,12 @@ namespace CineMatic.Services.UserAdminSeed
         }
         public async Task Ucitaj()
         {
-            if (!_context.Korisnicis.Any(u => u.Email == "admin@mail.com"))
+            if (!_context.Korisnicis.Any(u => u.Email == "admin@gmail.com"))
             {
                 var administrator = new Korisnici
                 {
                     KorisnickoIme = "admin",
-                    Email = "admin@mail.com",
+                    Email = "admin@gmail.com",
                     Ime = "Admin",
                     Prezime = "Admin"
                 };
@@ -41,12 +41,12 @@ namespace CineMatic.Services.UserAdminSeed
                     $"INSERT INTO KorisniciUloge (KorisnikID, UlogaID) VALUES ({administrator.Id}, 2)");
             }
 
-            if (!_context.Korisnicis.Any(u => u.Email == "user@mail.com"))
+            if (!_context.Korisnicis.Any(u => u.Email == "user@gmail.com"))
             {
                 var korisnik = new Korisnici
                 {
                     KorisnickoIme = "user",
-                    Email = "user@mail.com",
+                    Email = "user@gmail.com",
                     Ime = "User",
                     Prezime = "User"
                 };
@@ -63,6 +63,30 @@ namespace CineMatic.Services.UserAdminSeed
 
                 await _context.Database.ExecuteSqlInterpolatedAsync(
                     $"INSERT INTO KorisniciUloge (KorisnikID, UlogaID) VALUES ({korisnik.Id}, 1)");
+            }
+
+            if (!_context.Korisnicis.Any(u => u.Email == "blagajnik@gmail.com"))
+            {
+                var blagajnik = new Korisnici
+                {
+                    KorisnickoIme = "blagajnik",
+                    Email = "blagajnik@gmail.com",
+                    Ime = "Blagajnik",
+                    Prezime = "Blagajnik"
+                };
+
+                var password = "blagajnik";
+                var salt = KorisniciService.GenerateSalt();
+                var hashedPassword = KorisniciService.GenerateHash(salt, password);
+
+                blagajnik.PasswordSalt = salt;
+                blagajnik.PasswordHash = hashedPassword;
+
+                _context.Korisnicis.Add(blagajnik);
+                await _context.SaveChangesAsync();
+
+                await _context.Database.ExecuteSqlInterpolatedAsync(
+                    $"INSERT INTO KorisniciUloge (KorisnikID, UlogaID) VALUES ({blagajnik.Id}, 3)");
             }
 
             await _context.SaveChangesAsync();

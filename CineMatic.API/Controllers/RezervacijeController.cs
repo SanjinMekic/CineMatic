@@ -47,7 +47,7 @@ namespace CineMatic.API.Controllers
         }
 
         [HttpPut("ponisti/{id}")]
-        [Authorize(Roles = "Administrator")]
+        [Authorize(Roles = "Blagajnik")]
         public ActionResult<Rezervacije> PonistiKartu(int id)
         {
             try

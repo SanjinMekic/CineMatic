@@ -232,7 +232,8 @@ VALUES
 INSERT INTO Uloge (Naziv)
 VALUES
 ('Korisnik'),
-('Administrator')
+('Administrator'),
+('Blagajnik')
 
 -- Unos podataka u tabelu KorisniciUloge
 INSERT INTO KorisniciUloge (KorisnikID, UlogaID)
