@@ -26,9 +26,6 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
   final _lozinkaController = TextEditingController();
   final _lozinkaPotvrdaController = TextEditingController();
 
-  // Za checkbox admina
-  bool _isAdmin = false;
-
   @override
   void initState() {
     super.initState();
@@ -39,10 +36,9 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
         _email = widget.korisnik!.email;
         _korisnickoIme = widget.korisnik!.korisnickoIme;
         _slikaBase64 = widget.korisnik!.slikaBase64;
-        // Provjeri da li korisnik ima administratorsku ulogu (pretpostavljamo id=2)
         if (widget.korisnik!.ulogas != null &&
-            widget.korisnik!.ulogas!.any((u) => u.id == 2)) {
-          _isAdmin = true;
+            widget.korisnik!.ulogas!.isNotEmpty) {
+          _ulogaId = widget.korisnik!.ulogas!.first.id;
         }
         setState(() {});
       }
@@ -85,16 +81,8 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
     final provider = Provider.of<KorisnikProvider>(context, listen: false);
 
     List<int>? ulogeZaSlanje;
-    if (widget.korisnik == null) {
-      // Dodavanje korisnika - koristi dropdown
+    if (_ulogaId != null) {
       ulogeZaSlanje = [_ulogaId!];
-    } else {
-      // Edit - koristi checkbox
-      if (_isAdmin) {
-        ulogeZaSlanje = [2];
-      } else {
-        ulogeZaSlanje = null; // šalje se prazno, backend neće mijenjati uloge
-      }
     }
 
     final data = {
@@ -129,197 +117,168 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
       appBar: AppBar(
         title: Text(
           widget.korisnik == null
-              ? "Dodaj korisnika/admina"
+              ? "Dodaj korisnika"
               : "Uredi korisnika",
         ),
       ),
-      body:
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 32,
+                      horizontal: 40,
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 32,
-                        horizontal: 40,
-                      ),
-                      child: Form(
-                        key: _formKey,
-                        child: ListView(
-                          shrinkWrap: true,
-                          children: [
-                            GestureDetector(
-                              onTap: _pickImage,
-                              child: Column(
-                                children: [
-                                  Stack(
-                                    alignment: Alignment.bottomRight,
-                                    children: [
-                                      CircleAvatar(
-                                        radius: 48,
-                                        backgroundImage: _slikaBase64 != null
-                                            ? MemoryImage(base64Decode(_slikaBase64!))
-                                            : null,
-                                        child: _slikaBase64 == null
-                                            ? Icon(Icons.person, size: 48)
-                                            : null,
-                                      ),
-                                      Positioned(
-                                        right: 0,
-                                        bottom: 0,
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          padding: EdgeInsets.all(2),
-                                          child: Icon(
-                                            Icons.add_circle,
-                                            color: Colors.blue,
-                                            size: 24,
-                                          ),
+                    child: Form(
+                      key: _formKey,
+                      child: ListView(
+                        shrinkWrap: true,
+                        children: [
+                          GestureDetector(
+                            onTap: _pickImage,
+                            child: Column(
+                              children: [
+                                Stack(
+                                  alignment: Alignment.bottomRight,
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 48,
+                                      backgroundImage: _slikaBase64 != null
+                                          ? MemoryImage(base64Decode(_slikaBase64!))
+                                          : null,
+                                      child: _slikaBase64 == null
+                                          ? Icon(Icons.person, size: 48)
+                                          : null,
+                                    ),
+                                    Positioned(
+                                      right: 0,
+                                      bottom: 0,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.white,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        padding: EdgeInsets.all(2),
+                                        child: Icon(
+                                          Icons.add_circle,
+                                          color: Colors.blue,
+                                          size: 24,
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            TextFormField(
-                              initialValue: _ime,
-                              decoration: InputDecoration(labelText: "Ime"),
-                              validator:
-                                  (v) =>
-                                      v == null || v.isEmpty
-                                          ? "Obavezno polje"
-                                          : null,
-                              onSaved: (v) => _ime = v,
-                            ),
-                            TextFormField(
-                              initialValue: _prezime,
-                              decoration: InputDecoration(labelText: "Prezime"),
-                              validator:
-                                  (v) =>
-                                      v == null || v.isEmpty
-                                          ? "Obavezno polje"
-                                          : null,
-                              onSaved: (v) => _prezime = v,
-                            ),
-                            TextFormField(
-                              initialValue: _korisnickoIme,
-                              decoration: InputDecoration(
-                                labelText: "Korisničko ime",
-                              ),
-                              validator:
-                                  (v) =>
-                                      v == null || v.isEmpty
-                                          ? "Obavezno polje"
-                                          : null,
-                              onSaved: (v) => _korisnickoIme = v,
-                            ),
-                            TextFormField(
-                              initialValue: _email,
-                              decoration: InputDecoration(labelText: "Email"),
-                              validator:
-                                  (v) =>
-                                      v == null || v.isEmpty
-                                          ? "Obavezno polje"
-                                          : null,
-                              onSaved: (v) => _email = v,
-                            ),
-                            if (widget.korisnik == null) ...[
-                              DropdownButtonFormField<int>(
-                                value: _ulogaId,
-                                items:
-                                    _uloge
-                                        .map(
-                                          (u) => DropdownMenuItem(
-                                            value: u.id,
-                                            child: Text(u.naziv ?? ""),
-                                          ),
-                                        )
-                                        .toList(),
-                                onChanged: (v) => setState(() => _ulogaId = v),
-                                decoration: InputDecoration(labelText: "Uloga"),
-                                validator:
-                                    (v) => v == null ? "Odaberite ulogu" : null,
-                              ),
-                              TextFormField(
-                                controller: _lozinkaController,
-                                decoration: InputDecoration(
-                                  labelText: "Lozinka",
-                                ),
-                                obscureText: true,
-                                validator: (v) {
-                                  if (widget.korisnik == null &&
-                                      (v == null || v.isEmpty)) {
-                                    return "Obavezno polje";
-                                  }
-                                  return null;
-                                },
-                              ),
-                              TextFormField(
-                                controller: _lozinkaPotvrdaController,
-                                decoration: InputDecoration(
-                                  labelText: "Potvrda lozinke",
-                                ),
-                                obscureText: true,
-                                validator: (v) {
-                                  if (widget.korisnik == null &&
-                                      (v == null || v.isEmpty)) {
-                                    return "Obavezno polje";
-                                  }
-                                  if (_lozinkaController.text.isNotEmpty &&
-                                      v != _lozinkaController.text) {
-                                    return "Lozinke se ne podudaraju";
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ],
-                            if (widget.korisnik != null) ...[
-                              const SizedBox(height: 16),
-                              CheckboxListTile(
-                                value: _isAdmin,
-                                onChanged: (v) {
-                                  setState(() {
-                                    _isAdmin = v ?? false;
-                                  });
-                                },
-                                title: Text("Administrator"),
-                                controlAffinity:
-                                    ListTileControlAffinity.leading,
-                              ),
-                            ],
-                            const SizedBox(height: 24),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                TextButton(
-                                  onPressed: () => Navigator.of(context).pop(),
-                                  child: Text("Otkaži"),
-                                ),
-                                const SizedBox(width: 12),
-                                ElevatedButton(
-                                  onPressed: _save,
-                                  child: Text("Sačuvaj"),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
+                          ),
+                          const SizedBox(height: 16),
+                          TextFormField(
+                            initialValue: _ime,
+                            decoration: InputDecoration(labelText: "Ime"),
+                            validator: (v) =>
+                                v == null || v.isEmpty ? "Obavezno polje" : null,
+                            onSaved: (v) => _ime = v,
+                          ),
+                          TextFormField(
+                            initialValue: _prezime,
+                            decoration: InputDecoration(labelText: "Prezime"),
+                            validator: (v) =>
+                                v == null || v.isEmpty ? "Obavezno polje" : null,
+                            onSaved: (v) => _prezime = v,
+                          ),
+                          TextFormField(
+                            initialValue: _korisnickoIme,
+                            decoration: InputDecoration(
+                              labelText: "Korisničko ime",
+                            ),
+                            validator: (v) =>
+                                v == null || v.isEmpty ? "Obavezno polje" : null,
+                            onSaved: (v) => _korisnickoIme = v,
+                          ),
+                          TextFormField(
+                            initialValue: _email,
+                            decoration: InputDecoration(labelText: "Email"),
+                            validator: (v) =>
+                                v == null || v.isEmpty ? "Obavezno polje" : null,
+                            onSaved: (v) => _email = v,
+                          ),
+                          DropdownButtonFormField<int>(
+                            value: _ulogaId,
+                            items: _uloge
+                                .map(
+                                  (u) => DropdownMenuItem(
+                                    value: u.id,
+                                    child: Text(u.naziv ?? ""),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: (v) => setState(() => _ulogaId = v),
+                            decoration: InputDecoration(labelText: "Uloga"),
+                            validator: (v) => v == null ? "Odaberite ulogu" : null,
+                          ),
+                          if (widget.korisnik == null) ...[
+                            TextFormField(
+                              controller: _lozinkaController,
+                              decoration: InputDecoration(
+                                labelText: "Lozinka",
+                              ),
+                              obscureText: true,
+                              validator: (v) {
+                                if (widget.korisnik == null &&
+                                    (v == null || v.isEmpty)) {
+                                  return "Obavezno polje";
+                                }
+                                return null;
+                              },
+                            ),
+                            TextFormField(
+                              controller: _lozinkaPotvrdaController,
+                              decoration: InputDecoration(
+                                labelText: "Potvrda lozinke",
+                              ),
+                              obscureText: true,
+                              validator: (v) {
+                                if (widget.korisnik == null &&
+                                    (v == null || v.isEmpty)) {
+                                  return "Obavezno polje";
+                                }
+                                if (_lozinkaController.text.isNotEmpty &&
+                                    v != _lozinkaController.text) {
+                                  return "Lozinke se ne podudaraju";
+                                }
+                                return null;
+                              },
+                            ),
                           ],
-                        ),
+                          const SizedBox(height: 24),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                child: Text("Otkaži"),
+                              ),
+                              const SizedBox(width: 12),
+                              ElevatedButton(
+                                onPressed: _save,
+                                child: Text("Sačuvaj"),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ),
                 ),
               ),
+            ),
     );
   }
 }

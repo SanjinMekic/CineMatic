@@ -67,6 +67,13 @@ class _KorisniciAdminiScreenState extends State<KorisniciAdminiScreen> {
         true;
   }
 
+  bool _isBlagajnik(Korisnik korisnik) {
+    return korisnik.ulogas?.any(
+          (u) => (u.naziv?.toLowerCase() == "blagajnik"),
+        ) ==
+        true;
+  }
+
   Future<void> _editKorisnik(Korisnik korisnik) async {
     final result = await Navigator.of(context).push(
       MaterialPageRoute(
@@ -107,7 +114,8 @@ class _KorisniciAdminiScreenState extends State<KorisniciAdminiScreen> {
   @override
   Widget build(BuildContext context) {
     final admini = _korisnici.where(_isAdmin).toList();
-    final obicni = _korisnici.where((k) => !_isAdmin(k)).toList();
+    final blagajnici = _korisnici.where((k) => _isBlagajnik(k) && !_isAdmin(k)).toList();
+    final obicni = _korisnici.where((k) => !_isAdmin(k) && !_isBlagajnik(k)).toList();
 
     return Scaffold(
       body:
@@ -186,7 +194,7 @@ class _KorisniciAdminiScreenState extends State<KorisniciAdminiScreen> {
                     ),
                     ElevatedButton.icon(
                       icon: Icon(Icons.person_add),
-                      label: Text("Dodaj admina/korisnika"),
+                      label: Text("Dodaj admina/blagajnika/korisnika"),
                       onPressed: () async {
                         final result = await Navigator.of(context).push(
                           MaterialPageRoute(
@@ -233,6 +241,70 @@ class _KorisniciAdminiScreenState extends State<KorisniciAdminiScreen> {
                                         style: TextStyle(
                                           color: Colors.grey[700],
                                         ),
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
+                        ),
+                    const SizedBox(height: 32),
+                    Text(
+                      "Blagajnici",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    blagajnici.isEmpty
+                        ? const Text("Nema blagajnika.")
+                        : Column(
+                          children:
+                              blagajnici
+                                  .map(
+                                    (k) => ListTile(
+                                      leading: CircleAvatar(
+                                        backgroundImage:
+                                            k.slikaBase64 != null
+                                                ? MemoryImage(
+                                                  base64Decode(k.slikaBase64!),
+                                                )
+                                                : null,
+                                        child:
+                                            k.slikaBase64 == null
+                                                ? Icon(Icons.person)
+                                                : null,
+                                      ),
+                                      title: Text(
+                                        "${k.ime ?? ""} ${k.prezime ?? ""}",
+                                      ),
+                                      subtitle: Text(k.korisnickoIme ?? ""),
+                                      trailing: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            k.email ?? "",
+                                            style: TextStyle(
+                                              color: Colors.grey[700],
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          IconButton(
+                                            icon: Icon(
+                                              Icons.edit,
+                                              color: Colors.blue,
+                                            ),
+                                            tooltip: "Uredi korisnika",
+                                            onPressed: () => _editKorisnik(k),
+                                          ),
+                                          IconButton(
+                                            icon: Icon(
+                                              Icons.delete,
+                                              color: Colors.red,
+                                            ),
+                                            tooltip: "Obriši korisnika",
+                                            onPressed: () => _deleteKorisnik(k),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   )
