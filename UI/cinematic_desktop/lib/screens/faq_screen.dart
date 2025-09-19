@@ -65,10 +65,14 @@ class _FaqScreenState extends State<FaqScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text("Kreiraj kategoriju"),
-        content: TextField(
-          autofocus: true,
-          decoration: InputDecoration(labelText: "Naziv kategorije"),
-          onChanged: (v) => naziv = v,
+        content: SizedBox(
+          width: 400,
+          height: 80,
+          child: TextField(
+            autofocus: true,
+            decoration: InputDecoration(labelText: "Naziv kategorije"),
+            onChanged: (v) => naziv = v,
+          ),
         ),
         actions: [
           TextButton(
@@ -100,11 +104,15 @@ class _FaqScreenState extends State<FaqScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text("Uredi kategoriju"),
-        content: TextField(
-          autofocus: true,
-          controller: nazivController,
-          decoration: InputDecoration(labelText: "Naziv kategorije"),
-          onChanged: (v) => naziv = v,
+        content: SizedBox(
+          width: 400,
+          height: 80,
+          child: TextField(
+            autofocus: true,
+            controller: nazivController,
+            decoration: InputDecoration(labelText: "Naziv kategorije"),
+            onChanged: (v) => naziv = v,
+          ),
         ),
         actions: [
           TextButton(
@@ -168,20 +176,24 @@ class _FaqScreenState extends State<FaqScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text("Uredi pitanje i odgovor"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: pitanjeController,
-              decoration: InputDecoration(labelText: "Pitanje"),
-              onChanged: (v) => pitanje = v,
-            ),
-            TextField(
-              controller: odgovorController,
-              decoration: InputDecoration(labelText: "Odgovor"),
-              onChanged: (v) => odgovor = v,
-            ),
-          ],
+        content: SizedBox(
+          width: 400,
+          height: 200,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: pitanjeController,
+                decoration: InputDecoration(labelText: "Pitanje"),
+                onChanged: (v) => pitanje = v,
+              ),
+              TextField(
+                controller: odgovorController,
+                decoration: InputDecoration(labelText: "Odgovor"),
+                onChanged: (v) => odgovor = v,
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(
@@ -241,31 +253,35 @@ class _FaqScreenState extends State<FaqScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text("Kreiraj pitanje i odgovor"),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            DropdownButtonFormField<int>(
-              value: kategorijaId,
-              items: _kategorije
-                  .map(
-                    (k) => DropdownMenuItem(
-                      value: k.id,
-                      child: Text(k.naziv ?? ""),
-                    ),
-                  )
-                  .toList(),
-              onChanged: (v) => kategorijaId = v,
-              decoration: InputDecoration(labelText: "Kategorija"),
-            ),
-            TextField(
-              decoration: InputDecoration(labelText: "Pitanje"),
-              onChanged: (v) => pitanje = v,
-            ),
-            TextField(
-              decoration: InputDecoration(labelText: "Odgovor"),
-              onChanged: (v) => odgovor = v,
-            ),
-          ],
+        content: SizedBox(
+          width: 400,
+          height: 150,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButtonFormField<int>(
+                value: kategorijaId,
+                items: _kategorije
+                    .map(
+                      (k) => DropdownMenuItem(
+                        value: k.id,
+                        child: Text(k.naziv ?? ""),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (v) => kategorijaId = v,
+                decoration: InputDecoration(labelText: "Kategorija"),
+              ),
+              TextField(
+                decoration: InputDecoration(labelText: "Pitanje"),
+                onChanged: (v) => pitanje = v,
+              ),
+              TextField(
+                decoration: InputDecoration(labelText: "Odgovor"),
+                onChanged: (v) => odgovor = v,
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(

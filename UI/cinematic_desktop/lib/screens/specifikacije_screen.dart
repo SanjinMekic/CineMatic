@@ -106,6 +106,26 @@ class _SpecifikacijeScreenState extends State<SpecifikacijeScreen> {
     });
   }
 
+  Future<bool> _showDeleteWarning(String naziv) async {
+    return await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Upozorenje"),
+        content: Text("Da li ste sigurni da želite obrisati \"$naziv\"?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text("Otkaži"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text("Obriši", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    ) ?? false;
+  }
+
   Future<void> _showDobnaRestrikcijaDialog({DobnaRestrikcija? item}) async {
     final restrikcijaController = TextEditingController(
       text: item?.restrikcija ?? "",
@@ -115,46 +135,49 @@ class _SpecifikacijeScreenState extends State<SpecifikacijeScreen> {
 
     final result = await showDialog<bool>(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(
-              isEdit ? "Uredi dobnu restrikciju" : "Dodaj dobnu restrikciju",
-            ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: restrikcijaController,
-                  decoration: InputDecoration(labelText: "Restrikcija"),
-                ),
-                TextField(
-                  controller: opisController,
-                  decoration: InputDecoration(labelText: "Opis"),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: Text("Otkaži"),
+      builder: (context) => AlertDialog(
+        title: Text(
+          isEdit ? "Uredi dobnu restrikciju" : "Dodaj dobnu restrikciju",
+        ),
+        content: SizedBox(
+          width: 400,
+          height: 100,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: restrikcijaController,
+                decoration: InputDecoration(labelText: "Restrikcija"),
               ),
-              ElevatedButton(
-                onPressed: () async {
-                  final data = {
-                    "restrikcija": restrikcijaController.text,
-                    "opis": opisController.text,
-                  };
-                  if (isEdit) {
-                    await _dobnaRestrikcijaProvider.update(item!.id, data);
-                  } else {
-                    await _dobnaRestrikcijaProvider.insert(data);
-                  }
-                  Navigator.of(context).pop(true);
-                },
-                child: Text("Sačuvaj"),
+              TextField(
+                controller: opisController,
+                decoration: InputDecoration(labelText: "Opis"),
               ),
             ],
           ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text("Otkaži"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final data = {
+                "restrikcija": restrikcijaController.text,
+                "opis": opisController.text,
+              };
+              if (isEdit) {
+                await _dobnaRestrikcijaProvider.update(item!.id, data);
+              } else {
+                await _dobnaRestrikcijaProvider.insert(data);
+              }
+              Navigator.of(context).pop(true);
+            },
+            child: Text("Sačuvaj"),
+          ),
+        ],
+      ),
     );
     if (result == true) _loadData();
   }
@@ -165,34 +188,37 @@ class _SpecifikacijeScreenState extends State<SpecifikacijeScreen> {
 
     final result = await showDialog<bool>(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(
-              isEdit ? "Uredi način prikazivanja" : "Dodaj način prikazivanja",
-            ),
-            content: TextField(
-              controller: nazivController,
-              decoration: InputDecoration(labelText: "Naziv"),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: Text("Otkaži"),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  final data = {"naziv": nazivController.text};
-                  if (isEdit) {
-                    await _nacinPrikazivanjaProvider.update(item!.id, data);
-                  } else {
-                    await _nacinPrikazivanjaProvider.insert(data);
-                  }
-                  Navigator.of(context).pop(true);
-                },
-                child: Text("Sačuvaj"),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: Text(
+          isEdit ? "Uredi način prikazivanja" : "Dodaj način prikazivanja",
+        ),
+        content: SizedBox(
+          width: 400,
+          height: 50,
+          child: TextField(
+            controller: nazivController,
+            decoration: InputDecoration(labelText: "Naziv"),
           ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text("Otkaži"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final data = {"naziv": nazivController.text};
+              if (isEdit) {
+                await _nacinPrikazivanjaProvider.update(item!.id, data);
+              } else {
+                await _nacinPrikazivanjaProvider.insert(data);
+              }
+              Navigator.of(context).pop(true);
+            },
+            child: Text("Sačuvaj"),
+          ),
+        ],
+      ),
     );
     if (result == true) _loadData();
   }
@@ -203,32 +229,35 @@ class _SpecifikacijeScreenState extends State<SpecifikacijeScreen> {
 
     final result = await showDialog<bool>(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(isEdit ? "Uredi salu" : "Dodaj salu"),
-            content: TextField(
-              controller: nazivController,
-              decoration: InputDecoration(labelText: "Naziv"),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: Text("Otkaži"),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  final data = {"naziv": nazivController.text};
-                  if (isEdit) {
-                    await _salaProvider.update(item!.id, data);
-                  } else {
-                    await _salaProvider.insert(data);
-                  }
-                  Navigator.of(context).pop(true);
-                },
-                child: Text("Sačuvaj"),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: Text(isEdit ? "Uredi salu" : "Dodaj salu"),
+        content: SizedBox(
+          width: 400,
+          height: 50,
+          child: TextField(
+            controller: nazivController,
+            decoration: InputDecoration(labelText: "Naziv"),
           ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text("Otkaži"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final data = {"naziv": nazivController.text};
+              if (isEdit) {
+                await _salaProvider.update(item!.id, data);
+              } else {
+                await _salaProvider.insert(data);
+              }
+              Navigator.of(context).pop(true);
+            },
+            child: Text("Sačuvaj"),
+          ),
+        ],
+      ),
     );
     if (result == true) _loadData();
   }
@@ -239,32 +268,35 @@ class _SpecifikacijeScreenState extends State<SpecifikacijeScreen> {
 
     final result = await showDialog<bool>(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(isEdit ? "Uredi sjedište" : "Dodaj sjedište"),
-            content: TextField(
-              controller: nazivController,
-              decoration: InputDecoration(labelText: "Naziv"),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: Text("Otkaži"),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  final data = {"naziv": nazivController.text};
-                  if (isEdit) {
-                    await _sjedisteProvider.update(item!.id, data);
-                  } else {
-                    await _sjedisteProvider.insert(data);
-                  }
-                  Navigator.of(context).pop(true);
-                },
-                child: Text("Sačuvaj"),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: Text(isEdit ? "Uredi sjedište" : "Dodaj sjedište"),
+        content: SizedBox(
+          width: 400,
+          height: 50,
+          child: TextField(
+            controller: nazivController,
+            decoration: InputDecoration(labelText: "Naziv"),
           ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text("Otkaži"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final data = {"naziv": nazivController.text};
+              if (isEdit) {
+                await _sjedisteProvider.update(item!.id, data);
+              } else {
+                await _sjedisteProvider.insert(data);
+              }
+              Navigator.of(context).pop(true);
+            },
+            child: Text("Sačuvaj"),
+          ),
+        ],
+      ),
     );
     if (result == true) _loadData();
   }
@@ -275,32 +307,35 @@ class _SpecifikacijeScreenState extends State<SpecifikacijeScreen> {
 
     final result = await showDialog<bool>(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(isEdit ? "Uredi žanr" : "Dodaj žanr"),
-            content: TextField(
-              controller: nazivController,
-              decoration: InputDecoration(labelText: "Naziv"),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: Text("Otkaži"),
-              ),
-              ElevatedButton(
-                onPressed: () async {
-                  final data = {"naziv": nazivController.text};
-                  if (isEdit) {
-                    await _zanrProvider.update(item.id!, data);
-                  } else {
-                    await _zanrProvider.insert(data);
-                  }
-                  Navigator.of(context).pop(true);
-                },
-                child: Text("Sačuvaj"),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: Text(isEdit ? "Uredi žanr" : "Dodaj žanr"),
+        content: SizedBox(
+          width: 400,
+          height: 50,
+          child: TextField(
+            controller: nazivController,
+            decoration: InputDecoration(labelText: "Naziv"),
           ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text("Otkaži"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final data = {"naziv": nazivController.text};
+              if (isEdit) {
+                await _zanrProvider.update(item.id!, data);
+              } else {
+                await _zanrProvider.insert(data);
+              }
+              Navigator.of(context).pop(true);
+            },
+            child: Text("Sačuvaj"),
+          ),
+        ],
+      ),
     );
     if (result == true) _loadData();
   }
@@ -337,19 +372,20 @@ class _SpecifikacijeScreenState extends State<SpecifikacijeScreen> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     IconButton(
-                                      icon: Icon(Icons.edit),
+                                      icon: Icon(Icons.edit, color: Colors.blue),
                                       onPressed:
                                           () => _showDobnaRestrikcijaDialog(
                                             item: item,
                                           ),
                                     ),
                                     IconButton(
-                                      icon: Icon(Icons.delete),
+                                      icon: Icon(Icons.delete, color: Colors.red),
                                       onPressed: () async {
-                                        await _dobnaRestrikcijaProvider.delete(
-                                          item.id,
-                                        );
-                                        _loadData();
+                                        final confirm = await _showDeleteWarning(item.restrikcija ?? "");
+                                        if (confirm) {
+                                          await _dobnaRestrikcijaProvider.delete(item.id);
+                                          _loadData();
+                                        }
                                       },
                                     ),
                                   ],
@@ -375,19 +411,20 @@ class _SpecifikacijeScreenState extends State<SpecifikacijeScreen> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     IconButton(
-                                      icon: Icon(Icons.edit),
+                                      icon: Icon(Icons.edit, color: Colors.blue),
                                       onPressed:
                                           () => _showNacinPrikazivanjaDialog(
                                             item: item,
                                           ),
                                     ),
                                     IconButton(
-                                      icon: Icon(Icons.delete),
+                                      icon: Icon(Icons.delete, color: Colors.red),
                                       onPressed: () async {
-                                        await _nacinPrikazivanjaProvider.delete(
-                                          item.id,
-                                        );
-                                        _loadData();
+                                        final confirm = await _showDeleteWarning(item.naziv ?? "");
+                                        if (confirm) {
+                                          await _nacinPrikazivanjaProvider.delete(item.id);
+                                          _loadData();
+                                        }
                                       },
                                     ),
                                   ],
@@ -413,15 +450,18 @@ class _SpecifikacijeScreenState extends State<SpecifikacijeScreen> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     IconButton(
-                                      icon: Icon(Icons.edit),
+                                      icon: Icon(Icons.edit, color: Colors.blue),
                                       onPressed:
                                           () => _showSalaDialog(item: item),
                                     ),
                                     IconButton(
-                                      icon: Icon(Icons.delete),
+                                      icon: Icon(Icons.delete, color: Colors.red),
                                       onPressed: () async {
-                                        await _salaProvider.delete(item.id);
-                                        _loadData();
+                                        final confirm = await _showDeleteWarning(item.naziv ?? "");
+                                        if (confirm) {
+                                          await _salaProvider.delete(item.id);
+                                          _loadData();
+                                        }
                                       },
                                     ),
                                   ],
@@ -447,15 +487,18 @@ class _SpecifikacijeScreenState extends State<SpecifikacijeScreen> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     IconButton(
-                                      icon: Icon(Icons.edit),
+                                      icon: Icon(Icons.edit, color: Colors.blue),
                                       onPressed:
                                           () => _showSjedisteDialog(item: item),
                                     ),
                                     IconButton(
-                                      icon: Icon(Icons.delete),
+                                      icon: Icon(Icons.delete, color: Colors.red),
                                       onPressed: () async {
-                                        await _sjedisteProvider.delete(item.id);
-                                        _loadData();
+                                        final confirm = await _showDeleteWarning(item.naziv ?? "");
+                                        if (confirm) {
+                                          await _sjedisteProvider.delete(item.id);
+                                          _loadData();
+                                        }
                                       },
                                     ),
                                   ],
@@ -481,15 +524,18 @@ class _SpecifikacijeScreenState extends State<SpecifikacijeScreen> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     IconButton(
-                                      icon: Icon(Icons.edit),
+                                      icon: Icon(Icons.edit, color: Colors.blue),
                                       onPressed:
                                           () => _showZanrDialog(item: item),
                                     ),
                                     IconButton(
-                                      icon: Icon(Icons.delete),
+                                      icon: Icon(Icons.delete, color: Colors.red),
                                       onPressed: () async {
-                                        await _zanrProvider.delete(item.id!);
-                                        _loadData();
+                                        final confirm = await _showDeleteWarning(item.naziv ?? "");
+                                        if (confirm) {
+                                          await _zanrProvider.delete(item.id!);
+                                          _loadData();
+                                        }
                                       },
                                     ),
                                   ],

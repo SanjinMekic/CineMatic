@@ -3,6 +3,7 @@ import 'package:cinematic_desktop/models/glumac.dart';
 import 'package:cinematic_desktop/providers/glumac_provider.dart';
 import 'package:cinematic_desktop/screens/glumac_form_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class GlumciScreen extends StatefulWidget {
@@ -82,7 +83,7 @@ class _GlumciScreenState extends State<GlumciScreen> {
     }
   }
 
-  void _showGlumacDetalji(Glumac glumac) {
+    void _showGlumacDetalji(Glumac glumac) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -107,100 +108,104 @@ class _GlumciScreenState extends State<GlumciScreen> {
             ),
           ],
         ),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (glumac.datumRodjenja != null)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Row(
-                    children: [
-                      Icon(Icons.cake, color: Colors.purple, size: 20),
-                      const SizedBox(width: 8),
-                      Text(
-                        "Datum rođenja: ${glumac.datumRodjenja!.toLocal().toString().split(' ')[0]}",
-                        style: TextStyle(fontWeight: FontWeight.w500),
-                      ),
-                    ],
-                  ),
-                ),
-              if (glumac.opis != null && glumac.opis!.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(Icons.info_outline, color: Colors.blue, size: 20),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          glumac.opis!,
-                          style: TextStyle(fontSize: 15),
+        content: SizedBox(
+          width: 600,
+          height: 200,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (glumac.datumRodjenja != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      children: [
+                        Icon(Icons.cake, color: Colors.purple, size: 20),
+                        const SizedBox(width: 8),
+                        Text(
+                          "Datum rođenja: ${DateFormat('dd.MM.yyyy.').format(glumac.datumRodjenja!)}",
+                          style: TextStyle(fontWeight: FontWeight.w500),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              if (glumac.uspjesi != null && glumac.uspjesi!.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(Icons.emoji_events, color: Colors.amber, size: 20),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Uspjesi:",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.amber[800],
+                if (glumac.opis != null && glumac.opis!.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.info_outline, color: Colors.blue, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            glumac.opis!,
+                            style: TextStyle(fontSize: 15),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                if (glumac.uspjesi != null && glumac.uspjesi!.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.emoji_events, color: Colors.amber, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Uspjesi:",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.amber[800],
+                                ),
                               ),
-                            ),
-                            Text(
-                              glumac.uspjesi!,
-                              style: TextStyle(fontSize: 15),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              if (glumac.ulogeUfilmovima != null && glumac.ulogeUfilmovima!.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(Icons.movie, color: Colors.redAccent, size: 20),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Uloge u filmovima:",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.redAccent,
+                              Text(
+                                glumac.uspjesi!,
+                                style: TextStyle(fontSize: 15),
                               ),
-                            ),
-                            Text(
-                              glumac.ulogeUfilmovima!,
-                              style: TextStyle(fontSize: 15),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-            ],
+                if (glumac.ulogeUfilmovima != null && glumac.ulogeUfilmovima!.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.movie, color: Colors.redAccent, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Uloge u filmovima:",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.redAccent,
+                                ),
+                              ),
+                              Text(
+                                glumac.ulogeUfilmovima!,
+                                style: TextStyle(fontSize: 15),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
         actions: [

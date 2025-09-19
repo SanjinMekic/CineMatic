@@ -3,6 +3,7 @@ import 'package:cinematic_desktop/models/reziser.dart';
 import 'package:cinematic_desktop/providers/reziser_provider.dart';
 import 'package:cinematic_desktop/screens/reziser_form_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class ReziseriScreen extends StatefulWidget {
@@ -106,100 +107,104 @@ class _ReziseriScreenState extends State<ReziseriScreen> {
             ),
           ],
         ),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (reziser.datumRodjenja != null)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Row(
-                    children: [
-                      Icon(Icons.cake, color: Colors.purple, size: 20),
-                      const SizedBox(width: 8),
-                      Text(
-                        "Datum rođenja: ${reziser.datumRodjenja!.toLocal().toString().split(' ')[0]}",
-                        style: TextStyle(fontWeight: FontWeight.w500),
-                      ),
-                    ],
-                  ),
-                ),
-              if (reziser.opis != null && reziser.opis!.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(Icons.info_outline, color: Colors.blue, size: 20),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          reziser.opis!,
-                          style: TextStyle(fontSize: 15),
+        content: SizedBox(
+          width: 600,
+          height: 200,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (reziser.datumRodjenja != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      children: [
+                        Icon(Icons.cake, color: Colors.purple, size: 20),
+                        const SizedBox(width: 8),
+                        Text(
+                          "Datum rođenja: ${DateFormat('dd.MM.yyyy.').format(reziser.datumRodjenja!)}",
+                          style: TextStyle(fontWeight: FontWeight.w500),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              if (reziser.uspjesi != null && reziser.uspjesi!.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(Icons.emoji_events, color: Colors.amber, size: 20),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Uspjesi:",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.amber[800],
+                if (reziser.opis != null && reziser.opis!.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.info_outline, color: Colors.blue, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            reziser.opis!,
+                            style: TextStyle(fontSize: 15),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                if (reziser.uspjesi != null && reziser.uspjesi!.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.emoji_events, color: Colors.amber, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Uspjesi:",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.amber[800],
+                                ),
                               ),
-                            ),
-                            Text(
-                              reziser.uspjesi!,
-                              style: TextStyle(fontSize: 15),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              if (reziser.rezisiraniFilmovi != null && reziser.rezisiraniFilmovi!.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(Icons.movie, color: Colors.redAccent, size: 20),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Režisirani filmovi:",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.redAccent,
+                              Text(
+                                reziser.uspjesi!,
+                                style: TextStyle(fontSize: 15),
                               ),
-                            ),
-                            Text(
-                              reziser.rezisiraniFilmovi!,
-                              style: TextStyle(fontSize: 15),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-            ],
+                if (reziser.rezisiraniFilmovi != null && reziser.rezisiraniFilmovi!.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.movie, color: Colors.redAccent, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Režisirani filmovi:",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.redAccent,
+                                ),
+                              ),
+                              Text(
+                                reziser.rezisiraniFilmovi!,
+                                style: TextStyle(fontSize: 15),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
         actions: [

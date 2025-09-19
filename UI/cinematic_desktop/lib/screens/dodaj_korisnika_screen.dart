@@ -156,18 +156,39 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
                           children: [
                             GestureDetector(
                               onTap: _pickImage,
-                              child: CircleAvatar(
-                                radius: 48,
-                                backgroundImage:
-                                    _slikaBase64 != null
-                                        ? MemoryImage(
-                                          base64Decode(_slikaBase64!),
-                                        )
-                                        : null,
-                                child:
-                                    _slikaBase64 == null
-                                        ? Icon(Icons.person, size: 48)
-                                        : null,
+                              child: Column(
+                                children: [
+                                  Stack(
+                                    alignment: Alignment.bottomRight,
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 48,
+                                        backgroundImage: _slikaBase64 != null
+                                            ? MemoryImage(base64Decode(_slikaBase64!))
+                                            : null,
+                                        child: _slikaBase64 == null
+                                            ? Icon(Icons.person, size: 48)
+                                            : null,
+                                      ),
+                                      Positioned(
+                                        right: 0,
+                                        bottom: 0,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          padding: EdgeInsets.all(2),
+                                          child: Icon(
+                                            Icons.add_circle,
+                                            color: Colors.blue,
+                                            size: 24,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ),
                             const SizedBox(height: 16),
