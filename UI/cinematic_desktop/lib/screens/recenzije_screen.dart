@@ -1,5 +1,6 @@
 import 'package:cinematic_desktop/models/recenzija.dart';
 import 'package:cinematic_desktop/providers/recenzija_provider.dart';
+import 'package:cinematic_desktop/providers/korisnik_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -17,10 +18,12 @@ class RecenzijeScreen extends StatefulWidget {
 class _RecenzijeScreenState extends State<RecenzijeScreen> {
   List<Recenzija> _recenzije = [];
   bool _isLoading = true;
+  KorisnikProvider? _korisnikProvider;
 
   @override
   void initState() {
     super.initState();
+    _korisnikProvider = Provider.of<KorisnikProvider>(context, listen: false);
     _loadRecenzije();
   }
 
@@ -46,6 +49,16 @@ class _RecenzijeScreenState extends State<RecenzijeScreen> {
     }
   }
 
+  Future<dynamic> _fetchKorisnikById(int? id, dynamic fallback) async {
+    if (id == null) return fallback;
+    try {
+      final korisnik = await _korisnikProvider!.getById(id);
+      return korisnik;
+    } catch (_) {
+      return fallback;
+    }
+  }
+
   Widget _buildAvatar(Recenzija r) {
     if (r.korisnik?.slikaBase64 != null && r.korisnik!.slikaBase64!.isNotEmpty) {
       try {
@@ -58,6 +71,40 @@ class _RecenzijeScreenState extends State<RecenzijeScreen> {
       }
     }
     return CircleAvatar(child: Icon(Icons.person), radius: 28);
+  }
+
+  Widget _buildKorisnikNaslov(Recenzija r) {
+    return FutureBuilder<dynamic>(
+      future: _fetchKorisnikById(r.korisnik?.id, r.korisnik),
+      builder: (context, snapshot) {
+        final stvarniKorisnik = snapshot.data ?? r.korisnik;
+        final osnovni = stvarniKorisnik?.korisnickoIme ?? "Nepoznat korisnik";
+        if (stvarniKorisnik?.obrisan == true) {
+          return Row(
+            children: [
+              Text(
+                osnovni,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                "- Obrisan nalog",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: Colors.red[700],
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          );
+        } else {
+          return Text(
+            osnovni,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+          );
+        }
+      },
+    );
   }
 
   @override
@@ -92,13 +139,7 @@ class _RecenzijeScreenState extends State<RecenzijeScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    r.korisnik?.korisnickoIme ?? "Nepoznat korisnik",
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 17,
-                                    ),
-                                  ),
+                                  _buildKorisnikNaslov(r),
                                   if (r.komentar != null && r.komentar!.isNotEmpty)
                                     Padding(
                                       padding: const EdgeInsets.only(top: 4.0),
