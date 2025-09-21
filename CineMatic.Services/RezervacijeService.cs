@@ -661,6 +661,7 @@ namespace CineMatic.Services
                 UkupnaCijena = r.UkupnaCijena,
                 UplataId = r.UplataId,
                 NačinPlaćanja = r.NačinPlaćanja,
+                QrcodeBase64 = r.QrcodeBase64,
                 RezervacijeSjedišta = r.RezervacijeSjedišta.Select(rs => new Model.RezervacijeSjedištum
                 {
                     RezervacijaId = rs.RezervacijaId,
