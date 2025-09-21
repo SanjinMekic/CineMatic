@@ -17,6 +17,7 @@ Korisnik _$KorisnikFromJson(Map<String, dynamic> json) => Korisnik(
       (json['ulogas'] as List<dynamic>?)
           ?.map((e) => Uloga.fromJson(e as Map<String, dynamic>))
           .toList(),
+  obrisan: json['obrisan'] as bool?,
 );
 
 Map<String, dynamic> _$KorisnikToJson(Korisnik instance) => <String, dynamic>{
@@ -27,4 +28,5 @@ Map<String, dynamic> _$KorisnikToJson(Korisnik instance) => <String, dynamic>{
   'email': instance.email,
   'slikaBase64': instance.slikaBase64,
   'ulogas': instance.ulogas,
+  'obrisan': instance.obrisan,
 };

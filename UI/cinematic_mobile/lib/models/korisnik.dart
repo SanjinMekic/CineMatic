@@ -12,6 +12,7 @@ class Korisnik {
   String? email;
   String? slikaBase64;
   List<Uloga>? ulogas;
+  bool? obrisan;
 
   Korisnik({
     required this.id,
@@ -21,6 +22,7 @@ class Korisnik {
     this.email,
     this.slikaBase64,
     this.ulogas,
+    this.obrisan,
   });
 
   factory Korisnik.fromJson(Map<String, dynamic> json) =>

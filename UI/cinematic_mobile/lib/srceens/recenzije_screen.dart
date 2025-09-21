@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:cinematic_mobile/models/recenzija.dart';
 import 'package:cinematic_mobile/providers/recenzija_provider.dart';
 import 'package:cinematic_mobile/providers/auth_provider.dart';
+import 'package:cinematic_mobile/providers/korisnik_provider.dart';
+import 'package:cinematic_mobile/models/korisnik.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -18,11 +20,12 @@ class _RecenzijeScreenState extends State<RecenzijeScreen> {
   List<Recenzija> _recenzije = [];
   bool _isLoading = true;
 
-  // Za unos/izmjenu recenzije
   final TextEditingController _komentarController = TextEditingController();
   double _novaOcjena = 5;
   bool _saljeSe = false;
-  Recenzija? _mojaRecenzija; // Ako korisnik ima recenziju, ovdje je
+  Recenzija? _mojaRecenzija;
+
+  Map<int, Korisnik?> _korisniciRecenzija = {};
 
   @override
   void initState() {
@@ -35,7 +38,6 @@ class _RecenzijeScreenState extends State<RecenzijeScreen> {
     try {
       final result = await provider.getByFilm(widget.filmId);
 
-      // Pronađi recenziju trenutnog korisnika
       final mojId = AuthProvider.korisnikId;
       Recenzija? moja;
       for (var rec in result) {
@@ -45,9 +47,33 @@ class _RecenzijeScreenState extends State<RecenzijeScreen> {
         }
       }
 
+      // Dohvati korisnike za sve recenzije
+      final korisnikProvider = Provider.of<KorisnikProvider>(context, listen: false);
+      Map<int, Korisnik?> korisnici = {};
+      for (var rec in result) {
+        if (rec.korisnikId != null) {
+          try {
+            final k = await korisnikProvider.getById(rec.korisnikId!);
+            korisnici[rec.korisnikId!] = k;
+          } catch (_) {
+            korisnici[rec.korisnikId!] = Korisnik(
+              id: rec.korisnikId!,
+              ime: null,
+              prezime: null,
+              korisnickoIme: null,
+              email: null,
+              slikaBase64: null,
+              ulogas: null,
+              obrisan: true,
+            );
+          }
+        }
+      }
+
       setState(() {
         _recenzije = result;
         _mojaRecenzija = moja;
+        _korisniciRecenzija = korisnici;
         if (moja != null) {
           _komentarController.text = moja.komentar ?? "";
           _novaOcjena = (moja.ocjena ?? 5).toDouble();
@@ -296,7 +322,6 @@ class _RecenzijeScreenState extends State<RecenzijeScreen> {
                               ),
                             ),
                             const SizedBox(height: 18),
-                            // Umjesto Expanded koristi SizedBox za visinu liste
                             SizedBox(
                               height: 350,
                               child: _recenzije.isEmpty
@@ -308,13 +333,17 @@ class _RecenzijeScreenState extends State<RecenzijeScreen> {
                                       separatorBuilder: (_, __) => const SizedBox(height: 14),
                                       itemBuilder: (context, index) {
                                         final r = _recenzije[index];
-                                        final korisnik = r.korisnik;
+                                        final korisnik = r.korisnikId != null ? _korisniciRecenzija[r.korisnikId!] : null;
                                         final datum = r.datumIvrijeme != null
                                             ? DateFormat('dd.MM.yyyy. HH:mm').format(r.datumIvrijeme!)
                                             : "";
 
+                                        bool isObrisan = korisnik?.obrisan == true;
+
                                         ImageProvider? imageProvider;
-                                        if (korisnik?.slikaBase64 != null && korisnik!.slikaBase64!.isNotEmpty) {
+                                        if (isObrisan) {
+                                          imageProvider = null;
+                                        } else if (korisnik?.slikaBase64 != null && korisnik!.slikaBase64!.isNotEmpty) {
                                           try {
                                             final base64Str = korisnik.slikaBase64!.contains(',')
                                                 ? korisnik.slikaBase64!.split(',').last
@@ -337,11 +366,13 @@ class _RecenzijeScreenState extends State<RecenzijeScreen> {
                                               children: [
                                                 CircleAvatar(
                                                   radius: 26,
-                                                  backgroundColor: Colors.blue[100],
+                                                  backgroundColor: isObrisan ? Colors.red[100] : Colors.blue[100],
                                                   backgroundImage: imageProvider,
-                                                  child: imageProvider == null
-                                                      ? Icon(Icons.person, size: 28, color: Colors.blue)
-                                                      : null,
+                                                  child: isObrisan
+                                                      ? Icon(Icons.person_off, size: 28, color: Colors.red)
+                                                      : (imageProvider == null
+                                                          ? Icon(Icons.person, size: 28, color: Colors.blue)
+                                                          : null),
                                                 ),
                                                 const SizedBox(width: 14),
                                                 Expanded(
@@ -350,13 +381,22 @@ class _RecenzijeScreenState extends State<RecenzijeScreen> {
                                                     children: [
                                                       Row(
                                                         children: [
-                                                          Text(
-                                                            "${korisnik?.ime ?? "Nepoznat"} ${korisnik?.prezime ?? ""}",
-                                                            style: const TextStyle(
-                                                              fontWeight: FontWeight.bold,
-                                                              fontSize: 16,
-                                                            ),
-                                                          ),
+                                                          isObrisan
+  ? Text(
+      "Obrisan nalog",
+      style: const TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 16,
+        color: Colors.red,
+      ),
+    )
+  : Text(
+      "${korisnik?.ime ?? "Obrisan nalog"} ${korisnik?.prezime ?? ""}",
+      style: const TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 16,
+      ),
+    ),
                                                           const SizedBox(width: 8),
                                                           Icon(Icons.star, color: Colors.amber, size: 18),
                                                           Text(
