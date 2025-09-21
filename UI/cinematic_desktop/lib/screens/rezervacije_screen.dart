@@ -1,5 +1,6 @@
 import 'package:cinematic_desktop/models/rezervacija.dart';
 import 'package:cinematic_desktop/providers/rezervacija_provider.dart';
+import 'package:cinematic_desktop/providers/korisnik_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -16,10 +17,12 @@ class RezervacijeScreen extends StatefulWidget {
 class _RezervacijeScreenState extends State<RezervacijeScreen> {
   List<Rezervacija> _rezervacije = [];
   bool _isLoading = true;
+  KorisnikProvider? _korisnikProvider;
 
   @override
   void initState() {
     super.initState();
+    _korisnikProvider = Provider.of<KorisnikProvider>(context, listen: false);
     _fetchRezervacije();
   }
 
@@ -31,6 +34,16 @@ class _RezervacijeScreenState extends State<RezervacijeScreen> {
       _rezervacije = result;
       _isLoading = false;
     });
+  }
+
+  Future<dynamic> _fetchKorisnikById(int? id, dynamic fallback) async {
+    if (id == null) return fallback;
+    try {
+      final korisnik = await _korisnikProvider!.getById(id);
+      return korisnik;
+    } catch (_) {
+      return fallback;
+    }
   }
 
   Widget _buildAvatar(dynamic korisnik) {
@@ -47,7 +60,13 @@ class _RezervacijeScreenState extends State<RezervacijeScreen> {
     return CircleAvatar(child: Icon(Icons.person), radius: 28);
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String value, {Color? iconColor, bool bold = false}) {
+  Widget _buildInfoRow(
+    IconData icon,
+    String label,
+    String value, {
+    Color? iconColor,
+    bool bold = false,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2.5),
       child: Row(
@@ -56,17 +75,59 @@ class _RezervacijeScreenState extends State<RezervacijeScreen> {
           const SizedBox(width: 8),
           Text(
             "$label: ",
-            style: TextStyle(fontSize: 16, color: Colors.grey[800], fontWeight: bold ? FontWeight.bold : FontWeight.normal),
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.grey[800],
+              fontWeight: bold ? FontWeight.bold : FontWeight.normal,
+            ),
           ),
           Expanded(
             child: Text(
               value,
-              style: TextStyle(fontSize: 16, fontWeight: bold ? FontWeight.bold : FontWeight.normal),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: bold ? FontWeight.bold : FontWeight.normal,
+              ),
               overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildKorisnikNaslov(dynamic korisnik) {
+    return FutureBuilder<dynamic>(
+      future: _fetchKorisnikById(korisnik?.id, korisnik),
+      builder: (context, snapshot) {
+        final stvarniKorisnik = snapshot.data ?? korisnik;
+        final osnovni =
+            "${stvarniKorisnik?.ime ?? ""} ${stvarniKorisnik?.prezime ?? ""} (${stvarniKorisnik?.korisnickoIme ?? ""})";
+        if (stvarniKorisnik?.obrisan == true) {
+          return Row(
+            children: [
+              Text(
+                osnovni,
+                style: const TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                "- Obrisan nalog",
+                style: TextStyle(
+                  fontSize: 17,
+                  color: Colors.red[700],
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          );
+        } else {
+          return Text(
+            osnovni,
+            style: const TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
+          );
+        }
+      },
     );
   }
 
@@ -110,20 +171,16 @@ class _RezervacijeScreenState extends State<RezervacijeScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    "${korisnik?.ime ?? ""} ${korisnik?.prezime ?? ""} (${korisnik?.korisnickoIme ?? ""})",
-                                    style: const TextStyle(
-                                      fontSize: 19,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                                  _buildKorisnikNaslov(korisnik),
                                   const SizedBox(height: 10),
                                   Divider(),
                                   _buildInfoRow(
                                     Icons.calendar_today,
                                     "Datum",
                                     r.datumIvrijeme != null
-                                        ? DateFormat('dd.MM.yyyy. HH:mm').format(r.datumIvrijeme!)
+                                        ? DateFormat(
+                                            'dd.MM.yyyy. HH:mm',
+                                          ).format(r.datumIvrijeme!)
                                         : "-",
                                   ),
                                   _buildInfoRow(
@@ -134,7 +191,9 @@ class _RezervacijeScreenState extends State<RezervacijeScreen> {
                                   _buildInfoRow(
                                     Icons.fastfood,
                                     "Hrana i piće",
-                                    hranaPice?.isNotEmpty == true ? hranaPice! : "-",
+                                    hranaPice?.isNotEmpty == true
+                                        ? hranaPice!
+                                        : "-",
                                     iconColor: Colors.orange[700],
                                   ),
                                   _buildInfoRow(
