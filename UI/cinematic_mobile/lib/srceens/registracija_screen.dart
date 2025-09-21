@@ -49,7 +49,7 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
       "slikaBase64": _slikaBase64,
       "lozinka": _lozinkaController.text,
       "lozinkaPotvrda": _lozinkaPotvrdaController.text,
-      "ulogaId": [1]
+      "ulogaId": [1],
     };
 
     try {
@@ -88,7 +88,9 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
           padding: const EdgeInsets.all(24),
           child: Card(
             elevation: 8,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 36),
               child: Form(
@@ -98,45 +100,80 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
                   children: [
                     const Text(
                       "Kreirajte novi nalog",
-                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.blue),
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue,
+                      ),
                     ),
                     const SizedBox(height: 18),
                     TextFormField(
                       controller: _imeController,
                       decoration: const InputDecoration(labelText: "Ime"),
-                      validator: (v) => v == null || v.trim().isEmpty ? "Unesite ime" : null,
+                      validator:
+                          (v) =>
+                              v == null || v.trim().isEmpty
+                                  ? "Unesite ime"
+                                  : null,
                     ),
                     const SizedBox(height: 14),
                     TextFormField(
                       controller: _prezimeController,
                       decoration: const InputDecoration(labelText: "Prezime"),
-                      validator: (v) => v == null || v.trim().isEmpty ? "Unesite prezime" : null,
+                      validator:
+                          (v) =>
+                              v == null || v.trim().isEmpty
+                                  ? "Unesite prezime"
+                                  : null,
                     ),
                     const SizedBox(height: 14),
                     TextFormField(
                       controller: _emailController,
                       decoration: const InputDecoration(labelText: "Email"),
-                      validator: (v) => v == null || v.trim().isEmpty ? "Unesite email" : null,
+                      validator: (v) {
+                        if (v == null || v.trim().isEmpty)
+                          return "Unesite email";
+                        final emailRegex = RegExp(
+                          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                        );
+                        if (!emailRegex.hasMatch(v.trim()))
+                          return "Unesite validan email";
+                        return null;
+                      },
                     ),
                     const SizedBox(height: 14),
                     TextFormField(
                       controller: _korisnickoImeController,
-                      decoration: const InputDecoration(labelText: "Korisničko ime"),
-                      validator: (v) => v == null || v.trim().isEmpty ? "Unesite korisničko ime" : null,
+                      decoration: const InputDecoration(
+                        labelText: "Korisničko ime",
+                      ),
+                      validator:
+                          (v) =>
+                              v == null || v.trim().isEmpty
+                                  ? "Unesite korisničko ime"
+                                  : null,
                     ),
                     const SizedBox(height: 14),
                     TextFormField(
                       controller: _lozinkaController,
                       decoration: const InputDecoration(labelText: "Lozinka"),
                       obscureText: true,
-                      validator: (v) => v == null || v.isEmpty ? "Unesite lozinku" : null,
+                      validator:
+                          (v) =>
+                              v == null || v.isEmpty ? "Unesite lozinku" : null,
                     ),
                     const SizedBox(height: 14),
                     TextFormField(
                       controller: _lozinkaPotvrdaController,
-                      decoration: const InputDecoration(labelText: "Potvrda lozinke"),
+                      decoration: const InputDecoration(
+                        labelText: "Potvrda lozinke",
+                      ),
                       obscureText: true,
-                      validator: (v) => v != _lozinkaController.text ? "Lozinke se ne podudaraju" : null,
+                      validator:
+                          (v) =>
+                              v != _lozinkaController.text
+                                  ? "Lozinke se ne podudaraju"
+                                  : null,
                     ),
                     const SizedBox(height: 14),
                     Row(
@@ -151,7 +188,9 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
                             padding: const EdgeInsets.only(left: 8.0),
                             child: CircleAvatar(
                               radius: 18,
-                              backgroundImage: MemoryImage(base64Decode(_slikaBase64!)),
+                              backgroundImage: MemoryImage(
+                                base64Decode(_slikaBase64!),
+                              ),
                             ),
                           ),
                       ],
@@ -162,25 +201,28 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
                     _isLoading
                         ? const CircularProgressIndicator()
                         : SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(vertical: 14),
-                                textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              textStyle: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
                               ),
-                              onPressed: () {
-                                if (_formKey.currentState!.validate()) {
-                                  _register();
-                                }
-                              },
-                              child: const Text("Registruj se"),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
+                            onPressed: () {
+                              if (_formKey.currentState!.validate()) {
+                                _register();
+                              }
+                            },
+                            child: const Text("Registruj se"),
                           ),
+                        ),
                   ],
                 ),
               ),
