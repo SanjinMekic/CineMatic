@@ -37,6 +37,10 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
         _email = widget.korisnik!.email;
         _korisnickoIme = widget.korisnik!.korisnickoIme;
         _slikaBase64 = widget.korisnik!.slikaBase64;
+        // Postavi selektovanu ulogu na trenutnu korisnikovu ulogu
+        if (widget.korisnik!.ulogas != null && widget.korisnik!.ulogas!.isNotEmpty) {
+          _ulogaId = widget.korisnik!.ulogas!.first.id;
+        }
         setState(() {});
       }
     });
@@ -106,8 +110,8 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
             _lozinkaPotvrdaController.text.isNotEmpty
                 ? _lozinkaPotvrdaController.text
                 : null,
-      // Uloga šalji samo kod dodavanja novog korisnika
-      if (widget.korisnik == null && _ulogaId != null)
+      // Uloga šalji kod dodavanja i editovanja
+      if (_ulogaId != null)
         'ulogaId': [_ulogaId!],
     };
 
@@ -233,22 +237,21 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
                             },
                             onSaved: (v) => _email = v,
                           ),
-                          if (widget.korisnik == null)
-                            DropdownButtonFormField<int>(
-                              value: _ulogaId,
-                              items: _uloge
-                                  .map(
-                                    (u) => DropdownMenuItem(
-                                      value: u.id,
-                                      child: Text(u.naziv ?? ""),
-                                    ),
-                                  )
-                                  .toList(),
-                              onChanged: (v) => setState(() => _ulogaId = v),
-                              decoration: InputDecoration(labelText: "Uloga"),
-                              validator: (v) =>
-                                  v == null ? "Odaberite ulogu" : null,
-                            ),
+                          DropdownButtonFormField<int>(
+                            value: _ulogaId,
+                            items: _uloge
+                                .map(
+                                  (u) => DropdownMenuItem(
+                                    value: u.id,
+                                    child: Text(u.naziv ?? ""),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: (v) => setState(() => _ulogaId = v),
+                            decoration: InputDecoration(labelText: "Uloga"),
+                            validator: (v) =>
+                                v == null ? "Odaberite ulogu" : null,
+                          ),
                           if (widget.korisnik == null) ...[
                             TextFormField(
                               controller: _lozinkaController,

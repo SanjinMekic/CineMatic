@@ -231,18 +231,19 @@ namespace CineMatic.Services
                 entity.Slika = Convert.FromBase64String(request.SlikaBase64);
             }
 
-            if(request.UlogaId != null)
+            if (request.UlogaId != null)
             {
+                Context.Entry(entity).Collection(e => e.Ulogas).Load();
+
+                entity.Ulogas.Clear();
+
                 foreach (var ulogaId in request.UlogaId)
                 {
-                    if (!entity.Ulogas.Any(u => u.Id == ulogaId))
-                    {
-                        var uloga = Context.Uloges.FirstOrDefault(u => u.Id == ulogaId);
-                        if (uloga == null)
-                            throw new Exception($"Uloga sa ID {ulogaId} nije pronadjena");
+                    var uloga = Context.Uloges.FirstOrDefault(u => u.Id == ulogaId);
+                    if (uloga == null)
+                        throw new Exception($"Uloga sa ID {ulogaId} nije pronađena");
 
-                        entity.Ulogas.Add(uloga);
-                    }
+                    entity.Ulogas.Add(uloga);
                 }
             }
         }
