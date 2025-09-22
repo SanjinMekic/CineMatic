@@ -26,6 +26,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
   String? _email;
   String? _korisnickoIme;
   String? _slikaBase64;
+  String? _slikaError; // Dodano za prikaz greške
 
   @override
   void initState() {
@@ -52,13 +53,25 @@ class _ProfilScreenState extends State<ProfilScreen> {
   }
 
   Future<void> _pickImage() async {
+    setState(() {
+      _slikaError = null;
+    });
     final result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
+      type: FileType.custom,
+      allowedExtensions: ['png', 'jpg', 'jpeg'],
       withData: true,
     );
     if (result != null && result.files.single.bytes != null) {
+      final ext = result.files.single.extension?.toLowerCase();
+      if (ext == 'heic') {
+        setState(() {
+          _slikaError = "HEIC format nije dozvoljen. Dozvoljeni su samo PNG, JPG i JPEG.";
+        });
+        return;
+      }
       setState(() {
         _slikaBase64 = base64Encode(result.files.single.bytes!);
+        _slikaError = null;
       });
     }
   }
@@ -114,95 +127,95 @@ class _ProfilScreenState extends State<ProfilScreen> {
   }
 
   void _showDeleteDialog() {
-  String sifra = '';
-  String? errorMsg;
-  showDialog(
-    context: context,
-    builder: (context) {
-      return StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          title: const Text("Potvrda brisanja naloga"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                "Unesite svoju šifru za potvrdu brisanja naloga:",
-                style: TextStyle(fontSize: 15),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: "Šifra",
-                  border: OutlineInputBorder(),
+    String sifra = '';
+    String? errorMsg;
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) => AlertDialog(
+            title: const Text("Potvrda brisanja naloga"),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  "Unesite svoju šifru za potvrdu brisanja naloga:",
+                  style: TextStyle(fontSize: 15),
                 ),
-                onChanged: (v) {
-                  sifra = v;
-                  if (errorMsg != null) setState(() => errorMsg = null);
-                },
-              ),
-              if (errorMsg != null) ...[
-                const SizedBox(height: 8),
-                Text(
-                  errorMsg!,
-                  style: const TextStyle(color: Colors.red, fontSize: 14),
+                const SizedBox(height: 12),
+                TextField(
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    labelText: "Šifra",
+                    border: OutlineInputBorder(),
+                  ),
+                  onChanged: (v) {
+                    sifra = v;
+                    if (errorMsg != null) setState(() => errorMsg = null);
+                  },
                 ),
+                if (errorMsg != null) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    errorMsg!,
+                    style: const TextStyle(color: Colors.red, fontSize: 14),
+                  ),
+                ],
               ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text("Otkaži"),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                ),
+                onPressed: () async {
+                  if (sifra != AuthProvider.password) {
+                    setState(() {
+                      errorMsg = "Pogrešna šifra!";
+                    });
+                    return;
+                  }
+                  Navigator.of(context).pop();
+                  final potvrda = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text("Jeste li sigurni?"),
+                      content: const Text(
+                        "Ova akcija je nepovratna. Da li zaista želite obrisati svoj korisnički nalog?",
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.of(context).pop(false),
+                          child: const Text("Ne"),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                          ),
+                          onPressed: () => Navigator.of(context).pop(true),
+                          child: const Text("Da, obriši"),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (potvrda == true) {
+                    await _obrisiNalog();
+                  }
+                },
+                child: const Text("Obriši nalog"),
+              ),
             ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text("Otkaži"),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
-              ),
-              onPressed: () async {
-                if (sifra != AuthProvider.password) {
-                  setState(() {
-                    errorMsg = "Pogrešna šifra!";
-                  });
-                  return;
-                }
-                Navigator.of(context).pop();
-                final potvrda = await showDialog<bool>(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text("Jeste li sigurni?"),
-                    content: const Text(
-                      "Ova akcija je nepovratna. Da li zaista želite obrisati svoj korisnički nalog?",
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(false),
-                        child: const Text("Ne"),
-                      ),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.red,
-                          foregroundColor: Colors.white,
-                        ),
-                        onPressed: () => Navigator.of(context).pop(true),
-                        child: const Text("Da, obriši"),
-                      ),
-                    ],
-                  ),
-                );
-                if (potvrda == true) {
-                  await _obrisiNalog();
-                }
-              },
-              child: const Text("Obriši nalog"),
-            ),
-          ],
-        ),
-      );
-    },
-  );
-}
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -236,6 +249,14 @@ class _ProfilScreenState extends State<ProfilScreen> {
                               : null,
                         ),
                       ),
+                      if (_slikaError != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            _slikaError!,
+                            style: const TextStyle(color: Colors.red, fontSize: 14),
+                          ),
+                        ),
                       const SizedBox(height: 20),
                       Text(
                         "Uredi profil",
