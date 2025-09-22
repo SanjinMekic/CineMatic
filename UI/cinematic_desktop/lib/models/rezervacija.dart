@@ -26,6 +26,7 @@ class Rezervacija {
   @JsonKey(name: 'rezervacijeHraneIpićas')
   List<RezervacijaHranaPice>? rezervacijeHraneIPica;
   Uplata? uplata;
+  bool? ponistenaKarta;
 
   Rezervacija({
     required this.id,
@@ -42,8 +43,11 @@ class Rezervacija {
     this.rezervacijeSjedista,
     this.rezervacijeHraneIPica,
     this.uplata,
+    this.ponistenaKarta
   });
 
+     
   factory Rezervacija.fromJson(Map<String, dynamic> json) => _$RezervacijaFromJson(json);
-  Map<String, dynamic> toJson() => _$RezervacijaToJson(this);
+ 
+ Map<String, dynamic> toJson() => _$RezervacijaToJson(this);
 }

@@ -134,160 +134,168 @@ class _RezervacijeScreenState extends State<RezervacijeScreen> {
     );
   }
 
-void _showQrDialog(String qrBase64) {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text("QR kod rezervacije"),
-      content: qrBase64.isNotEmpty
-          ? SizedBox(
-              width: 320,
-              height: 320,
-              child: Image.memory(
-                base64Decode(qrBase64),
-                fit: BoxFit.contain,
-              ),
-            )
-          : Text("QR kod nije dostupan."),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text("Zatvori"),
-        ),
-      ],
-    ),
-  );
-}
+  void _showQrDialog(String qrBase64) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("QR kod rezervacije"),
+        content: qrBase64.isNotEmpty
+            ? SizedBox(
+                width: 320,
+                height: 320,
+                child: Image.memory(
+                  base64Decode(qrBase64),
+                  fit: BoxFit.contain,
+                ),
+              )
+            : Text("QR kod nije dostupan."),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text("Zatvori"),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Rezervacije")),
-      body:
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : _rezervacije.isEmpty
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : _rezervacije.isEmpty
               ? const Center(child: Text("Nema rezervacija za ovu projekciju."))
               : ListView.separated(
-                padding: const EdgeInsets.all(24),
-                separatorBuilder: (_, __) => const SizedBox(height: 24),
-                itemCount: _rezervacije.length,
-                itemBuilder: (context, index) {
-                  final r = _rezervacije[index];
-                  print("QR kod za rezervaciju ${r.id}: ${r.qrcodeBase64}");
-                  final korisnik = r.korisnik;
-                  final projekcija = r.projekcija;
-                  final sjedista = r.rezervacijeSjedista
-                      ?.map((s) => s.sjediste?.naziv ?? "")
-                      .where((s) => s.isNotEmpty)
-                      .join(", ");
-                  final hranaPice = r.rezervacijeHraneIPica
-                      ?.map((h) => h.hranaIPice?.naziv ?? "")
-                      .where((h) => h.isNotEmpty)
-                      .join(", ");
-                  return Card(
-                    elevation: 5,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(22.0),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildAvatar(korisnik),
-                          const SizedBox(width: 22),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                _buildKorisnikNaslov(korisnik),
-                                const SizedBox(height: 10),
-                                Divider(),
-                                _buildInfoRow(
-                                  Icons.calendar_today,
-                                  "Datum",
-                                  r.datumIvrijeme != null
-                                      ? DateFormat(
-                                        'dd.MM.yyyy. HH:mm',
-                                      ).format(r.datumIvrijeme!)
-                                      : "-",
-                                ),
-                                _buildInfoRow(
-                                  Icons.event_seat,
-                                  "Sjedista",
-                                  sjedista ?? "-",
-                                ),
-                                _buildInfoRow(
-                                  Icons.fastfood,
-                                  "Hrana i piće",
-                                  hranaPice?.isNotEmpty == true
-                                      ? hranaPice!
-                                      : "-",
-                                  iconColor: Colors.orange[700],
-                                ),
-                                _buildInfoRow(
-                                  Icons.theaters,
-                                  "Sala",
-                                  projekcija?.sala?.naziv ?? "-",
-                                  iconColor: Colors.purple[700],
-                                ),
-                                _buildInfoRow(
-                                  Icons.screen_share,
-                                  "Tehnologija",
-                                  projekcija?.nacinProjekcije?.naziv ?? "-",
-                                  iconColor: Colors.green[700],
-                                ),
-                                _buildInfoRow(
-                                  Icons.attach_money,
-                                  "Cijena po karti",
-                                  "${projekcija?.cijena?.toStringAsFixed(2) ?? "-"} KM",
-                                  iconColor: Colors.green[700],
-                                ),
-                                _buildInfoRow(
-                                  Icons.confirmation_number,
-                                  "Broj ulaznica",
-                                  "${r.brojUlaznica ?? "-"}",
-                                  iconColor: Colors.blue[700],
-                                ),
-                                _buildInfoRow(
-                                  Icons.payments,
-                                  "Način plaćanja",
-                                  r.nacinPlacanja ?? "-",
-                                  iconColor: Colors.teal[700],
-                                ),
-                                _buildInfoRow(
-                                  Icons.summarize,
-                                  "Ukupna cijena",
-                                  "${r.ukupnaCijena?.toStringAsFixed(2) ?? "-"} KM",
-                                  iconColor: Colors.red[700],
-                                  bold: true,
-                                ),
-                                const SizedBox(height: 10),
-                                if (r.qrcodeBase64 != null &&
-                                    r.qrcodeBase64!.isNotEmpty)
-                                  Align(
-                                    alignment: Alignment.centerLeft,
-                                    child: ElevatedButton.icon(
-                                      icon: Icon(Icons.qr_code),
-                                      label: Text("Pogledaj QR kod"),
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.indigo,
-                                        foregroundColor: Colors.white,
-                                      ),
-                                      onPressed:
-                                          () => _showQrDialog(r.qrcodeBase64!),
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ),
-                        ],
+                  padding: const EdgeInsets.all(24),
+                  separatorBuilder: (_, __) => const SizedBox(height: 24),
+                  itemCount: _rezervacije.length,
+                  itemBuilder: (context, index) {
+                    final r = _rezervacije[index];
+                    final korisnik = r.korisnik;
+                    final projekcija = r.projekcija;
+                    final sjedista = r.rezervacijeSjedista
+                        ?.map((s) => s.sjediste?.naziv ?? "")
+                        .where((s) => s.isNotEmpty)
+                        .join(", ");
+                    final hranaPice = r.rezervacijeHraneIPica
+                        ?.map((h) => h.hranaIPice?.naziv ?? "")
+                        .where((h) => h.isNotEmpty)
+                        .join(", ");
+                    return Card(
+                      elevation: 5,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
                       ),
-                    ),
-                  );
-                },
-              ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(22.0),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildAvatar(korisnik),
+                            const SizedBox(width: 22),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildKorisnikNaslov(korisnik),
+                                  const SizedBox(height: 10),
+                                  Divider(),
+                                  _buildInfoRow(
+                                    Icons.calendar_today,
+                                    "Datum",
+                                    r.datumIvrijeme != null
+                                        ? DateFormat(
+                                            'dd.MM.yyyy. HH:mm',
+                                          ).format(r.datumIvrijeme!)
+                                        : "-",
+                                  ),
+                                  _buildInfoRow(
+                                    Icons.event_seat,
+                                    "Sjedista",
+                                    sjedista ?? "-",
+                                  ),
+                                  _buildInfoRow(
+                                    Icons.fastfood,
+                                    "Hrana i piće",
+                                    hranaPice?.isNotEmpty == true
+                                        ? hranaPice!
+                                        : "-",
+                                    iconColor: Colors.orange[700],
+                                  ),
+                                  _buildInfoRow(
+                                    Icons.theaters,
+                                    "Sala",
+                                    projekcija?.sala?.naziv ?? "-",
+                                    iconColor: Colors.purple[700],
+                                  ),
+                                  _buildInfoRow(
+                                    Icons.screen_share,
+                                    "Tehnologija",
+                                    projekcija?.nacinProjekcije?.naziv ?? "-",
+                                    iconColor: Colors.green[700],
+                                  ),
+                                  _buildInfoRow(
+                                    Icons.attach_money,
+                                    "Cijena po karti",
+                                    "${projekcija?.cijena?.toStringAsFixed(2) ?? "-"} KM",
+                                    iconColor: Colors.green[700],
+                                  ),
+                                  _buildInfoRow(
+                                    Icons.confirmation_number,
+                                    "Broj ulaznica",
+                                    "${r.brojUlaznica ?? "-"}",
+                                    iconColor: Colors.blue[700],
+                                  ),
+                                  _buildInfoRow(
+                                    Icons.payments,
+                                    "Način plaćanja",
+                                    r.nacinPlacanja ?? "-",
+                                    iconColor: Colors.teal[700],
+                                  ),
+                                  _buildInfoRow(
+                                    Icons.summarize,
+                                    "Ukupna cijena",
+                                    "${r.ukupnaCijena?.toStringAsFixed(2) ?? "-"} KM",
+                                    iconColor: Colors.red[700],
+                                    bold: true,
+                                  ),
+                                  // Dodano: prikaz statusa poništene karte
+                                  _buildInfoRow(
+                                    Icons.cancel,
+                                    "Poništena karta",
+                                    r.ponistenaKarta == true ? "DA" : "NE",
+                                    iconColor: r.ponistenaKarta == true
+                                        ? Colors.red
+                                        : Colors.green,
+                                    bold: r.ponistenaKarta == true,
+                                  ),
+                                  const SizedBox(height: 10),
+                                  if (r.qrcodeBase64 != null &&
+                                      r.qrcodeBase64!.isNotEmpty)
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: ElevatedButton.icon(
+                                        icon: Icon(Icons.qr_code),
+                                        label: Text("Pogledaj QR kod"),
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.indigo,
+                                          foregroundColor: Colors.white,
+                                        ),
+                                        onPressed:
+                                            () => _showQrDialog(r.qrcodeBase64!),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
     );
   }
 }
