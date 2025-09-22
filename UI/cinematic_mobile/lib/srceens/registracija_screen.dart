@@ -22,16 +22,29 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
   String? _slikaBase64;
   bool _isLoading = false;
   String? _error;
-  String? _korisnickoImeError; // Dodano za prikaz greške
+  String? _korisnickoImeError;
+  String? _slikaError; // Dodano za prikaz greške
 
   Future<void> _pickImage() async {
+    setState(() {
+      _slikaError = null;
+    });
     final result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
+      type: FileType.custom,
+      allowedExtensions: ['png', 'jpg', 'jpeg'],
       withData: true,
     );
     if (result != null && result.files.single.bytes != null) {
+      final ext = result.files.single.extension?.toLowerCase();
+      if (ext == 'heic') {
+        setState(() {
+          _slikaError = "HEIC format nije dozvoljen. Dozvoljeni su samo PNG, JPG i JPEG.";
+        });
+        return;
+      }
       setState(() {
         _slikaBase64 = base64Encode(result.files.single.bytes!);
+        _slikaError = null;
       });
     }
   }
@@ -204,6 +217,14 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
                           ),
                       ],
                     ),
+                    if (_slikaError != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 6.0),
+                        child: Text(
+                          _slikaError!,
+                          style: const TextStyle(color: Colors.red, fontSize: 14),
+                        ),
+                      ),
                     const SizedBox(height: 18),
                     if (_error != null)
                       Text(_error!, style: const TextStyle(color: Colors.red)),
