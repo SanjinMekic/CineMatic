@@ -22,12 +22,10 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
   int? _ulogaId;
   List<Uloga> _uloge = [];
   bool _isLoading = true;
+  String? _korisnickoImeError;
 
   final _lozinkaController = TextEditingController();
   final _lozinkaPotvrdaController = TextEditingController();
-  final _korisnickoImeController = TextEditingController();
-
-  String? _korisnickoImeError;
 
   @override
   void initState() {
@@ -38,12 +36,7 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
         _prezime = widget.korisnik!.prezime;
         _email = widget.korisnik!.email;
         _korisnickoIme = widget.korisnik!.korisnickoIme;
-        _korisnickoImeController.text = _korisnickoIme ?? "";
         _slikaBase64 = widget.korisnik!.slikaBase64;
-        if (widget.korisnik!.ulogas != null &&
-            widget.korisnik!.ulogas!.isNotEmpty) {
-          _ulogaId = widget.korisnik!.ulogas!.first.id;
-        }
         setState(() {});
       }
     });
@@ -53,7 +46,6 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
   void dispose() {
     _lozinkaController.dispose();
     _lozinkaPotvrdaController.dispose();
-    _korisnickoImeController.dispose();
     super.dispose();
   }
 
@@ -89,27 +81,22 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
 
     final provider = Provider.of<KorisnikProvider>(context, listen: false);
 
-    // Provjera zauzetosti korisničkog imena (samo kod dodavanja novog korisnika)
+    // Provjera zauzetosti korisničkog imena samo kod dodavanja
     if (widget.korisnik == null) {
-      final zauzeto = await provider.korisnickoImeZauzeto(_korisnickoImeController.text.trim());
+      final zauzeto = await provider.korisnickoImeZauzeto(_korisnickoIme ?? "");
       if (zauzeto) {
         setState(() {
-          _korisnickoImeError = "Korisničko ime je zauzeto, molimo unesite drugo.";
+          _korisnickoImeError = "Korisničko ime je zauzeto!";
         });
         return;
       }
-    }
-
-    List<int>? ulogeZaSlanje;
-    if (_ulogaId != null) {
-      ulogeZaSlanje = [_ulogaId!];
     }
 
     final data = {
       'ime': _ime,
       'prezime': _prezime,
       'email': _email,
-      'korisnickoIme': _korisnickoImeController.text.trim(),
+      'korisnickoIme': _korisnickoIme,
       'slikaBase64': _slikaBase64,
       if (widget.korisnik == null)
         'lozinka':
@@ -119,7 +106,9 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
             _lozinkaPotvrdaController.text.isNotEmpty
                 ? _lozinkaPotvrdaController.text
                 : null,
-      if (ulogeZaSlanje != null) 'ulogaId': ulogeZaSlanje,
+      // Uloga šalji samo kod dodavanja novog korisnika
+      if (widget.korisnik == null && _ulogaId != null)
+        'ulogaId': [_ulogaId!],
     };
 
     if (widget.korisnik == null) {
@@ -218,7 +207,7 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
                             onSaved: (v) => _prezime = v,
                           ),
                           TextFormField(
-                            controller: _korisnickoImeController,
+                            initialValue: _korisnickoIme,
                             decoration: InputDecoration(
                               labelText: "Korisničko ime",
                               errorText: _korisnickoImeError,
@@ -244,21 +233,22 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
                             },
                             onSaved: (v) => _email = v,
                           ),
-                          DropdownButtonFormField<int>(
-                            value: _ulogaId,
-                            items: _uloge
-                                .map(
-                                  (u) => DropdownMenuItem(
-                                    value: u.id,
-                                    child: Text(u.naziv ?? ""),
-                                  ),
-                                )
-                                .toList(),
-                            onChanged: (v) => setState(() => _ulogaId = v),
-                            decoration: InputDecoration(labelText: "Uloga"),
-                            validator: (v) =>
-                                v == null ? "Odaberite ulogu" : null,
-                          ),
+                          if (widget.korisnik == null)
+                            DropdownButtonFormField<int>(
+                              value: _ulogaId,
+                              items: _uloge
+                                  .map(
+                                    (u) => DropdownMenuItem(
+                                      value: u.id,
+                                      child: Text(u.naziv ?? ""),
+                                    ),
+                                  )
+                                  .toList(),
+                              onChanged: (v) => setState(() => _ulogaId = v),
+                              decoration: InputDecoration(labelText: "Uloga"),
+                              validator: (v) =>
+                                  v == null ? "Odaberite ulogu" : null,
+                            ),
                           if (widget.korisnik == null) ...[
                             TextFormField(
                               controller: _lozinkaController,
@@ -314,7 +304,7 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
                   ),
                 ),
               ),
-          ),
+          )
     );
   }
 }
