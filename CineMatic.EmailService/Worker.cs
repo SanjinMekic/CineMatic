@@ -107,7 +107,7 @@ namespace CineMatic.EmailService
                 var smtpServer = _configuration["Email:SmtpServer"];
                 var smtpPort = int.Parse(_configuration["Email:SmtpPort"]);
                 var emailUsername = _configuration["Email:Username"];
-                var emailPassword = _configuration["Email:Password"];
+                var emailPassword = Environment.GetEnvironmentVariable("EMAIL_PASSWORD");
 
                 try
                 {
