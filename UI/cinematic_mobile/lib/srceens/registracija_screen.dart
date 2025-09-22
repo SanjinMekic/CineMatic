@@ -22,6 +22,7 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
   String? _slikaBase64;
   bool _isLoading = false;
   String? _error;
+  String? _korisnickoImeError; // Dodano za prikaz greške
 
   Future<void> _pickImage() async {
     final result = await FilePicker.platform.pickFiles(
@@ -39,13 +40,27 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
     setState(() {
       _isLoading = true;
       _error = null;
+      _korisnickoImeError = null;
     });
+
+    final provider = Provider.of<KorisnikProvider>(context, listen: false);
+    final korisnickoIme = _korisnickoImeController.text.trim();
+
+    // Provjera da li je korisničko ime zauzeto
+    final zauzeto = await provider.korisnickoImeZauzeto(korisnickoIme);
+    if (zauzeto) {
+      setState(() {
+        _korisnickoImeError = "Korisničko ime je zauzeto, molimo unesite drugo.";
+        _isLoading = false;
+      });
+      return;
+    }
 
     final body = {
       "ime": _imeController.text.trim(),
       "prezime": _prezimeController.text.trim(),
       "email": _emailController.text.trim(),
-      "korisnickoIme": _korisnickoImeController.text.trim(),
+      "korisnickoIme": korisnickoIme,
       "slikaBase64": _slikaBase64,
       "lozinka": _lozinkaController.text,
       "lozinkaPotvrda": _lozinkaPotvrdaController.text,
@@ -53,7 +68,6 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
     };
 
     try {
-      final provider = Provider.of<KorisnikProvider>(context, listen: false);
       await provider.insert(body);
 
       if (mounted) {
@@ -110,21 +124,15 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
                     TextFormField(
                       controller: _imeController,
                       decoration: const InputDecoration(labelText: "Ime"),
-                      validator:
-                          (v) =>
-                              v == null || v.trim().isEmpty
-                                  ? "Unesite ime"
-                                  : null,
+                      validator: (v) =>
+                          v == null || v.trim().isEmpty ? "Unesite ime" : null,
                     ),
                     const SizedBox(height: 14),
                     TextFormField(
                       controller: _prezimeController,
                       decoration: const InputDecoration(labelText: "Prezime"),
-                      validator:
-                          (v) =>
-                              v == null || v.trim().isEmpty
-                                  ? "Unesite prezime"
-                                  : null,
+                      validator: (v) =>
+                          v == null || v.trim().isEmpty ? "Unesite prezime" : null,
                     ),
                     const SizedBox(height: 14),
                     TextFormField(
@@ -147,20 +155,24 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
                       decoration: const InputDecoration(
                         labelText: "Korisničko ime",
                       ),
-                      validator:
-                          (v) =>
-                              v == null || v.trim().isEmpty
-                                  ? "Unesite korisničko ime"
-                                  : null,
+                      validator: (v) =>
+                          v == null || v.trim().isEmpty ? "Unesite korisničko ime" : null,
                     ),
+                    if (_korisnickoImeError != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 6.0),
+                        child: Text(
+                          _korisnickoImeError!,
+                          style: const TextStyle(color: Colors.red, fontSize: 14),
+                        ),
+                      ),
                     const SizedBox(height: 14),
                     TextFormField(
                       controller: _lozinkaController,
                       decoration: const InputDecoration(labelText: "Lozinka"),
                       obscureText: true,
-                      validator:
-                          (v) =>
-                              v == null || v.isEmpty ? "Unesite lozinku" : null,
+                      validator: (v) =>
+                          v == null || v.isEmpty ? "Unesite lozinku" : null,
                     ),
                     const SizedBox(height: 14),
                     TextFormField(
@@ -169,11 +181,8 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
                         labelText: "Potvrda lozinke",
                       ),
                       obscureText: true,
-                      validator:
-                          (v) =>
-                              v != _lozinkaController.text
-                                  ? "Lozinke se ne podudaraju"
-                                  : null,
+                      validator: (v) =>
+                          v != _lozinkaController.text ? "Lozinke se ne podudaraju" : null,
                     ),
                     const SizedBox(height: 14),
                     Row(
@@ -201,28 +210,28 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
                     _isLoading
                         ? const CircularProgressIndicator()
                         : SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                              textStyle: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                textStyle: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                               ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
+                              onPressed: () async {
+                                if (_formKey.currentState!.validate()) {
+                                  await _register();
+                                }
+                              },
+                              child: const Text("Registruj se"),
                             ),
-                            onPressed: () {
-                              if (_formKey.currentState!.validate()) {
-                                _register();
-                              }
-                            },
-                            child: const Text("Registruj se"),
                           ),
-                        ),
                   ],
                 ),
               ),

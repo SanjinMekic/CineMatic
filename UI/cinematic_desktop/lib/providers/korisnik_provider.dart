@@ -22,4 +22,14 @@ class KorisnikProvider extends BaseProvider<Korisnik> {
       throw Exception('Greška pri aktivaciji korisnika.');
     }
   }
+
+  Future<bool> korisnickoImeZauzeto(String korisnickoIme) async {
+    final result = await get();
+    for (var korisnik in result.result) {
+      if (korisnik.korisnickoIme?.toLowerCase() == korisnickoIme.toLowerCase()) {
+        return true;
+      }
+    }
+    return false;
+  }
 }

@@ -8,4 +8,14 @@ class KorisnikProvider extends BaseProvider<Korisnik> {
   Korisnik fromJson(data) {
     return Korisnik.fromJson(data);
   }
+
+  Future<bool> korisnickoImeZauzeto(String korisnickoIme) async {
+    final result = await get();
+    for (var korisnik in result.result) {
+      if (korisnik.korisnickoIme?.toLowerCase() == korisnickoIme.toLowerCase()) {
+        return true;
+      }
+    }
+    return false;
+  }
 }
