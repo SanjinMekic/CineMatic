@@ -15,5 +15,23 @@ namespace CineMatic.API.Controllers
         public FAQKategorijeController(IFAQKategorijeService service) : base(service)
         {
         }
+
+        [Authorize(Roles = "Administrator")]
+        public override Faqkategorije Insert(FAQKategorijeUpsertRequest request)
+        {
+            return base.Insert(request);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public override Faqkategorije Update(int id, FAQKategorijeUpsertRequest request)
+        {
+            return base.Update(id, request);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public override void Delete(int id)
+        {
+            base.Delete(id);
+        }
     }
 }

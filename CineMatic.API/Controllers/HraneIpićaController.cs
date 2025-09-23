@@ -15,5 +15,23 @@ namespace CineMatic.API.Controllers
         public HraneIpićaController(IHraneIpićaService service) : base(service)
         {
         }
+
+        [Authorize(Roles = "Administrator")]
+        public override HraneIpića Insert(HraneIpićaInsertRequest request)
+        {
+            return base.Insert(request);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public override HraneIpića Update(int id, HraneIpićaUpdateRequest request)
+        {
+            return base.Update(id, request);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public override void Delete(int id)
+        {
+            base.Delete(id);
+        }
     }
 }

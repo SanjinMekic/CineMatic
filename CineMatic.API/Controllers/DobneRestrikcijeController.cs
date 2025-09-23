@@ -15,5 +15,23 @@ namespace CineMatic.API.Controllers
         public DobneRestrikcijeController(IDobneRestrikcijeService service) : base(service)
         {
         }
+
+        [Authorize(Roles = "Administrator")]
+        public override DobneRestrikcije Insert(DobneRestrikcijeInsertRequest request)
+        {
+            return base.Insert(request);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public override void Delete(int id)
+        {
+            base.Delete(id);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public override DobneRestrikcije Update(int id, DobneRestrikcijeUpdateRequest request)
+        {
+            return base.Update(id, request);
+        }
     }
 }

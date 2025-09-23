@@ -15,5 +15,23 @@ namespace CineMatic.API.Controllers
         public FAQsController(IFAQsService service) : base(service)
         {
         }
+
+        [Authorize(Roles = "Administrator")]
+        public override Faq Insert(FAQsUpsertRequest request)
+        {
+            return base.Insert(request);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public override Faq Update(int id, FAQsUpsertRequest request)
+        {
+            return base.Update(id, request);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public override void Delete(int id)
+        {
+            base.Delete(id);
+        }
     }
 }

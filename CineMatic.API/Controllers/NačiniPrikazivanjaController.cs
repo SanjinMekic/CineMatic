@@ -15,5 +15,23 @@ namespace CineMatic.API.Controllers
         public NačiniPrikazivanjaController(INačiniPrikazivanjaService service) : base(service)
         {
         }
+
+        [Authorize(Roles = "Administrator")]
+        public override NačiniPrikazivanja Insert(NačiniPrikazivanjaUpsertRequest request)
+        {
+            return base.Insert(request);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public override NačiniPrikazivanja Update(int id, NačiniPrikazivanjaUpsertRequest request)
+        {
+            return base.Update(id, request);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public override void Delete(int id)
+        {
+            base.Delete(id);
+        }
     }
 }

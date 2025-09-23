@@ -15,5 +15,23 @@ namespace CineMatic.API.Controllers
         public GlumciController(IGlumciService service) : base(service)
         {
         }
+
+        [Authorize(Roles = "Administrator")]
+        public override Glumci Insert(GLumciInsertRequest request)
+        {
+            return base.Insert(request);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public override Glumci Update(int id, GlumciUpdateRequest request)
+        {
+            return base.Update(id, request);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public override void Delete(int id)
+        {
+            base.Delete(id);
+        }
     }
 }

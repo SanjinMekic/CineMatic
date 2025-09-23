@@ -15,5 +15,23 @@ namespace CineMatic.API.Controllers
         public RežiseriController(IRežiseriService service) : base(service)
         {
         }
+
+        [Authorize(Roles = "Administrator")]
+        public override Režiseri Insert(RežiseriInsertRequest request)
+        {
+            return base.Insert(request);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public override Režiseri Update(int id, RežiseriUpdateRequest request)
+        {
+            return base.Update(id, request);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public override void Delete(int id)
+        {
+            base.Delete(id);
+        }
     }
 }

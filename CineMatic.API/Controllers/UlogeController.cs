@@ -15,5 +15,23 @@ namespace CineMatic.API.Controllers
         public UlogeController(IUlogeService service) : base(service)
         {
         }
+
+        [Authorize(Roles = "Administrator")]
+        public override Uloge Insert(UlogeUpsertRequest request)
+        {
+            return base.Insert(request);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public override Uloge Update(int id, UlogeUpsertRequest request)
+        {
+            return base.Update(id, request);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public override void Delete(int id)
+        {
+            base.Delete(id);
+        }
     }
 }

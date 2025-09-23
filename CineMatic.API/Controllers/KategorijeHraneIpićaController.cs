@@ -15,5 +15,23 @@ namespace CineMatic.API.Controllers
         public KategorijeHraneIpićaController(IKategorijeHraneIpićaService service) : base(service)
         {
         }
+
+        [Authorize(Roles = "Administrator")]
+        public override KategorijeHraneIpića Insert(KategorijeHraneIpićaUpsertRequest request)
+        {
+            return base.Insert(request);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public override KategorijeHraneIpića Update(int id, KategorijeHraneIpićaUpsertRequest request)
+        {
+            return base.Update(id, request);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public override void Delete(int id)
+        {
+            base.Delete(id);
+        }
     }
 }

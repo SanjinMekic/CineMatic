@@ -20,7 +20,6 @@ namespace CineMatic.API.Controllers
         }
 
         [HttpGet("{id}/recommendations")]
-        [Authorize]
         public IActionResult DobaviPreporuke(int id)
         {
             var recommendations = _filmRecommenderService.DobaviPreporuceneFilmove(id);
@@ -29,6 +28,24 @@ namespace CineMatic.API.Controllers
                 return NotFound("Nema slicnih filmova za preporuciti!");
 
             return Ok(recommendations);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public override Filmovi Insert(FilmoviInsertRequest request)
+        {
+            return base.Insert(request);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public override Filmovi Update(int id, FilmoviUpdateRequest request)
+        {
+            return base.Update(id, request);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public override void Delete(int id)
+        {
+            base.Delete(id);
         }
     }
 }

@@ -3,13 +3,14 @@ using CineMatic.Model.Requests;
 using CineMatic.Model.SearchObject;
 using CineMatic.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CineMatic.API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    [AllowAnonymous]
+    [Authorize]
     public class KorisniciController : BaseCRUDController<Korisnici, KorisniciSearchObject, KorisniciInsertRequest, KorisniciUpdateRequest>
     {
         private readonly IKorisniciService _service;
@@ -19,6 +20,7 @@ namespace CineMatic.API.Controllers
         }
 
         [HttpPost("login")]
+        [AllowAnonymous]
         public ActionResult<Model.Korisnici> Login([FromBody] LoginRequest loginRequest)
         {
             var user = (_service as IKorisniciService).Login(loginRequest.Username, loginRequest.Password);
@@ -29,7 +31,20 @@ namespace CineMatic.API.Controllers
             return Ok(user);
         }
 
+        [AllowAnonymous]
+        public override Korisnici Insert(KorisniciInsertRequest request)
+        {
+            return base.Insert(request);
+        }
+
+        [AllowAnonymous]
+        public override Korisnici Update(int id, KorisniciUpdateRequest request)
+        {
+            return base.Update(id, request);
+        }
+
         [HttpPut("{id}/aktiviraj")]
+        [Authorize(Roles = "Administrator")]
         public IActionResult AktivirajObrisanogKorisnika(int id)
         {
             try

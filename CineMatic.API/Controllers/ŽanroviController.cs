@@ -15,5 +15,23 @@ namespace CineMatic.API.Controllers
         public ŽanroviController(IŽanroviService service) : base(service)
         {
         }
+
+        [Authorize(Roles = "Administrator")]
+        public override Žanrovi Insert(ŽanroviUpsertRequest request)
+        {
+            return base.Insert(request);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public override Žanrovi Update(int id, ŽanroviUpsertRequest request)
+        {
+            return base.Update(id, request);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public override void Delete(int id)
+        {
+            base.Delete(id);
+        }
     }
 }

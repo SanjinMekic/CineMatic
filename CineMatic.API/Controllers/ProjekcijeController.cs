@@ -45,5 +45,23 @@ namespace CineMatic.API.Controllers
 
             return Ok(seats);
         }
+
+        [Authorize(Roles = "Administrator")]
+        public override Projekcije Insert(ProjekcijeInsertRequest request)
+        {
+            return base.Insert(request);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public override Projekcije Update(int id, ProjekcijeUpdateRequest request)
+        {
+            return base.Update(id, request);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public override void Delete(int id)
+        {
+            base.Delete(id);
+        }
     }
 }

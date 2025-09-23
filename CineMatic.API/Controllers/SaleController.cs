@@ -15,5 +15,23 @@ namespace CineMatic.API.Controllers
         public SaleController(ISaleService service) : base(service)
         {
         }
+
+        [Authorize(Roles = "Administrator")]
+        public override Sale Insert(SaleUpsertRequest request)
+        {
+            return base.Insert(request);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public override Sale Update(int id, SaleUpsertRequest request)
+        {
+            return base.Update(id, request);
+        }
+
+        [Authorize(Roles = "Administrator")]
+        public override void Delete(int id)
+        {
+            base.Delete(id);
+        }
     }
 }
