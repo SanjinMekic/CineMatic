@@ -299,6 +299,7 @@ namespace CineMatic.Services
                                 $"Cijena ulaznice: {rezervacija.Projekcija?.Cijena}\n" +
                                 $"Datum rezervacije: {rezervacija.DatumIvrijeme:dd-MM-yyyy HH:mm}\n" +
                                 $"Sjedista: {string.Join(", ", rezervacija.RezervacijeSjedišta.Select(s => s.Sjedište.Naziv))}\n" +
+                                $"Hrana/piće: {string.Join(", ", rezervacija.RezervacijeHraneIpićas.Select(s => s.HranaIpiće.Naziv))}\n" +
                                 $"Ukupna cijena: {rezervacija.UkupnaCijena}\n" +
                                 $"Nacin placanja: {rezervacija.NačinPlaćanja}\n";
 
