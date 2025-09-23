@@ -66,28 +66,78 @@ class _ProjekcijaDetaljiScreenState extends State<ProjekcijaDetaljiScreen> {
     });
   }
 
-Future<void> _fetchPreporuke() async {
-  try {
-    print('Pozivam _fetchPreporuke');
-    final filmProvider = Provider.of<FilmProvider>(context, listen: false);
-    final filmId = widget.filmId ?? widget.projekcija.filmId ?? widget.projekcija.film?.id;
-    print('filmId: $filmId');
-    if (filmId != null) {
-      final preporuke = await filmProvider.getRecommendations(filmId);
-      print('Preporuke: $preporuke');
+  Future<void> _fetchPreporuke() async {
+    try {
+      print('Pozivam _fetchPreporuke');
+      final filmProvider = Provider.of<FilmProvider>(context, listen: false);
+      final filmId = widget.filmId ?? widget.projekcija.filmId ?? widget.projekcija.film?.id;
+      print('filmId: $filmId');
+      if (filmId != null) {
+        final preporuke = await filmProvider.getRecommendations(filmId);
+        print('Preporuke: $preporuke');
+        setState(() {
+          _preporuceniFilmovi = preporuke;
+          _preporukeLoading = false;
+        });
+      }
+    } catch (e, stack) {
+      print('Greška u _fetchPreporuke: $e');
+      print(stack);
       setState(() {
-        _preporuceniFilmovi = preporuke;
         _preporukeLoading = false;
       });
     }
-  } catch (e, stack) {
-    print('Greška u _fetchPreporuke: $e');
-    print(stack);
-    setState(() {
-      _preporukeLoading = false;
-    });
   }
-}
+
+  Future<bool?> _showDobnaRestrikcijaDialog(BuildContext context, Projekcija projekcija) async {
+    final film = _filmDetalji ?? widget.projekcija.film;
+    final dobna = film?.dobnaRestrikcija;
+    final restrikcijaText = dobna != null
+        ? "${dobna.restrikcija ?? ''} - ${dobna.opis ?? ''}"
+        : "Nema dobne restrikcije za ovaj film.";
+
+    return showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Dobna restrikcija"),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.child_care, size: 48, color: Colors.orange),
+            const SizedBox(height: 16),
+            Text(
+              restrikcijaText,
+              style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 18),
+            const Text(
+              "Molimo da potvrdite da ste upoznati sa dobnom restrikcijom za ovaj film.",
+              style: TextStyle(fontSize: 15),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+        actions: [
+  TextButton(
+    onPressed: () => Navigator.of(context).pop(false),
+    child: const Text(
+      "Odustani",
+      style: TextStyle(color: Colors.red), // crvena boja teksta
+    ),
+  ),
+  ElevatedButton(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.blue, // plava boja kao dugme Recenzije
+      foregroundColor: Colors.white,
+    ),
+    onPressed: () => Navigator.of(context).pop(true),
+    child: const Text("Prihvatam"),
+  ),
+],
+      ),
+    );
+  }
 
   Widget _buildCirclePerson({String? slikaBase64, required String ime, required VoidCallback? onTap}) {
     return GestureDetector(
@@ -187,12 +237,16 @@ Future<void> _fetchPreporuke() async {
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => RezervisiScreen(projekcija: projekcija),
-                    ),
-                  );
+                onPressed: () async {
+                  final prihvaceno = await _showDobnaRestrikcijaDialog(context, projekcija);
+                  if (prihvaceno == true) {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => RezervisiScreen(projekcija: projekcija),
+                      ),
+                    );
+                  }
+                  // Ako nije prihvaćeno, samo se zatvori dijalog
                 },
               ),
             ),
@@ -203,65 +257,65 @@ Future<void> _fetchPreporuke() async {
   }
 
   Widget _buildPreporuceniFilmCard(PreporuceniFilm film) {
-  return GestureDetector(
-    onTap: () {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) => ProjekcijaDetaljiScreen(
-            projekcija: widget.projekcija,
-            filmId: film.id,
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => ProjekcijaDetaljiScreen(
+              projekcija: widget.projekcija,
+              filmId: film.id,
+            ),
           ),
-        ),
-      );
-    },
-    child: Card(
-      elevation: 5,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-      child: Container(
-        width: 180,
-        height: 230,
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            film.imageBase64 != null
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(14),
-                    child: Image.memory(
-                      base64Decode(film.imageBase64!),
+        );
+      },
+      child: Card(
+        elevation: 5,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+        child: Container(
+          width: 180,
+          height: 230,
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              film.imageBase64 != null
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(14),
+                      child: Image.memory(
+                        base64Decode(film.imageBase64!),
+                        width: 152,
+                        height: 120,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  : Container(
                       width: 152,
                       height: 120,
-                      fit: BoxFit.cover,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: const Icon(Icons.movie, size: 48),
                     ),
-                  )
-                : Container(
-                    width: 152,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: const Icon(Icons.movie, size: 48),
+              const SizedBox(height: 14),
+              Flexible(
+                child: Text(
+                  film.naslov,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 17,
                   ),
-            const SizedBox(height: 14),
-            Flexible(
-              child: Text(
-                film.naslov,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 17,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
                 ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.center,
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
