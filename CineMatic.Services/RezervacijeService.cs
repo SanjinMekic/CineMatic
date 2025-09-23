@@ -298,10 +298,10 @@ namespace CineMatic.Services
                                 $"Način prikazivanja: {rezervacija.Projekcija?.NačinProjekcije?.Naziv}\n" +
                                 $"Cijena ulaznice: {rezervacija.Projekcija?.Cijena}\n" +
                                 $"Datum rezervacije: {rezervacija.DatumIvrijeme:dd-MM-yyyy HH:mm}\n" +
-                                $"Sjedista: {string.Join(", ", rezervacija.RezervacijeSjedišta.Select(s => s.Sjedište.Naziv))}\n" +
+                                $"Sjedišta: {string.Join(", ", rezervacija.RezervacijeSjedišta.Select(s => s.Sjedište.Naziv))}\n" +
                                 $"Hrana/piće: {string.Join(", ", rezervacija.RezervacijeHraneIpićas.Select(s => s.HranaIpiće.Naziv))}\n" +
                                 $"Ukupna cijena: {rezervacija.UkupnaCijena}\n" +
-                                $"Nacin placanja: {rezervacija.NačinPlaćanja}\n";
+                                $"Način plaćanja: {rezervacija.NačinPlaćanja}\n";
 
             QRCodeGenerator qrGenerator = new QRCodeGenerator();
             QRCodeData qrCodeData = qrGenerator.CreateQrCode(qrCodeContent, QRCodeGenerator.ECCLevel.Q);
