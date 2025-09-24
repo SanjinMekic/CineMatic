@@ -146,7 +146,7 @@ namespace CineMatic.Services
 
             if (lastRole == 1 || lastRole == 2 || lastRole == 3)
             {
-                PublishRegistrationEvent(model, plainPassword);
+                //PublishRegistrationEvent(model, plainPassword);
             }
 
             return model;
@@ -334,6 +334,11 @@ namespace CineMatic.Services
 
             Context.Update(entity);
             Context.SaveChanges();
+        }
+
+        public async Task<bool> ProvjeriKorisnickoIme(string korisnickoIme)
+        {
+            return await Context.Korisnicis.AnyAsync(u => u.KorisnickoIme == korisnickoIme);
         }
 
         public List<string> GetCurrentUserRoles()

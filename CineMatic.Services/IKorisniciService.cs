@@ -15,5 +15,6 @@ namespace CineMatic.Services
         int GetCurrentUserId();
         List<string> GetCurrentUserRoles();
         void AktivirajObrisanogKorisnika(int id);
+        public Task<bool> ProvjeriKorisnickoIme(string username);
     }
 }

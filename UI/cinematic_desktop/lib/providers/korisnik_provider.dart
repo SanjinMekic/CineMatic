@@ -23,13 +23,14 @@ class KorisnikProvider extends BaseProvider<Korisnik> {
     }
   }
 
-  Future<bool> korisnickoImeZauzeto(String korisnickoIme) async {
-    final result = await get();
-    for (var korisnik in result.result) {
-      if (korisnik.korisnickoIme?.toLowerCase() == korisnickoIme.toLowerCase()) {
-        return true;
-      }
+    Future<bool> korisnickoImeZauzeto(String korisnickoIme) async {
+    final url = Uri.parse('$baseUrl${endpoint}/provjeri-korisnicko-ime?username=$korisnickoIme');
+    final headers = createHeaders();
+    final response = await http.get(url, headers: headers);
+    if (response.statusCode == 200) {
+      return response.body == 'true';
+    } else {
+      throw Exception('Greška pri provjeri korisničkog imena.');
     }
-    return false;
   }
 }

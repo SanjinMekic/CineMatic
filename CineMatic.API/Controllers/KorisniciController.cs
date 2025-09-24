@@ -43,6 +43,14 @@ namespace CineMatic.API.Controllers
             return base.GetList(searchObject);
         }
 
+        [HttpGet("provjeri-korisnicko-ime")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ProvjeriKorisnickoIme(string username)
+        {
+            var isTaken = await _service.ProvjeriKorisnickoIme(username);
+            return Ok(isTaken);
+        }
+
         [AllowAnonymous]
         public override Korisnici Update(int id, KorisniciUpdateRequest request)
         {
