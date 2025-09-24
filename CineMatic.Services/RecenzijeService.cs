@@ -144,6 +144,18 @@ namespace CineMatic.Services
             return updatedRating;
         }
 
+        public double? ProsjecnaOcjena(int filmId)
+        {
+            var ocjena = Context.Recenzijes
+                .Where(r => r.FilmId == filmId && r.Ocjena.HasValue)
+                .Select(r => r.Ocjena.Value);
+            if (!ocjena.Any())
+            {
+                return null;
+            }
+            return ocjena.Average();
+        }
+
         public async Task<List<Model.Recenzije>> GetByFilmIdAsync(int filmId)
         {
             var entities = await _context.Recenzijes

@@ -25,6 +25,13 @@ namespace CineMatic.API.Controllers
             return Ok(result);
         }
 
+        [HttpGet("prosjecnaOcjena/{filmId}")]
+        public IActionResult GetAverageRating(int filmId)
+        {
+            var prosjecnaOcjena = _service.ProsjecnaOcjena(filmId);
+            return Ok(new { ocjena = prosjecnaOcjena });
+        }
+
         [HttpPost]
         public override Recenzije Insert(RecenzijeInsertRequest request)
         {

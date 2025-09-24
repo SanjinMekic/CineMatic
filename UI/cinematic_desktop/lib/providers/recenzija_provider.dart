@@ -22,4 +22,17 @@ class RecenzijaProvider extends BaseProvider<Recenzija> {
       throw Exception('Greška pri dohvatu recenzija za film');
     }
   }
+
+  Future<double> getAverageRating(int filmId) async {
+    final url = Uri.parse('$baseUrl${endpoint}/prosjecnaOcjena/$filmId');
+    final headers = createHeaders();
+    final response = await http.get(url, headers: headers);
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return (data['ocjena'] as num?)?.toDouble() ?? 0.0;
+    } else {
+      throw Exception('Greška pri dohvatu prosječne ocjene za film');
+    }
+  }
 }

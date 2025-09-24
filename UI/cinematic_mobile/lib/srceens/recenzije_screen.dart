@@ -19,6 +19,7 @@ class RecenzijeScreen extends StatefulWidget {
 class _RecenzijeScreenState extends State<RecenzijeScreen> {
   List<Recenzija> _recenzije = [];
   bool _isLoading = true;
+  double _ukupnaOcjena = 0.0;
 
   final TextEditingController _komentarController = TextEditingController();
   double _novaOcjena = 5;
@@ -37,6 +38,7 @@ class _RecenzijeScreenState extends State<RecenzijeScreen> {
     final provider = Provider.of<RecenzijaProvider>(context, listen: false);
     try {
       final result = await provider.getByFilm(widget.filmId);
+      final avg = await provider.getAverageRating(widget.filmId);
 
       final mojId = AuthProvider.korisnikId;
       Recenzija? moja;
@@ -74,6 +76,7 @@ class _RecenzijeScreenState extends State<RecenzijeScreen> {
         _recenzije = result;
         _mojaRecenzija = moja;
         _korisniciRecenzija = korisnici;
+        _ukupnaOcjena = avg;
         if (moja != null) {
           _komentarController.text = moja.komentar ?? "";
           _novaOcjena = (moja.ocjena ?? 5).toDouble();
@@ -88,11 +91,6 @@ class _RecenzijeScreenState extends State<RecenzijeScreen> {
         _isLoading = false;
       });
     }
-  }
-
-  double get _ukupnaOcjena {
-    if (_recenzije.isEmpty) return 0;
-    return _recenzije.map((r) => r.ocjena ?? 0).reduce((a, b) => a + b) / _recenzije.length;
   }
 
   Future<void> _posaljiRecenziju({bool edit = false}) async {
@@ -382,21 +380,21 @@ class _RecenzijeScreenState extends State<RecenzijeScreen> {
                                                       Row(
                                                         children: [
                                                           isObrisan
-  ? Text(
-      "Obrisan nalog",
-      style: const TextStyle(
-        fontWeight: FontWeight.bold,
-        fontSize: 16,
-        color: Colors.red,
-      ),
-    )
-  : Text(
-      "${korisnik?.ime ?? "Obrisan nalog"} ${korisnik?.prezime ?? ""}",
-      style: const TextStyle(
-        fontWeight: FontWeight.bold,
-        fontSize: 16,
-      ),
-    ),
+                                                            ? Text(
+                                                                "Obrisan nalog",
+                                                                style: const TextStyle(
+                                                                  fontWeight: FontWeight.bold,
+                                                                  fontSize: 16,
+                                                                  color: Colors.red,
+                                                                ),
+                                                              )
+                                                            : Text(
+                                                                "${korisnik?.ime ?? "Obrisan nalog"} ${korisnik?.prezime ?? ""}",
+                                                                style: const TextStyle(
+                                                                  fontWeight: FontWeight.bold,
+                                                                  fontSize: 16,
+                                                                ),
+                                                              ),
                                                           const SizedBox(width: 8),
                                                           Icon(Icons.star, color: Colors.amber, size: 18),
                                                           Text(
