@@ -224,6 +224,7 @@ class _HranaPiceFormScreenState extends State<HranaPiceFormScreen> {
                               ),
                             ],
                           ),
+                          const SizedBox(height: 10),
                         ],
                       ),
                     ),

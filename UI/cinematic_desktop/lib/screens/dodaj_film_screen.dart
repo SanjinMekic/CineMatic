@@ -368,6 +368,7 @@ class _DodajFilmScreenState extends State<DodajFilmScreen> {
                                 ),
                               ],
                             ),
+                            const SizedBox(height: 10),
                           ],
                         ),
                       ),

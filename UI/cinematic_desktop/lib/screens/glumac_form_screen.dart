@@ -239,6 +239,7 @@ class _GlumacFormScreenState extends State<GlumacFormScreen> {
                               ),
                             ],
                           ),
+                          const SizedBox(height: 10),
                         ],
                       ),
                     ),

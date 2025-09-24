@@ -239,6 +239,7 @@ class _ReziserFormScreenState extends State<ReziserFormScreen> {
                               ),
                             ],
                           ),
+                          const SizedBox(height: 10),
                         ],
                       ),
                     ),
