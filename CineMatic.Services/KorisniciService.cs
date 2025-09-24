@@ -93,7 +93,7 @@ namespace CineMatic.Services
             }
         }
 
-        private void PublishRegistrationEvent(Model.Korisnici user)
+        private void PublishRegistrationEvent(Model.Korisnici user, string plainPassword)
         {
             using var connection = _rabbitMqConnectionFactory.CreateConnection();
             using var channel = connection.CreateModel();
@@ -104,10 +104,15 @@ namespace CineMatic.Services
                                  autoDelete: false,
                                  arguments: null);
 
+            int role = user.Ulogas?.LastOrDefault()?.Id ?? 0;
+
             var message = new UserRegistrationMessage
             {
                 Email = user.Email,
-                Name = user.Ime
+                Name = user.Ime,
+                Role = role,
+                Password = plainPassword,
+
             };
 
             string serializedMessage = JsonSerializer.Serialize(message);
@@ -135,7 +140,14 @@ namespace CineMatic.Services
                 ? Convert.ToBase64String(entity.Slika)
                 : null;
 
-            //PublishRegistrationEvent(model);
+            string plainPassword = request.Lozinka;
+
+            int lastRole = request.UlogaId.LastOrDefault();
+
+            if (lastRole == 1 || lastRole == 2 || lastRole == 3)
+            {
+                PublishRegistrationEvent(model, plainPassword);
+            }
 
             return model;
         }

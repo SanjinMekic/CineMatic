@@ -38,6 +38,12 @@ namespace CineMatic.API.Controllers
         }
 
         [AllowAnonymous]
+        public override PagedResult<Korisnici> GetList([FromQuery] KorisniciSearchObject searchObject)
+        {
+            return base.GetList(searchObject);
+        }
+
+        [AllowAnonymous]
         public override Korisnici Update(int id, KorisniciUpdateRequest request)
         {
             return base.Update(id, request);

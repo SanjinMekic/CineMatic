@@ -1,4 +1,4 @@
-using MimeKit;
+﻿using MimeKit;
 using RabbitMQ.Client.Events;
 using RabbitMQ.Client;
 using System.Text.Json;
@@ -21,7 +21,7 @@ namespace CineMatic.EmailService
 
             var factory = new ConnectionFactory()
             {
-                HostName = "localhost",      // RabbitMQ radi u Dockeru na tvojoj ma�ini
+                HostName = "localhost",      // RabbitMQ radi u Dockeru na tvojoj masini
                 Port = 5672,                 // Standardni AMQP port
                 UserName = "guest",          // Default username
                 Password = "guest",          // Default password
@@ -86,21 +86,73 @@ namespace CineMatic.EmailService
             var emailMessage = new MimeMessage();
             emailMessage.From.Add(new MailboxAddress("CineMatic", "noreply@cinematic.com"));
             emailMessage.To.Add(new MailboxAddress(user.Name, user.Email));
-            emailMessage.Subject = "Welcome to CineMatic!";
-            emailMessage.Body = new TextPart("html")
+
+            // 📌 Sadržaj na osnovu role
+            string subject;
+            string body;
+
+            switch (user.Role)
             {
-                Text = $@"
-                    <html>
-                    <body>
-                        <h2>Welcome to CineMatic, {user.Name}!</h2>
-                        <p>We are thrilled to have you join our cinema community.</p>
-                        <p>Your registration was successful, and now you have access to exclusive movie screenings.</p>
-                        <p>Feel free to explore and start booking your favorite movies!</p>
-                        <p>See you at the movies,</p>
-                        <p><strong>The CineMatic Team</strong></p>
-                    </body>
-                    </html>"
-            };
+                case 1: // Obicni korisnik
+                    subject = "Dobrodosli u CineMatic!";
+                    body = $@"
+                <html>
+                <body>
+                    <h2>Dobrodosli u CineMatic, {user.Name}!</h2>
+                    <p>Drago nam je sto ste se pridruzili nasoj kino zajednici.</p>
+                    <p>Vasa registracija je uspjesna i sada imate pristup nasim filmskim projekcijama.</p>
+                    <p>Istrazite ponudu i pocnite rezervisati svoje omiljene filmove!</p>
+                    <p>Vidimo se u kinu,</p>
+                    <p><strong>Vas CineMatic tim</strong></p>
+                </body>
+                </html>";
+                    break;
+
+                case 2: // Admin
+                    subject = "Dobrodosli, CineMatic Administrator!";
+                    body = $@"
+                <html>
+                <body>
+                    <h2>Pozdrav, Admin {user.Name},</h2>
+                    <p>Vas administratorski racun u CineMatic sistemu je uspjesno kreiran.</p>
+                    <p>Sada mozete upravljati korisnicima, filmovima i projekcijama.</p>
+                    <p><strong>Vasa lozinka za prijavu je: {user.Password}</strong></p>
+                    <p>Iz sigurnosnih razloga obavezno promijenite lozinku nakon prve prijave.</p>
+                    <p><strong>Vas CineMatic tim</strong></p>
+                </body>
+                </html>";
+                    break;
+
+                case 3: // Blagajnik
+                    subject = "Dobrodosli, CineMatic Blagajnik!";
+                    body = $@"
+                <html>
+                <body>
+                    <h2>Pozdrav, {user.Name},</h2>
+                    <p>Vas blagajnicki racun u CineMatic sistemu je uspjesno kreiran.</p>
+                    <p>Sada mozete upravljati prodajom karata i pomagati nasim posjetiocima.</p>
+                    <p><strong>Vasa lozinka za prijavu je: {user.Password}</strong></p>
+                    <p>Iz sigurnosnih razloga obavezno promijenite lozinku nakon prve prijave.</p>
+                    <p><strong>Vas CineMatic tim</strong></p>
+                </body>
+                </html>";
+                    break;
+
+                default: // fallback
+                    subject = "CineMatic Registracija";
+                    body = $@"
+                <html>
+                <body>
+                    <h2>Dobrodosli, {user.Name}!</h2>
+                    <p>Vas CineMatic racun je uspjesno kreiran.</p>
+                    <p><strong>Vas CineMatic tim</strong></p>
+                </body>
+                </html>";
+                    break;
+            }
+
+            emailMessage.Subject = subject;
+            emailMessage.Body = new TextPart("html") { Text = body };
 
             using (var client = new SmtpClient())
             {
@@ -114,11 +166,11 @@ namespace CineMatic.EmailService
                     await client.ConnectAsync(smtpServer, smtpPort, MailKit.Security.SecureSocketOptions.StartTls);
                     await client.AuthenticateAsync(emailUsername, emailPassword);
                     await client.SendAsync(emailMessage);
-                    _logger.LogInformation("Email sent successfully to {Email}.", user.Email);
+                    _logger.LogInformation("Email uspjesno poslan na {Email}.", user.Email);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Failed to send email to {Email}.", user.Email);
+                    _logger.LogError(ex, "Slanje emaila nije uspjelo na {Email}.", user.Email);
                 }
                 finally
                 {
