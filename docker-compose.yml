@@ -1,0 +1,95 @@
+version: '3'
+services:
+  cinematic-sql:
+    image: mcr.microsoft.com/mssql/server:2017-latest-ubuntu
+    restart: unless-stopped
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=QWElkj132!
+      - MSSQL_PID=Developer
+    ports:
+      - 1401:1433
+    expose:
+      - 1433
+    volumes:
+      - ./Database:/docker-entrypoint-initdb.d
+    command: bash -c "/opt/mssql/bin/sqlservr & sleep 30 && for f in /docker-entrypoint-initdb.d/*.sql; do echo \"Processing $$f\" && /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P QWElkj132! -i \"$$f\"; done & wait"
+    networks:
+      - cinematicnet
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "QWElkj132!" -Q "SELECT 1" || exit 1
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+
+  cinematic-api:
+    restart: unless-stopped
+    build:
+      context: .
+    environment:
+      - ConnectionStrings__CineMaticConnection=Server=cinematic-sql,1433;Database=IB210083;User=sa;Password=QWElkj132!;ConnectRetryCount=0;TrustServerCertificate=True
+      - ASPNETCORE_ENVIRONMENT=Development
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - RABBITMQ_HOST=rabbitmq
+    ports:
+      - 5199:5199
+    networks:
+      - cinematicnet
+    links:
+      - cinematic-sql
+    depends_on:
+      cinematic-sql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - type: bind
+        source: ./CineMatic.API/Images
+        target: /app/Images
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    networks:
+      - cinematicnet
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  email-service:
+    build:
+      context: .
+      dockerfile: CineMatic.EmailService/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USERNAME=guest
+      - RABBITMQ_PASSWORD=guest
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+    networks:
+      - cinematicnet
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "dotnet", "CineMatic.EmailService.dll", "--health-check"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+networks:
+  cinematicnet:
+    driver: bridge

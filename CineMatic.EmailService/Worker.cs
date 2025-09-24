@@ -29,6 +29,13 @@ namespace CineMatic.EmailService
                 AutomaticRecoveryEnabled = true
             };
 
+            //var factory = new ConnectionFactory()
+            //{
+            //    HostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "rabbitmq",
+            //    RequestedHeartbeat = TimeSpan.FromSeconds(60),
+            //    AutomaticRecoveryEnabled = true
+            //};
+
             int retryCount = 0;
             const int maxRetries = 5;
             while (retryCount < maxRetries)

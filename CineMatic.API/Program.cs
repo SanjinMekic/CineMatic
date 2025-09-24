@@ -129,6 +129,8 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     try
     {
+        //var context = services.GetRequiredService<Ib210083Context>();
+        //context.Database.Migrate();
         var adminUserSeeder = services.GetRequiredService<IUserAdminSeed>();
         await adminUserSeeder.Ucitaj();
         var imageSeeder = services.GetRequiredService<IImageSeeder>();
@@ -138,6 +140,7 @@ using (var scope = app.Services.CreateScope())
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
         logger.LogError(ex, "Greška prilikom pokretanja seedera.");
+        throw;
     }
 }
 
