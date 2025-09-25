@@ -570,31 +570,31 @@ VALUES
 -- Unos podataka u tabelu Projekcije
 INSERT INTO Projekcije (FilmID, SalaID, NačinProjekcijeID, DatumIVrijeme, Cijena, Stanje)
 VALUES
-(1, 1, 1, '2025-04-05 14:00:00', 10.50, 'active'),
-(2, 2, 2, '2025-04-05 16:30:00', 13.00, 'draft'),
-(3, 3, 3, '2025-04-05 19:00:00', 15.50, 'active'),
-(4, 4, 4, '2025-04-06 14:00:00', 18.00, 'active'),
+(1, 1, 1, '2025-04-05 14:00:00', 10.50, 'hidden'),
+(2, 2, 2, '2025-04-05 16:30:00', 13.00, 'hidden'),
+(3, 3, 3, '2025-04-05 19:00:00', 15.50, 'hidden'),
+(4, 4, 4, '2025-04-06 14:00:00', 18.00, 'hidden'),
 (5, 5, 5, '2025-04-06 16:30:00', 14.50, 'hidden'),
-(6, 6, 6, '2025-04-06 19:00:00', 11.00, 'active'),
-(7, 7, 7, '2025-04-07 14:00:00', 13.50, 'draft'),
-(8, 8, 8, '2025-04-07 16:30:00', 16.00, 'active'),
-(9, 9, 9, '2025-04-07 19:00:00', 19.00, 'active'),
+(6, 6, 6, '2025-04-06 19:00:00', 11.00, 'hidden'),
+(7, 7, 7, '2025-04-07 14:00:00', 13.50, 'hidden'),
+(8, 8, 8, '2025-04-07 16:30:00', 16.00, 'hidden'),
+(9, 9, 9, '2025-04-07 19:00:00', 19.00, 'hidden'),
 (10, 10, 10, '2025-04-08 14:00:00', 15.00, 'hidden'),
-(1, 2, 9, '2025-04-08 16:30:00', 14.00, 'active'),
-(2, 3, 8, '2025-04-08 19:00:00', 17.50, 'draft'),
-(3, 4, 7, '2025-04-09 14:00:00', 16.50, 'active'),
-(4, 5, 6, '2025-04-09 16:30:00', 11.50, 'active'),
+(1, 2, 9, '2025-04-08 16:30:00', 14.00, 'hidden'),
+(2, 3, 8, '2025-04-08 19:00:00', 17.50, 'hidden'),
+(3, 4, 7, '2025-04-09 14:00:00', 16.50, 'hidden'),
+(4, 5, 6, '2025-04-09 16:30:00', 11.50, 'hidden'),
 (5, 6, 5, '2025-04-09 19:00:00', 13.00, 'hidden'),
-(11, 1, 4, '2025-04-10 14:00:00', 10.50, 'active'),
-(12, 2, 3, '2025-04-10 16:30:00', 13.00, 'active'),
-(13, 3, 2, '2025-04-10 19:00:00', 15.50, 'active'),
-(14, 4, 1, '2025-04-11 14:00:00', 18.00, 'active'),
-(15, 5, 2, '2025-04-11 16:30:00', 14.50, 'active'),
-(11, 2, 3, '2025-04-12 14:00:00', 11.50, 'active'),
-(12, 3, 4, '2025-04-12 16:30:00', 14.00, 'active'),
-(13, 4, 5, '2025-04-12 19:00:00', 17.50, 'active'),
-(14, 5, 6, '2025-04-13 14:00:00', 16.00, 'active'),
-(15, 6, 7, '2025-04-13 16:30:00', 17.50, 'active');
+(11, 1, 4, '2025-12-10 14:00:00', 10.50, 'active'),
+(12, 2, 3, '2025-12-10 16:30:00', 13.00, 'active'),
+(13, 3, 2, '2025-12-10 19:00:00', 15.50, 'active'),
+(14, 4, 1, '2025-12-11 14:00:00', 18.00, 'active'),
+(15, 5, 2, '2025-12-11 16:30:00', 14.50, 'active'),
+(11, 2, 3, '2025-12-12 14:00:00', 11.50, 'active'),
+(12, 3, 4, '2025-12-12 16:30:00', 14.00, 'active'),
+(13, 4, 5, '2025-12-12 19:00:00', 17.50, 'active'),
+(14, 5, 6, '2025-12-13 14:00:00', 16.00, 'active'),
+(15, 6, 7, '2025-12-13 16:30:00', 17.50, 'active');
 
 -- Unos podataka u tabelu Sjedišta
 INSERT INTO Sjedišta (Naziv)
@@ -719,28 +719,32 @@ INSERT INTO KategorijeHraneIPića (Naziv)
 VALUES
 ('Pića'),
 ('Grickalice'),
-('Slastice'),
-('Zdravlje'),
+('Poslastice'),
 ('Sendviči'),
-('Topli napici'),
-('Jela'),
-('Juhe'),
-('Sokovi'),
-('Alkoholi');
+('Topli napici');
 
 -- Unos podataka u tabelu HraneIPića
 INSERT INTO HraneIPića (KategorijaID, Naziv, Cijena, Opis, KoličinaUSkladištu)
 VALUES
-(1, 'Coca Cola', 2.50, 'Omiljeni gazirani napitak', 100),
-(2, 'Čips', 1.80, 'Krompiri u hrskavoj korici', 50),
-(3, 'Čokolada', 3.00, 'Slatka poslastica od čokolade', 30),
-(4, 'Voćni jogurt', 2.20, 'Zdrav snack bogat vitaminima', 80),
-(5, 'Sendvič sa sirom', 4.00, 'Sendvič sa svježim sirom i povrćem', 60),
-(6, 'Kafa', 1.50, 'Kvalitetna kafa iz kafe aparata', 200),
-(7, 'Pileća supa', 5.00, 'Ukusna pileća supa sa povrćem', 40),
-(8, 'Narandžasti sok', 2.80, 'Svježe iscjeđen sok od narandže', 90),
-(9, 'Pivo', 3.50, 'Hladno pivo za uživanje', 100),
-(10, 'Vino crno', 7.00, 'Crno vino iz italijanske regije', 25);
+(1, 'Coca Cola 0.5L', 3.00, 'Popularni gazirani napitak', 120),
+(1, 'Fanta 0.5L', 3.00, 'Osvježavajući narandžasti napitak', 100),
+(1, 'Sprite 0.5L', 3.00, 'Bezalkoholno piće sa ukusom limuna i limete', 90),
+
+(2, 'Veliki kokice', 5.50, 'Klasične slane kokice', 80),
+(2, 'Srednji kokice', 4.50, 'Hrskave kokice srednje veličine', 100),
+(2, 'Mali kokice', 3.50, 'Porcija kokica za jednu osobu', 120),
+(2, 'Nachosi sa sirom', 6.00, 'Tortilla čips sa toplim sirom', 60),
+
+(3, 'Sladoled u čašici', 2.50, 'Razni ukusi sladoleda', 70),
+(3, 'M&M bombone', 2.80, 'Čokoladne bombone sa kikirikijem', 90),
+(3, 'Gumene bombone', 2.20, 'Šarene gumene bombone', 100),
+
+(4, 'Hot dog', 4.50, 'Klasični hot dog sa hrenovkom', 50),
+(4, 'Sendvič sa šunkom', 5.00, 'Svježi sendvič sa šunkom i sirom', 40),
+
+(5, 'Kafa', 2.00, 'Espresso kafa iz aparata', 150),
+(5, 'Topla čokolada', 2.50, 'Topli napitak od čokolade', 60),
+(5, 'Čaj', 2.00, 'Razni ukusi toplog čaja', 70);
 
 -- Unos podataka u tabelu RezervacijeHraneIPića
 INSERT INTO RezervacijeHraneIPića (RezervacijaID, HranaIPićeID)
