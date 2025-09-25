@@ -137,6 +137,7 @@ namespace CineMatic.Services
                         {
                             RezervacijaId = rs.RezervacijaId,
                             HranaIpićeId = rs.HranaIpićeId,
+                            Kolicina = rs.Kolicina ?? 0,
                             HranaIpiće = new Model.HraneIpića
                             {
                                 Id = rs.HranaIpiće.Id,
@@ -224,6 +225,7 @@ namespace CineMatic.Services
                 {
                     RezervacijaId = rs.RezervacijaId,
                     HranaIpićeId = rs.HranaIpićeId,
+                    Kolicina = rs.Kolicina ?? 0,
                     HranaIpiće = rs.HranaIpiće.Adapt<Model.HraneIpića>()
                 }).ToList();
 
@@ -299,7 +301,7 @@ namespace CineMatic.Services
                                 $"Cijena ulaznice: {rezervacija.Projekcija?.Cijena}\n" +
                                 $"Datum rezervacije: {rezervacija.DatumIvrijeme:dd-MM-yyyy HH:mm}\n" +
                                 $"Sjedišta: {string.Join(", ", rezervacija.RezervacijeSjedišta.Select(s => s.Sjedište.Naziv))}\n" +
-                                $"Hrana/piće: {string.Join(", ", rezervacija.RezervacijeHraneIpićas.Select(s => s.HranaIpiće.Naziv))}\n" +
+                                $"Hrana/piće: {string.Join(", ", rezervacija.RezervacijeHraneIpićas.Select(s => $"{s.HranaIpiće.Naziv} x{s.Kolicina}"))}\n" +
                                 $"Ukupna cijena: {rezervacija.UkupnaCijena}\n" +
                                 $"Način plaćanja: {rezervacija.NačinPlaćanja}\n";
 
@@ -518,7 +520,8 @@ namespace CineMatic.Services
                     .Select(rs => new Model.RezervacijeHraneIpića
                     {
                         RezervacijaId = rs.RezervacijaId,
-                        HranaIpićeId = rs.HranaIpićeId
+                        HranaIpićeId = rs.HranaIpićeId,
+                        Kolicina = rs.Kolicina ?? 0
                     })
                     .ToList(),
                 Uplata = fullEntity.Uplata != null ? new Model.Uplate
