@@ -42,10 +42,17 @@ class _RecenzijeScreenState extends State<RecenzijeScreen> {
 
       final mojId = AuthProvider.korisnikId;
       Recenzija? moja;
-      for (var rec in result) {
-        if (rec.korisnikId == mojId) {
-          moja = rec;
-          break;
+      bool vecKomentarisano = false;
+      if (mojId != null) {
+        vecKomentarisano = await provider.vecOcijenjeno(mojId, widget.filmId);
+        if (vecKomentarisano) {
+          moja = result.firstWhere(
+  (rec) => rec.korisnikId == mojId,
+  orElse: () => Recenzija(), // Vrati prazan Recenzija objekat
+);
+if (moja.id == null) {
+  moja = null;
+}
         }
       }
 

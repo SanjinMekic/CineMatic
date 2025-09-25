@@ -35,4 +35,18 @@ class RecenzijaProvider extends BaseProvider<Recenzija> {
       throw Exception('Greška pri dohvatu prosječne ocjene za film');
     }
   }
+
+  Future<bool> vecOcijenjeno(int korisnikId, int filmId) async {
+    final url = Uri.parse('$baseUrl${endpoint}/vecOcijenjeno/$korisnikId/$filmId');
+    final headers = createHeaders();
+    final response = await http.get(url, headers: headers);
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      // Pretpostavljam da backend vraća { ocjena: true/false }
+      return data['ocjena'] == true;
+    } else {
+      throw Exception('Greška pri provjeri da li je film već ocijenjen');
+    }
+  }
 }

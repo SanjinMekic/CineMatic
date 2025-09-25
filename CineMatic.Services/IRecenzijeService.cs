@@ -13,5 +13,6 @@ namespace CineMatic.Services
     {
         Task<List<Recenzije>> GetByFilmIdAsync(int filmId);
         double? ProsjecnaOcjena(int movieId);
+        bool OcijenjenoPrije(int userId, int movieId);
     }
 }
