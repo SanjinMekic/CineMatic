@@ -15,6 +15,7 @@ RezervacijaHranaPice _$RezervacijaHranaPiceFromJson(
       json['hranaIpiće'] == null
           ? null
           : HranaPice.fromJson(json['hranaIpiće'] as Map<String, dynamic>),
+  kolicina: (json['kolicina'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$RezervacijaHranaPiceToJson(
@@ -23,4 +24,5 @@ Map<String, dynamic> _$RezervacijaHranaPiceToJson(
   'rezervacijaId': instance.rezervacijaId,
   'hranaIpićeId': instance.hranaIPiceId,
   'hranaIpiće': instance.hranaIPice,
+  'kolicina': instance.kolicina,
 };

@@ -678,6 +678,7 @@ namespace CineMatic.Services
                 {
                     RezervacijaId = rs.RezervacijaId,
                     HranaIpićeId = rs.HranaIpićeId,
+                    Kolicina = rs.Kolicina ?? 0,
                     HranaIpiće = rs.HranaIpiće != null ? new Model.HraneIpića
                     {
                         Id = rs.HranaIpiće.Id,

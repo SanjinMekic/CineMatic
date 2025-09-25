@@ -9,6 +9,7 @@ namespace CineMatic.Model
         public int RezervacijaId { get; set; }
 
         public int HranaIpićeId { get; set; }
+        public int Kolicina { get; set; }
 
         public virtual HraneIpića HranaIpiće { get; set; }
 

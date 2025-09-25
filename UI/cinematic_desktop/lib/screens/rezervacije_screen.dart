@@ -159,6 +159,21 @@ class _RezervacijeScreenState extends State<RezervacijeScreen> {
     );
   }
 
+  String _formatHranaPiceSaKolicinama(List? rezervacijeHraneIPica) {
+  if (rezervacijeHraneIPica == null || rezervacijeHraneIPica.isEmpty) return '-';
+  Map<String, int> map = {};
+  for (var h in rezervacijeHraneIPica) {
+    final naziv = h.hranaIPice?.naziv?.toString() ?? '';
+    final kolicina = (h.kolicina ?? 1);
+    // Ako je kolicina tipa num, pretvori u int
+    final kolicinaInt = kolicina is int ? kolicina : (kolicina as num).toInt();
+    if (naziv.isNotEmpty) {
+      map[naziv] = (map[naziv] ?? 0) + kolicinaInt;
+    }
+  }
+  return map.entries.map((e) => "${e.key} x${e.value}").join(", ");
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -179,10 +194,7 @@ class _RezervacijeScreenState extends State<RezervacijeScreen> {
                         ?.map((s) => s.sjediste?.naziv ?? "")
                         .where((s) => s.isNotEmpty)
                         .join(", ");
-                    final hranaPice = r.rezervacijeHraneIPica
-                        ?.map((h) => h.hranaIPice?.naziv ?? "")
-                        .where((h) => h.isNotEmpty)
-                        .join(", ");
+                    final hranaPice = _formatHranaPiceSaKolicinama(r.rezervacijeHraneIPica);
                     return Card(
                       elevation: 5,
                       shape: RoundedRectangleBorder(
@@ -219,9 +231,7 @@ class _RezervacijeScreenState extends State<RezervacijeScreen> {
                                   _buildInfoRow(
                                     Icons.fastfood,
                                     "Hrana i piće",
-                                    hranaPice?.isNotEmpty == true
-                                        ? hranaPice!
-                                        : "-",
+                                    hranaPice,
                                     iconColor: Colors.orange[700],
                                   ),
                                   _buildInfoRow(
@@ -261,7 +271,6 @@ class _RezervacijeScreenState extends State<RezervacijeScreen> {
                                     iconColor: Colors.red[700],
                                     bold: true,
                                   ),
-                                  // Dodano: prikaz statusa poništene karte
                                   _buildInfoRow(
                                     Icons.cancel,
                                     "Poništena karta",

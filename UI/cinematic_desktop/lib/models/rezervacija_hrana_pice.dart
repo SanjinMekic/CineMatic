@@ -10,11 +10,14 @@ class RezervacijaHranaPice {
   int hranaIPiceId;
   @JsonKey(name: 'hranaIpiće')
   HranaPice? hranaIPice;
+  @JsonKey(name: 'kolicina')
+  int? kolicina;
 
   RezervacijaHranaPice({
     required this.rezervacijaId,
     required this.hranaIPiceId,
     this.hranaIPice,
+    this.kolicina,
   });
 
   factory RezervacijaHranaPice.fromJson(Map<String, dynamic> json) => _$RezervacijaHranaPiceFromJson(json);
