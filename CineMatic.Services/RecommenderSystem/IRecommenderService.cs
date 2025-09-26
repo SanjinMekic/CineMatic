@@ -9,6 +9,6 @@ namespace CineMatic.Services.RecommenderSystem
 {
     public interface IRecommenderService
     {
-        List<FilmDTO> DobaviPreporuceneFilmove(int filmId, int brojPreporuka = 5);
+        List<FilmDTO> DobaviPreporuceneFilmove(int filmId, int brojPreporuka = 7);
     }
 }

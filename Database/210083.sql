@@ -457,20 +457,80 @@ VALUES
 INSERT INTO FilmoviGlumci (FilmID, GlumacID)
 VALUES
 (1, 1),  -- The Lion King - Matthew Broderick
+(1, 4),
+(1, 9),
+(1, 7),
+(1, 14),
 (2, 2),  -- The Dark Knight - Christian Bale
+(2, 11),
+(2, 10),
+(2, 3),
+(2, 4),
 (3, 3),  -- Forrest Gump - Tom Hanks
+(3, 7),
+(3, 15),
+(3, 4),
+(3, 2),
 (4, 4),  -- Joker - Joaquin Phoenix
+(4, 8),
+(4, 13),
+(4, 14),
+(4, 9),
 (5, 5),  -- The Matrix - Keanu Reeves
+(5, 7),
+(5, 6),
+(5, 1),
+(5, 12),
 (6, 6),  -- Inception - Leonardo DiCaprio
+(6, 1),
+(6, 15),
+(6, 9),
+(6, 7),
 (7, 7),  -- The Godfather - Marlon Brando
+(7, 5),
+(7, 6),
+(7, 11),
+(7, 1),
 (8, 8),  -- Pulp Fiction - John Travolta
+(8, 1),
+(8, 3),
+(8, 5),
+(8, 13),
 (9, 9),  -- Avengers: Endgame - Chris Hemsworth
+(9, 7),
+(9, 6),
+(9, 14),
+(9, 2),
 (10, 10), -- Gladiator - Russell Crowe
+(10, 11),
+(10, 12),
+(10, 13),
+(10, 15),
 (11, 11), -- The Shawshank Redemption - Tim Robbins
+(11, 1),
+(11, 7),
+(11, 9),
+(11, 10),
 (12, 12), -- Interstellar - Matthew McConaughey
+(12, 15),
+(12, 2),
+(12, 6),
+(12, 3),
 (13, 13), -- Fight Club - Brad Pitt
+(13, 2),
+(13, 7),
+(13, 15),
+(13, 12),
 (14, 14), -- Star Wars: A New Hope - Mark Hamill
-(15, 15); -- The Silence of the Lambs - Jodie Foster
+(14, 7),
+(14, 1),
+(14, 3),
+(14, 11),
+(15, 15), -- The Silence of the Lambs - Jodie Foster
+(15, 2),
+(15, 8),
+(15, 11),
+(15, 4);
 
 -- Unos podataka u tabelu Režiseri
 INSERT INTO Režiseri (Ime, Prezime, DatumRodjenja, Opis, Slika, Uspjesi, RezisiraniFilmovi)
@@ -570,31 +630,31 @@ VALUES
 -- Unos podataka u tabelu Projekcije
 INSERT INTO Projekcije (FilmID, SalaID, NačinProjekcijeID, DatumIVrijeme, Cijena, Stanje)
 VALUES
-(1, 1, 1, '2025-04-05 14:00:00', 10.50, 'hidden'),
-(2, 2, 2, '2025-04-05 16:30:00', 13.00, 'hidden'),
-(3, 3, 3, '2025-04-05 19:00:00', 15.50, 'hidden'),
-(4, 4, 4, '2025-04-06 14:00:00', 18.00, 'hidden'),
-(5, 5, 5, '2025-04-06 16:30:00', 14.50, 'hidden'),
-(6, 6, 6, '2025-04-06 19:00:00', 11.00, 'hidden'),
-(7, 7, 7, '2025-04-07 14:00:00', 13.50, 'hidden'),
-(8, 8, 8, '2025-04-07 16:30:00', 16.00, 'hidden'),
-(9, 9, 9, '2025-04-07 19:00:00', 19.00, 'hidden'),
-(10, 10, 10, '2025-04-08 14:00:00', 15.00, 'hidden'),
+(1, 1, 1, '2025-12-05 14:00:00', 10.50, 'active'),
+(2, 2, 2, '2025-12-05 16:30:00', 13.00, 'active'),
+(3, 3, 3, '2025-12-05 19:00:00', 15.50, 'active'),
+(4, 4, 4, '2025-12-06 14:00:00', 18.00, 'active'),
+(5, 5, 5, '2025-12-06 16:30:00', 14.50, 'active'),
+(6, 6, 6, '2025-12-06 19:00:00', 11.00, 'active'),
+(7, 7, 7, '2025-12-07 14:00:00', 13.50, 'active'),
+(8, 8, 8, '2025-12-07 16:30:00', 16.00, 'active'),
+(9, 9, 9, '2025-12-07 19:00:00', 19.00, 'active'),
+(10, 10, 10, '2025-12-08 14:00:00', 15.00, 'active'),
 (1, 2, 9, '2025-04-08 16:30:00', 14.00, 'hidden'),
 (2, 3, 8, '2025-04-08 19:00:00', 17.50, 'hidden'),
 (3, 4, 7, '2025-04-09 14:00:00', 16.50, 'hidden'),
 (4, 5, 6, '2025-04-09 16:30:00', 11.50, 'hidden'),
 (5, 6, 5, '2025-04-09 19:00:00', 13.00, 'hidden'),
-(11, 1, 4, '2025-12-10 14:00:00', 10.50, 'active'),
-(12, 2, 3, '2025-12-10 16:30:00', 13.00, 'active'),
-(13, 3, 2, '2025-12-10 19:00:00', 15.50, 'active'),
-(14, 4, 1, '2025-12-11 14:00:00', 18.00, 'active'),
-(15, 5, 2, '2025-12-11 16:30:00', 14.50, 'active'),
-(11, 2, 3, '2025-12-12 14:00:00', 11.50, 'active'),
-(12, 3, 4, '2025-12-12 16:30:00', 14.00, 'active'),
-(13, 4, 5, '2025-12-12 19:00:00', 17.50, 'active'),
-(14, 5, 6, '2025-12-13 14:00:00', 16.00, 'active'),
-(15, 6, 7, '2025-12-13 16:30:00', 17.50, 'active');
+(11, 1, 4, '2025-04-10 14:00:00', 10.50, 'hidden'),
+(12, 2, 3, '2025-04-10 16:30:00', 13.00, 'hidden'),
+(13, 3, 2, '2025-04-10 19:00:00', 15.50, 'hidden'),
+(14, 4, 1, '2025-04-11 14:00:00', 18.00, 'hidden'),
+(15, 5, 2, '2025-04-11 16:30:00', 14.50, 'hidden'),
+(11, 2, 3, '2025-04-12 14:00:00', 11.50, 'hidden'),
+(12, 3, 4, '2025-04-12 16:30:00', 14.00, 'hidden'),
+(13, 4, 5, '2025-04-12 19:00:00', 17.50, 'hidden'),
+(14, 5, 6, '2025-04-13 14:00:00', 16.00, 'hidden'),
+(15, 6, 7, '2025-04-13 16:30:00', 17.50, 'hidden');
 
 -- Unos podataka u tabelu Sjedišta
 INSERT INTO Sjedišta (Naziv)
@@ -727,24 +787,15 @@ VALUES
 INSERT INTO HraneIPića (KategorijaID, Naziv, Cijena, Opis, KoličinaUSkladištu)
 VALUES
 (1, 'Coca Cola 0.5L', 3.00, 'Popularni gazirani napitak', 120),
-(1, 'Fanta 0.5L', 3.00, 'Osvježavajući narandžasti napitak', 100),
-(1, 'Sprite 0.5L', 3.00, 'Bezalkoholno piće sa ukusom limuna i limete', 90),
-
-(2, 'Veliki kokice', 5.50, 'Klasične slane kokice', 80),
-(2, 'Srednji kokice', 4.50, 'Hrskave kokice srednje veličine', 100),
-(2, 'Mali kokice', 3.50, 'Porcija kokica za jednu osobu', 120),
-(2, 'Nachosi sa sirom', 6.00, 'Tortilla čips sa toplim sirom', 60),
-
-(3, 'Sladoled u čašici', 2.50, 'Razni ukusi sladoleda', 70),
-(3, 'M&M bombone', 2.80, 'Čokoladne bombone sa kikirikijem', 90),
-(3, 'Gumene bombone', 2.20, 'Šarene gumene bombone', 100),
-
-(4, 'Hot dog', 4.50, 'Klasični hot dog sa hrenovkom', 50),
+(2, 'Chipsy 80g', 3.00, 'Najpoznatije grickalice danasnjice', 100),
+(3, 'Sladoled 50g', 3.00, 'Poslastica sa ukusom limuna i limete', 90),
+(3, 'Puding 40g', 5.50, 'Klasično osvježenje u čašici', 80),
 (4, 'Sendvič sa šunkom', 5.00, 'Svježi sendvič sa šunkom i sirom', 40),
-
-(5, 'Kafa', 2.00, 'Espresso kafa iz aparata', 150),
 (5, 'Topla čokolada', 2.50, 'Topli napitak od čokolade', 60),
-(5, 'Čaj', 2.00, 'Razni ukusi toplog čaja', 70);
+(2, 'Male kokice', 3.50, 'Porcija kokica za jednu osobu', 120),
+(1, 'Cijeđeni sok 0.5L', 3.00, 'Popularni voćni napitak', 120),
+(2, 'Sok od jabuke 0.5L', 3.50, 'Popularni voćni napitak od jabuke', 120),
+(2, 'Pomfrit 100g', 5.50, 'Najpopularniji prilog', 80);
 
 -- Unos podataka u tabelu RezervacijeHraneIPića
 INSERT INTO RezervacijeHraneIPića (RezervacijaID, HranaIPićeID)

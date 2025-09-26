@@ -29,7 +29,7 @@ namespace CineMatic.Services
                                       .ToList();
         }
 
-        public List<FilmDTO> DobaviPreporuceneFilmove(int filmId, int brojPreporuka = 5)
+        public List<FilmDTO> DobaviPreporuceneFilmove(int filmId, int brojPreporuka = 7)
         {
             var ciljFilm = _filmoviService.GetById(filmId);
             if (ciljFilm == null) throw new Exception($"Nije pronadjen film sa ID: {filmId}");
