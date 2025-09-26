@@ -2,6 +2,7 @@ import 'package:cinematic_mobile/models/projekcija.dart';
 import 'package:cinematic_mobile/models/hrana_pice.dart';
 import 'package:cinematic_mobile/providers/rezervacija_provider.dart';
 import 'package:cinematic_mobile/providers/auth_provider.dart';
+import 'package:cinematic_mobile/providers/sjediste_provider.dart';
 import 'package:cinematic_mobile/providers/uplata_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -32,6 +33,33 @@ class _PregledRezervacijeScreenState extends State<PregledRezervacijeScreen> {
   CardFieldInputDetails? _card;
   bool _loading = false;
   bool _buttonDisabled = false; // Dodano za blokiranje dugmeta
+  Map<int, String> _sjedistaNazivi = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchNaziviSjedista();
+  }
+
+  Future<void> _fetchNaziviSjedista() async {
+    final sjedisteProvider = SjedisteProvider();
+    try {
+      final sjedista = await sjedisteProvider.get();
+      // Pretpostavljam da sjedista.result sadrži listu Sjediste objekata
+      setState(() {
+        _sjedistaNazivi = {
+          for (var s in sjedista.result) s.id: s.naziv ?? s.id.toString()
+        };
+      });
+    } catch (e) {
+      // fallback: koristi ID ako dohvatanje ne uspije
+      setState(() {
+        _sjedistaNazivi = {
+          for (var id in widget.sjedistaIds) id: id.toString()
+        };
+      });
+    }
+  }
 
   String _formatDatum(DateTime? date) {
     if (date == null) return '-';
@@ -269,7 +297,9 @@ class _PregledRezervacijeScreenState extends State<PregledRezervacijeScreen> {
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      "Sjedista: ${widget.sjedistaIds.isNotEmpty ? widget.sjedistaIds.join(', ') : '-'}",
+                      "Sjedista: ${widget.sjedistaIds.isNotEmpty
+                        ? widget.sjedistaIds.map((id) => _sjedistaNazivi[id] ?? id.toString()).join(', ')
+                        : '-'}",
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
