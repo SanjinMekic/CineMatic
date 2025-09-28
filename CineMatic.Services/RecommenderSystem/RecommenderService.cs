@@ -17,7 +17,6 @@ namespace CineMatic.Services
         {
             _filmoviService = filmoviService;
 
-            // Dohvati sve žanrove i glumce iz baze
             _sviZanrovi = _filmoviService.DohvatiSveFilmove()
                                        .SelectMany(f => f.Zanrovi)
                                        .Distinct()
@@ -51,7 +50,6 @@ namespace CineMatic.Services
                 rezultati.Add((film, score));
             }
 
-            // Sortiraj po opadajućem score-u i uzmi prvih N
             return rezultati.OrderByDescending(r => r.score)
                             .Take(brojPreporuka)
                             .Select(r => r.film)
