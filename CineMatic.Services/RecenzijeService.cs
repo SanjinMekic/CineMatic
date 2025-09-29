@@ -56,7 +56,6 @@ namespace CineMatic.Services
 
             var model = Mapper.Map<Model.Recenzije>(entity);
 
-            // Ako hoćeš da se slika korisnika vrati kao base64
             if (entity.Korisnik?.Slika != null)
             {
                 model.Korisnik.SlikaBase64 = Convert.ToBase64String(entity.Korisnik.Slika);
