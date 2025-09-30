@@ -363,6 +363,12 @@ class _ProjekcijaDetaljiScreenState extends State<ProjekcijaDetaljiScreen> {
                         "${film!.dobnaRestrikcija?.restrikcija ?? ''} - ${film.dobnaRestrikcija?.opis ?? ''}",
                       ),
                     ),
+                    if (film?.trajanje != null)
+                    ListTile(
+                      leading: const Icon(Icons.timer),
+                      title: const Text("Trajanje"),
+                      subtitle: Text("${film!.trajanje} min"),
+                    ),
                   if (film?.zanrs != null && film!.zanrs!.isNotEmpty)
                     ListTile(
                       leading: const Icon(Icons.category),
