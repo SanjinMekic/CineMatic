@@ -2,7 +2,7 @@ import 'package:cinematic_mobile/providers/auth_provider.dart';
 import 'package:cinematic_mobile/layouts/master_screen.dart';
 import 'package:cinematic_mobile/models/korisnik.dart';
 import 'package:cinematic_mobile/srceens/registracija_screen.dart';
-import 'package:cinematic_mobile/srceens/ponistavanje_karti_screen.dart'; // Dodaj import
+import 'package:cinematic_mobile/srceens/ponistavanje_karti_screen.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {

@@ -32,7 +32,7 @@ class _PregledRezervacijeScreenState extends State<PregledRezervacijeScreen> {
   String _nacinPlacanja = "gotovina";
   CardFieldInputDetails? _card;
   bool _loading = false;
-  bool _buttonDisabled = false; // Dodano za blokiranje dugmeta
+  bool _buttonDisabled = false;
   Map<int, String> _sjedistaNazivi = {};
 
   @override
@@ -45,14 +45,12 @@ class _PregledRezervacijeScreenState extends State<PregledRezervacijeScreen> {
     final sjedisteProvider = SjedisteProvider();
     try {
       final sjedista = await sjedisteProvider.get();
-      // Pretpostavljam da sjedista.result sadrži listu Sjediste objekata
       setState(() {
         _sjedistaNazivi = {
           for (var s in sjedista.result) s.id: s.naziv ?? s.id.toString()
         };
       });
     } catch (e) {
-      // fallback: koristi ID ako dohvatanje ne uspije
       setState(() {
         _sjedistaNazivi = {
           for (var id in widget.sjedistaIds) id: id.toString()
@@ -173,14 +171,12 @@ class _PregledRezervacijeScreenState extends State<PregledRezervacijeScreen> {
         throw Exception("Nije moguće dobiti clientSecret od servera.");
       }
 
-      // 1. Kreiraj PaymentMethod iz forme
       final paymentMethod = await Stripe.instance.createPaymentMethod(
         params: PaymentMethodParams.card(
           paymentMethodData: PaymentMethodData(),
         ),
       );
 
-      // 2. Potvrdi PaymentIntent sa tim PaymentMethodId
       await Stripe.instance.confirmPayment(
         paymentIntentClientSecret: clientSecret,
         data: PaymentMethodParams.cardFromMethodId(
@@ -192,7 +188,6 @@ class _PregledRezervacijeScreenState extends State<PregledRezervacijeScreen> {
 
       return clientSecret;
     } catch (e) {
-      // Ako je greška "Unknown", provjeri status na backendu
       if (e.toString().contains('Unknown') && clientSecret != null) {
         final uplataProvider = UplataProvider();
         final paymentIntentId = clientSecret.split('_secret').first;

@@ -42,7 +42,6 @@ class RezervacijaProvider extends BaseProvider<Rezervacija> {
   final response = await http.put(url, headers: headers);
 
   if (response.statusCode == 200) {
-    // Uspješno poništeno
     return;
   } else {
     String message;
@@ -50,7 +49,6 @@ class RezervacijaProvider extends BaseProvider<Rezervacija> {
       final decoded = jsonDecode(response.body);
       if (decoded is Map && decoded.containsKey('Message')) {
         message = decoded['Message'];
-        // Prepoznaj tip greške po poruci
         if (message.contains('Rezervacija nije pronađena')) {
           message = 'Rezervacija nije pronađena!';
         } else if (message.contains('Karta je već poništena')) {

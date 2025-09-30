@@ -46,7 +46,7 @@ class _HranaPiceScreenState extends State<HranaPiceScreen> {
       final trenutna = _kolicine[id] ?? 0;
       final nova = trenutna + delta;
       if (nova < 0) return;
-      if (artikal.kolicinaUskladistu != null && nova > artikal.kolicinaUskladistu!) return; // Ne dozvoli više od lagera
+      if (artikal.kolicinaUskladistu != null && nova > artikal.kolicinaUskladistu!) return;
       _kolicine[id] = nova;
     });
   }

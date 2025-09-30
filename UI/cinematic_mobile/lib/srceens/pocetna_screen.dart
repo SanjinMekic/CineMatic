@@ -70,19 +70,30 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
     return Column(
       children: [
         TextField(
-          controller: _nazivController,
-          decoration: InputDecoration(
-            labelText: "Pretraži po nazivu filma",
-            prefixIcon: Icon(Icons.search),
-            border: OutlineInputBorder(),
-            isDense: true,
-            contentPadding: EdgeInsets.symmetric(
-              vertical: 10,
-              horizontal: 12,
-            ),
-          ),
-          onSubmitted: (_) => _loadProjekcije(),
-        ),
+  controller: _nazivController,
+  decoration: InputDecoration(
+    labelText: "Pretraži po nazivu filma",
+    prefixIcon: Icon(Icons.search),
+    border: OutlineInputBorder(),
+    isDense: true,
+    contentPadding: EdgeInsets.symmetric(
+      vertical: 10,
+      horizontal: 12,
+    ),
+    suffixIcon: _nazivController.text.isNotEmpty
+        ? IconButton(
+            icon: Icon(Icons.clear),
+            onPressed: () {
+              setState(() {
+                _nazivController.clear();
+              });
+              _loadProjekcije();
+            },
+          )
+        : null,
+  ),
+  onSubmitted: (_) => _loadProjekcije(),
+),
         const SizedBox(height: 10),
         DropdownButtonFormField<int>(
           value: _odabraniZanrId,
@@ -117,53 +128,53 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
         ),
         const SizedBox(height: 10),
         InkWell(
-          onTap: () async {
-            final picked = await showDatePicker(
-              context: context,
-              initialDate: _odabraniDatum ?? DateTime.now(),
-              firstDate: DateTime.now(),
-              lastDate: DateTime(2100),
-            );
-            if (picked != null) {
-              setState(() {
-                _odabraniDatum = picked;
-              });
-              _loadProjekcije();
-            }
-          },
-          child: InputDecorator(
-            decoration: InputDecoration(
-              labelText: "Datum",
-              border: OutlineInputBorder(),
-              isDense: true,
-              contentPadding: EdgeInsets.symmetric(
-                vertical: 10,
-                horizontal: 12,
-              ),
-              suffixIcon: _odabraniDatum != null
-                  ? IconButton(
-                      icon: Icon(Icons.clear),
-                      onPressed: () {
-                        setState(() {
-                          _odabraniDatum = null;
-                        });
-                        _loadProjekcije();
-                      },
-                    )
-                  : Icon(Icons.calendar_today),
-            ),
-            child: Text(
-              _odabraniDatum != null
-                  ? DateFormat('dd.MM.yyyy.').format(_odabraniDatum!)
-                  : "Odaberi datum",
-              style: TextStyle(
-                color: _odabraniDatum != null
-                    ? Colors.black
-                    : Colors.grey[600],
-              ),
-            ),
-          ),
-        ),
+  onTap: () async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _odabraniDatum ?? DateTime.now(),
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null) {
+      setState(() {
+        _odabraniDatum = picked;
+      });
+      _loadProjekcije();
+    }
+  },
+  child: InputDecorator(
+    decoration: InputDecoration(
+      labelText: "Datum",
+      border: OutlineInputBorder(),
+      isDense: true,
+      contentPadding: EdgeInsets.symmetric(
+        vertical: 10,
+        horizontal: 12,
+      ),
+      suffixIcon: _odabraniDatum != null
+          ? IconButton(
+              icon: Icon(Icons.clear),
+              onPressed: () {
+                setState(() {
+                  _odabraniDatum = null;
+                });
+                _loadProjekcije();
+              },
+            )
+          : Icon(Icons.calendar_today),
+    ),
+    child: Text(
+      _odabraniDatum != null
+          ? DateFormat('dd.MM.yyyy.').format(_odabraniDatum!)
+          : "Odaberi datum",
+      style: TextStyle(
+        color: _odabraniDatum != null
+            ? Colors.black
+            : Colors.grey[600],
+      ),
+    ),
+  ),
+),
         const SizedBox(height: 10),
         SizedBox(
           width: double.infinity,
@@ -179,7 +190,6 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Prikazuj samo jednu projekciju po filmu (po filmId)
     final Map<int, Projekcija> jedinstveniFilmovi = {};
     final aktivneProjekcije = _projekcije
         .where((p) =>
@@ -238,7 +248,6 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
                                   child: Icon(Icons.movie, size: 48),
                                 );
                               }
-                              // Novi prikaz ispod naslova: trajanje i žanrovi
                               final trajanje = p.film?.trajanje != null ? "${p.film!.trajanje} min" : null;
                               final zanrovi = (p.film?.zanrs != null && p.film!.zanrs!.isNotEmpty)
                                   ? p.film!.zanrs!.map((z) => z.naziv).join(', ')

@@ -30,7 +30,6 @@ class _ProjekcijaDetaljiScreenState extends State<ProjekcijaDetaljiScreen> {
   List<Projekcija> _projekcijeZaFilm = [];
   bool _isLoading = true;
 
-  // Dodaj za preporuke
   List<PreporuceniFilm> _preporuceniFilmovi = [];
   bool _preporukeLoading = true;
 
@@ -123,12 +122,12 @@ class _ProjekcijaDetaljiScreenState extends State<ProjekcijaDetaljiScreen> {
     onPressed: () => Navigator.of(context).pop(false),
     child: const Text(
       "Odustani",
-      style: TextStyle(color: Colors.red), // crvena boja teksta
+      style: TextStyle(color: Colors.red),
     ),
   ),
   ElevatedButton(
     style: ElevatedButton.styleFrom(
-      backgroundColor: Colors.blue, // plava boja kao dugme Recenzije
+      backgroundColor: Colors.blue,
       foregroundColor: Colors.white,
     ),
     onPressed: () => Navigator.of(context).pop(true),
@@ -246,7 +245,6 @@ class _ProjekcijaDetaljiScreenState extends State<ProjekcijaDetaljiScreen> {
                       ),
                     );
                   }
-                  // Ako nije prihvaćeno, samo se zatvori dijalog
                 },
               ),
             ),
@@ -500,7 +498,6 @@ class _ProjekcijaDetaljiScreenState extends State<ProjekcijaDetaljiScreen> {
                       },
                     ),
                   ),
-                  // --- PREPORUKE ---
                   const SizedBox(height: 32),
                   if (_preporukeLoading)
                     const Center(child: CircularProgressIndicator())

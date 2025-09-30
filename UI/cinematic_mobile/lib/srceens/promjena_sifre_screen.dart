@@ -46,7 +46,6 @@ class _PromjenaSifreScreenState extends State<PromjenaSifreScreen> {
     final username = AuthProvider.username;
 
     try {
-      // Provjeri staru šifru
       final user = await authProvider.login(username!, _staraSifraController.text);
       if (user == null) {
         setState(() {

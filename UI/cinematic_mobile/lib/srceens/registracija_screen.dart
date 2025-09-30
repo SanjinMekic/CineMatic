@@ -23,7 +23,7 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
   bool _isLoading = false;
   String? _error;
   String? _korisnickoImeError;
-  String? _slikaError; // Dodano za prikaz greške
+  String? _slikaError;
 
   Future<void> _pickImage() async {
     setState(() {
@@ -59,7 +59,6 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
     final provider = Provider.of<KorisnikProvider>(context, listen: false);
     final korisnickoIme = _korisnickoImeController.text.trim();
 
-    // Provjera da li je korisničko ime zauzeto
     final zauzeto = await provider.korisnickoImeZauzeto(korisnickoIme);
     if (zauzeto) {
       setState(() {
@@ -87,7 +86,7 @@ class _RegistracijaScreenState extends State<RegistracijaScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Registracija uspješna! Prijavite se.')),
         );
-        Navigator.of(context).pop(); // Vrati na login
+        Navigator.of(context).pop();
       }
     } catch (e) {
       setState(() {

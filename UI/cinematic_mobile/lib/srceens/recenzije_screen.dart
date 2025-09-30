@@ -48,7 +48,7 @@ class _RecenzijeScreenState extends State<RecenzijeScreen> {
         if (vecKomentarisano) {
           moja = result.firstWhere(
   (rec) => rec.korisnikId == mojId,
-  orElse: () => Recenzija(), // Vrati prazan Recenzija objekat
+  orElse: () => Recenzija(),
 );
 if (moja.id == null) {
   moja = null;
@@ -56,7 +56,6 @@ if (moja.id == null) {
         }
       }
 
-      // Dohvati korisnike za sve recenzije
       final korisnikProvider = Provider.of<KorisnikProvider>(context, listen: false);
       Map<int, Korisnik?> korisnici = {};
       for (var rec in result) {

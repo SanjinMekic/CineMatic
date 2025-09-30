@@ -26,7 +26,6 @@ class _PonistavanjeKartiScreenState extends State<PonistavanjeKartiScreen> {
         _loading = true;
       });
 
-      // Parsiraj ID rezervacije iz QR teksta
       final regex = RegExp(r'Rezervacija ID:\s*(\d+)');
       final match = regex.firstMatch(code);
       int? rezervacijaId;

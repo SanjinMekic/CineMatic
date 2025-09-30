@@ -17,7 +17,7 @@ class UplataProvider extends BaseProvider {
     body: jsonEncode({'iznos': amountInCents}),
   );
 
-  print('Stripe response: ${response.body}'); // Dodaj ovo
+  print('Stripe response: ${response.body}');
 
   if (isValidResponse(response)) {
     try {

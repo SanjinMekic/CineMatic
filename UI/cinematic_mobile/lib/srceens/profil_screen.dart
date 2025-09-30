@@ -26,7 +26,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
   String? _email;
   String? _korisnickoIme;
   String? _slikaBase64;
-  String? _slikaError; // Dodano za prikaz greške
+  String? _slikaError;
 
   @override
   void initState() {

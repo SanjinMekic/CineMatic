@@ -9,7 +9,6 @@ class RecenzijaProvider extends BaseProvider<Recenzija> {
   @override
   Recenzija fromJson(data) => Recenzija.fromJson(data);
 
-  /// Dohvati recenzije za filmId preko /Recenzije/ByFilm/{filmId}
   Future<List<Recenzija>> getByFilm(int filmId) async {
     final url = Uri.parse('$baseUrl${endpoint}/ByFilm/$filmId');
     final headers = createHeaders();
@@ -43,7 +42,6 @@ class RecenzijaProvider extends BaseProvider<Recenzija> {
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      // Pretpostavljam da backend vraća { ocjena: true/false }
       return data['ocjena'] == true;
     } else {
       throw Exception('Greška pri provjeri da li je film već ocijenjen');

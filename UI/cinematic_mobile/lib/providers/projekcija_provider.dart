@@ -10,7 +10,6 @@ class ProjekcijaProvider extends BaseProvider<Projekcija> {
   @override
   Projekcija fromJson(data) => Projekcija.fromJson(data);
 
-  /// Dohvati projekcije za filmId preko /Projekcije/PoFilmu/{filmId}
   Future<List<Projekcija>> getByFilm(int filmId) async {
     final url = Uri.parse('$baseUrl${endpoint}/PoFilmu/$filmId');
     final headers = createHeaders();
