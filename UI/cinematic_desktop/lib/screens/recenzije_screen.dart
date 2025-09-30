@@ -186,7 +186,6 @@ class _RecenzijeScreenState extends State<RecenzijeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Zvjezdice iznad imena korisnika
                     if (r.ocjena != null)
                       Row(
                         children: List.generate(

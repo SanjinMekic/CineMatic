@@ -42,10 +42,8 @@ class _DodajFilmScreenState extends State<DodajFilmScreen> {
   List<Zanr> _zanrovi = [];
   bool _isLoading = true;
 
-  // Za validaciju slike
   bool _slikaError = false;
 
-  // Za validaciju multi-select polja
   bool _glumciError = false;
   bool _reziseriError = false;
   bool _zanroviError = false;
@@ -68,7 +66,6 @@ class _DodajFilmScreenState extends State<DodajFilmScreen> {
       _zanrovi = zanrovi.result;
       _isLoading = false;
 
-      // Ako je edit, popuni polja
       if (widget.film != null) {
         _nazivController.text = widget.film!.naziv ?? "";
         _trajanjeController.text = widget.film!.trajanje?.toString() ?? "";
@@ -79,9 +76,9 @@ class _DodajFilmScreenState extends State<DodajFilmScreen> {
           _slikaBytes = base64Decode(_slikaBase64!);
         }
         _odabraniGlumci =
-            widget.film!.glumacs?.map((g) => g.id!).toList() ?? [];
+            widget.film!.glumacs?.map((g) => g.id).toList() ?? [];
         _odabraniReziseri =
-            widget.film!.rezisers?.map((r) => r.id!).toList() ?? [];
+            widget.film!.rezisers?.map((r) => r.id).toList() ?? [];
         _odabraniZanrovi = widget.film!.zanrs?.map((z) => z.id!).toList() ?? [];
       }
     });
@@ -380,7 +377,6 @@ class _DodajFilmScreenState extends State<DodajFilmScreen> {
   }
 }
 
-// Widget za višestruki izbor (chipovi)
 class _MultiSelectChipField<T> extends StatelessWidget {
   final String label;
   final List<T> items;

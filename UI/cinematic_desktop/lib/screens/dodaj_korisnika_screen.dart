@@ -37,7 +37,6 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
         _email = widget.korisnik!.email;
         _korisnickoIme = widget.korisnik!.korisnickoIme;
         _slikaBase64 = widget.korisnik!.slikaBase64;
-        // Postavi selektovanu ulogu na trenutnu korisnikovu ulogu
         if (widget.korisnik!.ulogas != null && widget.korisnik!.ulogas!.isNotEmpty) {
           _ulogaId = widget.korisnik!.ulogas!.first.id;
         }
@@ -85,7 +84,6 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
 
     final provider = Provider.of<KorisnikProvider>(context, listen: false);
 
-    // Provjera zauzetosti korisničkog imena samo kod dodavanja
     if (widget.korisnik == null) {
       final zauzeto = await provider.korisnickoImeZauzeto(_korisnickoIme ?? "");
       if (zauzeto) {
@@ -110,7 +108,6 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
             _lozinkaPotvrdaController.text.isNotEmpty
                 ? _lozinkaPotvrdaController.text
                 : null,
-      // Uloga šalji kod dodavanja i editovanja
       if (_ulogaId != null)
         'ulogaId': [_ulogaId!],
     };

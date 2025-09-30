@@ -7,7 +7,6 @@ import 'package:http/http.dart' as http;
 class IzvjestajiProvider extends BaseProvider<dynamic> {
   IzvjestajiProvider() : super("Izvjestaji");
 
-  // Dohvati broj korisnika
   Future<int> getBrojKorisnika() async {
     final url = Uri.parse('${baseUrl}Izvjestaji/brojKorisnika');
     final response = await http.get(url, headers: createHeaders());
@@ -30,7 +29,6 @@ class IzvjestajiProvider extends BaseProvider<dynamic> {
     }
   }
 
-  // Dodaj druge izvještaje po potrebi...
   Future<double> getUkupnaZarada() async {
     final url = Uri.parse('${baseUrl}Izvjestaji/ukupnaZarada');
     final response = await http.get(url, headers: createHeaders());
@@ -47,7 +45,6 @@ class IzvjestajiProvider extends BaseProvider<dynamic> {
     final response = await http.get(url, headers: createHeaders());
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
-      // Prvo pokušaj camelCase, pa PascalCase
       return (data['totalFoodDrinkIncome'] ?? data['TotalFoodDrinkIncome'] ?? 0).toDouble();
     } else {
       throw Exception('Greška pri dohvatu zarade od hrane i pića');

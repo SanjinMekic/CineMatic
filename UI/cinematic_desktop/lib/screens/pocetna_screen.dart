@@ -21,7 +21,6 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
   List<Projekcija> _projekcije = [];
   bool _isLoading = true;
 
-  // Filter controllers
   final TextEditingController _nazivController = TextEditingController();
   DateTime? _odabraniDatum;
   int? _odabraniZanrId;
@@ -191,9 +190,13 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
                 ),
               ),
             if (prikaziAktivne) const SizedBox(width: 8),
-            ElevatedButton(onPressed: _loadProjekcije, child: Text("Pretraži")),
+            ElevatedButton.icon(
+              onPressed: _loadProjekcije,
+              icon: Icon(Icons.search),
+              label: Text("Pretraži"),
+            ),
             const SizedBox(width: 8),
-            ElevatedButton(
+            ElevatedButton.icon(
               onPressed: () {
                 setState(() {
                   _nazivController.clear();
@@ -202,7 +205,8 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
                 });
                 _loadProjekcije();
               },
-              child: Text("Očisti filtere"),
+              icon: Icon(Icons.clear),
+              label: Text("Očisti filtere"),
             ),
           ],
         ),
@@ -320,7 +324,6 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
                           } else if (constraints.maxWidth > 1000) {
                             crossAxisCount = 2;
                           }
-                          // Fiksna visina kartice
                           double cardHeight = 550;
                           return GridView.builder(
                             gridDelegate:

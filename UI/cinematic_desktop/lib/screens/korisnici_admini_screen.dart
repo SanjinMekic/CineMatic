@@ -141,7 +141,6 @@ class _KorisniciAdminiScreenState extends State<KorisniciAdminiScreen> {
                 padding: const EdgeInsets.all(24),
                 child: ListView(
                   children: [
-                    // Search fields
                     Card(
                       margin: EdgeInsets.only(bottom: 24),
                       child: Padding(

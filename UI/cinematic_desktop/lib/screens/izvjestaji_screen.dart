@@ -510,7 +510,6 @@ class _IzvjestajiScreenState extends State<IzvjestajiScreen> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          // Kartice
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -555,7 +554,6 @@ class _IzvjestajiScreenState extends State<IzvjestajiScreen> {
                             ],
                           ),
                           SizedBox(height: 24),
-                          // Top 5 korisnika graf
                           Text(
                             "Top 5 korisnika po potrošnji",
                             style: TextStyle(
@@ -579,7 +577,6 @@ class _IzvjestajiScreenState extends State<IzvjestajiScreen> {
                       ),
                     ),
                   ),
-                  // Dugme u donjem desnom uglu
                   Positioned(
                     bottom: 24,
                     right: 24,

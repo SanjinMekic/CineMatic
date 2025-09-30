@@ -9,7 +9,6 @@ class RecenzijaProvider extends BaseProvider<Recenzija> {
   @override
   Recenzija fromJson(data) => Recenzija.fromJson(data);
 
-  /// Dohvati recenzije za filmId preko /Recenzije/ByFilm/{filmId}
   Future<List<Recenzija>> getByFilm(int filmId) async {
     final url = Uri.parse('$baseUrl${endpoint}/ByFilm/$filmId');
     final headers = createHeaders();

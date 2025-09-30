@@ -54,7 +54,6 @@ class _DodajProjekcijuScreenState extends State<DodajProjekcijuScreen> {
       _nacini = nacini.result;
       _isLoading = false;
 
-      // Ako je edit, popuni polja
       if (widget.projekcija != null) {
         _filmId = widget.projekcija!.filmId;
         _salaId = widget.projekcija!.salaId;
@@ -112,7 +111,6 @@ class _DodajProjekcijuScreenState extends State<DodajProjekcijuScreen> {
       _vrijeme!.minute,
     );
 
-    // Onemogući dodavanje projekcije u prošlosti
     if (datumIvrijeme.isBefore(DateTime.now())) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Nije moguće dodati projekciju u prošlosti.")),

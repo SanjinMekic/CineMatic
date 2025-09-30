@@ -165,7 +165,6 @@ class _RezervacijeScreenState extends State<RezervacijeScreen> {
   for (var h in rezervacijeHraneIPica) {
     final naziv = h.hranaIPice?.naziv?.toString() ?? '';
     final kolicina = (h.kolicina ?? 1);
-    // Ako je kolicina tipa num, pretvori u int
     final kolicinaInt = kolicina is int ? kolicina : (kolicina as num).toInt();
     if (naziv.isNotEmpty) {
       map[naziv] = (map[naziv] ?? 0) + kolicinaInt;

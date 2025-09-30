@@ -47,7 +47,6 @@ class _FaqScreenState extends State<FaqScreen> {
           : null,
     );
 
-    // Prikazuj sve kategorije, a za svaku pronađi pitanja (može biti prazno)
     setState(() {
       _kategorije = kategorijeResult.result;
       _faqPoKategoriji = {};

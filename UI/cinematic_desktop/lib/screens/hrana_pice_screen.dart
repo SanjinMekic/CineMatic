@@ -177,8 +177,8 @@ class _HranaPiceScreenState extends State<HranaPiceScreen> {
                           ),
                           const SizedBox(width: 8),
                           ElevatedButton.icon(
-                            icon: Icon(Icons.refresh),
-                            label: Text("Reset"),
+                            icon: Icon(Icons.clear),
+                            label: Text("Očisti filtere"),
                             onPressed: () {
                               _nazivController.clear();
                               _cijenaMinController.clear();

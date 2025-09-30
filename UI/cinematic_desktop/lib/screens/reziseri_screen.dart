@@ -246,7 +246,6 @@ class _ReziseriScreenState extends State<ReziseriScreen> {
                 padding: const EdgeInsets.all(24),
                 child: Column(
                   children: [
-                    // Filteri
                     Row(
                       children: [
                         Expanded(
@@ -290,8 +289,9 @@ class _ReziseriScreenState extends State<ReziseriScreen> {
                           },
                         ),
                         const SizedBox(width: 8),
-                        ElevatedButton(
-                          child: Text("Očisti filtere"),
+                        ElevatedButton.icon(
+                          icon: Icon(Icons.clear),
+                          label: Text("Očisti filtere"),
                           onPressed: () {
                             _imeController.clear();
                             _prezimeController.clear();

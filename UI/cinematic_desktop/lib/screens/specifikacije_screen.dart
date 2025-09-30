@@ -33,10 +33,8 @@ class _SpecifikacijeScreenState extends State<SpecifikacijeScreen> {
 
   bool _isLoading = true;
 
-  // Expanded state for each section: [Dobne, Nacini, Sale, Sjedista, Zanrovi]
   List<bool> _expandedSections = [false, false, false, false, false];
 
-  // Search controllers
   final _dobneSearchController = TextEditingController();
   final _naciniSearchController = TextEditingController();
   final _saleSearchController = TextEditingController();
@@ -168,7 +166,7 @@ class _SpecifikacijeScreenState extends State<SpecifikacijeScreen> {
                 "opis": opisController.text,
               };
               if (isEdit) {
-                await _dobnaRestrikcijaProvider.update(item!.id, data);
+                await _dobnaRestrikcijaProvider.update(item.id, data);
               } else {
                 await _dobnaRestrikcijaProvider.insert(data);
               }
@@ -209,7 +207,7 @@ class _SpecifikacijeScreenState extends State<SpecifikacijeScreen> {
             onPressed: () async {
               final data = {"naziv": nazivController.text};
               if (isEdit) {
-                await _nacinPrikazivanjaProvider.update(item!.id, data);
+                await _nacinPrikazivanjaProvider.update(item.id, data);
               } else {
                 await _nacinPrikazivanjaProvider.insert(data);
               }
@@ -248,7 +246,7 @@ class _SpecifikacijeScreenState extends State<SpecifikacijeScreen> {
             onPressed: () async {
               final data = {"naziv": nazivController.text};
               if (isEdit) {
-                await _salaProvider.update(item!.id, data);
+                await _salaProvider.update(item.id, data);
               } else {
                 await _salaProvider.insert(data);
               }
@@ -287,7 +285,7 @@ class _SpecifikacijeScreenState extends State<SpecifikacijeScreen> {
             onPressed: () async {
               final data = {"naziv": nazivController.text};
               if (isEdit) {
-                await _sjedisteProvider.update(item!.id, data);
+                await _sjedisteProvider.update(item.id, data);
               } else {
                 await _sjedisteProvider.insert(data);
               }

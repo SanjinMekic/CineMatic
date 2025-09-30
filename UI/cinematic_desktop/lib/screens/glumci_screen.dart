@@ -246,7 +246,6 @@ class _GlumciScreenState extends State<GlumciScreen> {
                 padding: const EdgeInsets.all(24),
                 child: Column(
                   children: [
-                    // Filteri
                     Row(
                       children: [
                         Expanded(
@@ -290,23 +289,23 @@ class _GlumciScreenState extends State<GlumciScreen> {
                           },
                         ),
                         const SizedBox(width: 8),
-                        ElevatedButton(
-                          child: Text("Očisti filtere"),
-                          onPressed: () {
-                            _imeController.clear();
-                            _prezimeController.clear();
-                            setState(() {
-                              _imeFilter = null;
-                              _prezimeFilter = null;
-                              _isLoading = true;
-                            });
-                            _fetchGlumci();
-                          },
-                        ),
+                        ElevatedButton.icon(
+      icon: Icon(Icons.clear),
+      label: Text("Očisti filtere"),
+      onPressed: () {
+        _imeController.clear();
+        _prezimeController.clear();
+        setState(() {
+          _imeFilter = null;
+          _prezimeFilter = null;
+          _isLoading = true;
+        });
+        _fetchGlumci();
+      },
+    ),
                       ],
                     ),
                     const SizedBox(height: 24),
-                    // Dugme Dodaj
                     Align(
                       alignment: Alignment.centerRight,
                       child: Padding(
