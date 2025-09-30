@@ -24,7 +24,7 @@ namespace CineMatic.Services
 
             if (!string.IsNullOrWhiteSpace(search?.NazivGTE))
             {
-                query = query.Where(x => x.Naziv.StartsWith(search.NazivGTE));
+                query = query.Where(x => x.Naziv.ToLower().Contains(search.NazivGTE.ToLower()));
             }
 
             if (search.CijenaMin.HasValue)

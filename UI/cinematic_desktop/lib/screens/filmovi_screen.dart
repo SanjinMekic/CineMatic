@@ -156,26 +156,36 @@ class _FilmoviScreenState extends State<FilmoviScreen> {
                   ),
                   const SizedBox(height: 16),
                   Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _searchController,
-                          decoration: InputDecoration(
-                            labelText: "Pretraži po nazivu filma",
-                            prefixIcon: Icon(Icons.search),
-                            border: OutlineInputBorder(),
-                          ),
-                          style: TextStyle(fontSize: 17),
-                          onSubmitted: (_) => _onSearch(),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      ElevatedButton(
-                        onPressed: _onSearch,
-                        child: Text("Pretraži", style: TextStyle(fontSize: 17)),
-                      ),
-                    ],
-                  ),
+  children: [
+    Expanded(
+      child: TextField(
+        controller: _searchController,
+        decoration: InputDecoration(
+          labelText: "Pretraži po nazivu filma",
+          prefixIcon: Icon(Icons.search),
+          border: OutlineInputBorder(),
+        ),
+        style: TextStyle(fontSize: 17),
+        onSubmitted: (_) => _onSearch(),
+      ),
+    ),
+    const SizedBox(width: 8),
+    ElevatedButton(
+      onPressed: _onSearch,
+      child: Text("Pretraži", style: TextStyle(fontSize: 17)),
+    ),
+    const SizedBox(width: 8),
+    ElevatedButton(
+      onPressed: () {
+        setState(() {
+          _searchController.clear();
+        });
+        _loadData();
+      },
+      child: Text("Očisti filtere", style: TextStyle(fontSize: 17)),
+    ),
+  ],
+),
                   const SizedBox(height: 24),
                   Expanded(
                     child: _filmovi.isEmpty

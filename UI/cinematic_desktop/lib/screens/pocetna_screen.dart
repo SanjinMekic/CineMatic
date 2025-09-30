@@ -192,6 +192,18 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
               ),
             if (prikaziAktivne) const SizedBox(width: 8),
             ElevatedButton(onPressed: _loadProjekcije, child: Text("Pretraži")),
+            const SizedBox(width: 8),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _nazivController.clear();
+                  _odabraniZanrId = null;
+                  _odabraniDatum = null;
+                });
+                _loadProjekcije();
+              },
+              child: Text("Očisti filtere"),
+            ),
           ],
         ),
         const SizedBox(height: 16),
