@@ -51,8 +51,10 @@ class _FaqScreenState extends State<FaqScreen> {
       _kategorije = kategorijeResult.result;
       _faqPoKategoriji = {};
       for (var kat in _kategorije) {
-        _faqPoKategoriji[kat.id] =
-            faqResult.result.where((f) => f.kategorijaId == kat.id).toList();
+        final faqs = faqResult.result.where((f) => f.kategorijaId == kat.id).toList();
+        if (faqs.isNotEmpty || _searchFilter.isEmpty) {
+          _faqPoKategoriji[kat.id] = faqs;
+        }
       }
       _isLoading = false;
     });
@@ -315,8 +317,24 @@ class _FaqScreenState extends State<FaqScreen> {
     _fetchData();
   }
 
+  void _onClearFilterPressed() {
+    setState(() {
+      _searchController.clear();
+      _searchFilter = "";
+    });
+    _fetchData();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final filtriraneKategorije = _kategorije
+        .where((kategorija) =>
+            _searchFilter.isEmpty ||
+            (_faqPoKategoriji[kategorija.id]?.isNotEmpty ?? false))
+        .toList();
+
+    final nemaRezultata = _searchFilter.isNotEmpty && filtriraneKategorije.isEmpty;
+
     return Scaffold(
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -356,102 +374,120 @@ class _FaqScreenState extends State<FaqScreen> {
                           ),
                         ),
                         const SizedBox(width: 8),
-                        ElevatedButton(
+                        ElevatedButton.icon(
                           onPressed: _onSearchPressed,
-                          child: Text("Pretraži"),
+                          icon: Icon(Icons.search),
+                          label: Text("Pretraži"),
+                        ),
+                        const SizedBox(width: 8),
+                        ElevatedButton.icon(
+                          onPressed: _onClearFilterPressed,
+                          icon: Icon(Icons.clear),
+                          label: Text("Očisti filter"),
                         ),
                       ],
                     ),
                     const SizedBox(height: 8),
-                    ExpansionPanelList.radio(
-                      expandedHeaderPadding: EdgeInsets.zero,
-                      children: _kategorije.map((kategorija) {
-                        final faqs = _faqPoKategoriji[kategorija.id] ?? [];
-                        return ExpansionPanelRadio(
-                          value: kategorija.id,
-                          headerBuilder: (context, isExpanded) => ListTile(
-                            title: Text(
-                              kategorija.naziv ?? "",
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
+                    if (nemaRezultata)
+                      Padding(
+                        padding: const EdgeInsets.all(32.0),
+                        child: Center(
+                          child: Text(
+                            "Nema rezultata.",
+                            style: TextStyle(fontSize: 18, color: Colors.grey[700]),
+                          ),
+                        ),
+                      )
+                    else
+                      ExpansionPanelList.radio(
+                        expandedHeaderPadding: EdgeInsets.zero,
+                        children: filtriraneKategorije.map((kategorija) {
+                          final faqs = _faqPoKategoriji[kategorija.id] ?? [];
+                          return ExpansionPanelRadio(
+                            value: kategorija.id,
+                            headerBuilder: (context, isExpanded) => ListTile(
+                              title: Text(
+                                kategorija.naziv ?? "",
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              trailing: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: Icon(
+                                      Icons.edit,
+                                      color: Colors.blue,
+                                    ),
+                                    tooltip: "Uredi kategoriju",
+                                    onPressed: () => _urediKategoriju(kategorija),
+                                  ),
+                                  IconButton(
+                                    icon: Icon(
+                                      Icons.delete,
+                                      color: Colors.red,
+                                    ),
+                                    tooltip: "Obriši kategoriju",
+                                    onPressed: () => _obrisiKategoriju(kategorija),
+                                  ),
+                                ],
                               ),
                             ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: Icon(
-                                    Icons.edit,
-                                    color: Colors.blue,
-                                  ),
-                                  tooltip: "Uredi kategoriju",
-                                  onPressed: () => _urediKategoriju(kategorija),
-                                ),
-                                IconButton(
-                                  icon: Icon(
-                                    Icons.delete,
-                                    color: Colors.red,
-                                  ),
-                                  tooltip: "Obriši kategoriju",
-                                  onPressed: () => _obrisiKategoriju(kategorija),
-                                ),
-                              ],
-                            ),
-                          ),
-                          body: faqs.isEmpty
-                              ? const Padding(
-                                  padding: EdgeInsets.all(16.0),
-                                  child: Text(
-                                    "Nema pitanja u ovoj kategoriji.",
-                                  ),
-                                )
-                              : Column(
-                                  children: faqs
-                                      .map(
-                                        (faq) => ListTile(
-                                          title: Text(
-                                            faq.pitanje ?? "",
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.w600,
+                            body: faqs.isEmpty
+                                ? const Padding(
+                                    padding: EdgeInsets.all(16.0),
+                                    child: Text(
+                                      "Nema pitanja u ovoj kategoriji.",
+                                    ),
+                                  )
+                                : Column(
+                                    children: faqs
+                                        .map(
+                                          (faq) => ListTile(
+                                            title: Text(
+                                              faq.pitanje ?? "",
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                            ),
+                                            subtitle: Padding(
+                                              padding:
+                                                  const EdgeInsets.only(top: 4.0),
+                                              child: Text(
+                                                faq.odgovor ?? "",
+                                              ),
+                                            ),
+                                            trailing: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                IconButton(
+                                                  icon: Icon(
+                                                    Icons.edit,
+                                                    color: Colors.blue,
+                                                  ),
+                                                  tooltip: "Uredi",
+                                                  onPressed: () =>
+                                                      _urediPitanje(faq),
+                                                ),
+                                                IconButton(
+                                                  icon: Icon(
+                                                    Icons.delete,
+                                                    color: Colors.red,
+                                                  ),
+                                                  tooltip: "Obriši",
+                                                  onPressed: () =>
+                                                      _obrisiPitanje(faq),
+                                                ),
+                                              ],
                                             ),
                                           ),
-                                          subtitle: Padding(
-                                            padding:
-                                                const EdgeInsets.only(top: 4.0),
-                                            child: Text(
-                                              faq.odgovor ?? "",
-                                            ),
-                                          ),
-                                          trailing: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              IconButton(
-                                                icon: Icon(
-                                                  Icons.edit,
-                                                  color: Colors.blue,
-                                                ),
-                                                tooltip: "Uredi",
-                                                onPressed: () =>
-                                                    _urediPitanje(faq),
-                                              ),
-                                              IconButton(
-                                                icon: Icon(
-                                                  Icons.delete,
-                                                  color: Colors.red,
-                                                ),
-                                                tooltip: "Obriši",
-                                                onPressed: () =>
-                                                    _obrisiPitanje(faq),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      )
-                                      .toList(),
-                                ),
-                        );
-                      }).toList(),
-                    ),
+                                        )
+                                        .toList(),
+                                  ),
+                          );
+                        }).toList(),
+                      ),
                   ],
                 ),
               ),
