@@ -89,48 +89,64 @@ class _FaqScreenState extends State<FaqScreen> {
                 children: [
                   TextField(
                     controller: _searchController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: "Pretraži pitanja ili odgovore",
-                      prefixIcon: Icon(Icons.search),
-                      border: OutlineInputBorder(),
+                      prefixIcon: const Icon(Icons.search),
+                      border: const OutlineInputBorder(),
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () {
+                                _searchController.clear();
+                                FocusScope.of(context).unfocus();
+                              },
+                            )
+                          : null,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Expanded(
-                    child: ListView(
-                      children: _faqPoKategoriji.entries.map((entry) {
-                        final kategorija = _kategorije.firstWhere((k) => k.id == entry.key);
-                        final faqs = entry.value;
-                        return Theme(
-                          data: Theme.of(context).copyWith(
-                            dividerColor: Colors.transparent,
-                          ),
-                          child: ExpansionTile(
-                            key: PageStorageKey<int>(kategorija.id),
-                            title: Text(
-                              kategorija.naziv ?? "",
-                              style: const TextStyle(fontWeight: FontWeight.bold),
+                    child: _faqPoKategoriji.isEmpty
+                        ? Center(
+                            child: Text(
+                              "Nema rezultata.",
+                              style: TextStyle(fontSize: 18, color: Colors.grey[600]),
                             ),
-                            children: faqs
-                                .map(
-                                  (faq) => ListTile(
-                                    title: Text(
-                                      faq.pitanje ?? "",
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    subtitle: Padding(
-                                      padding: const EdgeInsets.only(top: 4.0),
-                                      child: Text(faq.odgovor ?? ""),
-                                    ),
+                          )
+                        : ListView(
+                            children: _faqPoKategoriji.entries.map((entry) {
+                              final kategorija = _kategorije.firstWhere((k) => k.id == entry.key);
+                              final faqs = entry.value;
+                              return Theme(
+                                data: Theme.of(context).copyWith(
+                                  dividerColor: Colors.transparent,
+                                ),
+                                child: ExpansionTile(
+                                  key: PageStorageKey<int>(kategorija.id),
+                                  title: Text(
+                                    kategorija.naziv ?? "",
+                                    style: const TextStyle(fontWeight: FontWeight.bold),
                                   ),
-                                )
-                                .toList(),
+                                  children: faqs
+                                      .map(
+                                        (faq) => ListTile(
+                                          title: Text(
+                                            faq.pitanje ?? "",
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          subtitle: Padding(
+                                            padding: const EdgeInsets.only(top: 4.0),
+                                            child: Text(faq.odgovor ?? ""),
+                                          ),
+                                        ),
+                                      )
+                                      .toList(),
+                                ),
+                              );
+                            }).toList(),
                           ),
-                        );
-                      }).toList(),
-                    ),
                   ),
                 ],
               ),
