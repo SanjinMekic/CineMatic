@@ -142,71 +142,85 @@ class _KorisniciAdminiScreenState extends State<KorisniciAdminiScreen> {
                 child: ListView(
                   children: [
                     Card(
-                      margin: EdgeInsets.only(bottom: 24),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: TextField(
-                                    controller: _imeController,
-                                    decoration: InputDecoration(
-                                      labelText: "Ime",
-                                      border: OutlineInputBorder(),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(width: 12),
-                                Expanded(
-                                  child: TextField(
-                                    controller: _prezimeController,
-                                    decoration: InputDecoration(
-                                      labelText: "Prezime",
-                                      border: OutlineInputBorder(),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 12),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: TextField(
-                                    controller: _korisnickoImeController,
-                                    decoration: InputDecoration(
-                                      labelText: "Korisničko ime",
-                                      border: OutlineInputBorder(),
-                                    ),
-                                  ),
-                                ),
-                                SizedBox(width: 12),
-                                Expanded(
-                                  child: TextField(
-                                    controller: _emailController,
-                                    decoration: InputDecoration(
-                                      labelText: "Email",
-                                      border: OutlineInputBorder(),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(height: 12),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: ElevatedButton.icon(
-                                icon: Icon(Icons.search),
-                                label: Text("Pretraži"),
-                                onPressed: _fetchKorisnici,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+  margin: EdgeInsets.only(bottom: 24),
+  child: Padding(
+    padding: const EdgeInsets.all(16),
+    child: Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _imeController,
+                decoration: InputDecoration(
+                  labelText: "Ime",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+            SizedBox(width: 12),
+            Expanded(
+              child: TextField(
+                controller: _prezimeController,
+                decoration: InputDecoration(
+                  labelText: "Prezime",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _korisnickoImeController,
+                decoration: InputDecoration(
+                  labelText: "Korisničko ime",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+            SizedBox(width: 12),
+            Expanded(
+              child: TextField(
+                controller: _emailController,
+                decoration: InputDecoration(
+                  labelText: "Email",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+          ],
+        ),
+        SizedBox(height: 12),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            ElevatedButton.icon(
+              icon: Icon(Icons.search),
+              label: Text("Pretraži"),
+              onPressed: _fetchKorisnici,
+            ),
+            const SizedBox(width: 8),
+            ElevatedButton.icon(
+              icon: Icon(Icons.clear),
+              label: Text("Očisti filtere"),
+              onPressed: () {
+                _imeController.clear();
+                _prezimeController.clear();
+                _korisnickoImeController.clear();
+                _emailController.clear();
+                _fetchKorisnici();
+              },
+            ),
+          ],
+        ),
+      ],
+    ),
+  ),
+),
                     ElevatedButton.icon(
                       icon: Icon(Icons.person_add),
                       label: Text("Dodaj admina/blagajnika/korisnika"),
