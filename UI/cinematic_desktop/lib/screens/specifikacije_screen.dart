@@ -10,6 +10,7 @@ import 'package:cinematic_desktop/providers/sjediste_provider.dart';
 import 'package:cinematic_desktop/providers/zanr_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cinematic_desktop/providers/projekcija_provider.dart';
 
 class SpecifikacijeScreen extends StatefulWidget {
   const SpecifikacijeScreen({super.key});
@@ -415,14 +416,25 @@ class _SpecifikacijeScreenState extends State<SpecifikacijeScreen> {
                                             item: item,
                                           ),
                                     ),
-                                    IconButton(
-                                      icon: Icon(Icons.delete, color: Colors.red),
-                                      onPressed: () async {
-                                        final confirm = await _showDeleteWarning(item.naziv ?? "");
-                                        if (confirm) {
-                                          await _nacinPrikazivanjaProvider.delete(item.id);
-                                          _loadData();
-                                        }
+                                    FutureBuilder<bool>(
+                                      future: context.read<ProjekcijaProvider>().hasActiveForNacinPrikazivanja(item.id),
+                                      builder: (context, snapshot) {
+                                        final hasActive = snapshot.data ?? false;
+                                        return IconButton(
+                                          icon: Icon(Icons.delete, color: hasActive ? Colors.grey : Colors.red),
+                                          tooltip: hasActive
+                                              ? "Nije moguće obrisati jer postoje aktivne projekcije"
+                                              : "Obriši",
+                                          onPressed: hasActive
+                                              ? null
+                                              : () async {
+                                                  final confirm = await _showDeleteWarning(item.naziv ?? "");
+                                                  if (confirm) {
+                                                    await _nacinPrikazivanjaProvider.delete(item.id);
+                                                    _loadData();
+                                                  }
+                                                },
+                                        );
                                       },
                                     ),
                                   ],
@@ -452,14 +464,25 @@ class _SpecifikacijeScreenState extends State<SpecifikacijeScreen> {
                                       onPressed:
                                           () => _showSalaDialog(item: item),
                                     ),
-                                    IconButton(
-                                      icon: Icon(Icons.delete, color: Colors.red),
-                                      onPressed: () async {
-                                        final confirm = await _showDeleteWarning(item.naziv ?? "");
-                                        if (confirm) {
-                                          await _salaProvider.delete(item.id);
-                                          _loadData();
-                                        }
+                                    FutureBuilder<bool>(
+                                      future: context.read<ProjekcijaProvider>().hasActiveForSala(item.id),
+                                      builder: (context, snapshot) {
+                                        final hasActive = snapshot.data ?? false;
+                                        return IconButton(
+                                          icon: Icon(Icons.delete, color: hasActive ? Colors.grey : Colors.red),
+                                          tooltip: hasActive
+                                              ? "Nije moguće obrisati jer postoje aktivne projekcije"
+                                              : "Obriši",
+                                          onPressed: hasActive
+                                              ? null
+                                              : () async {
+                                                  final confirm = await _showDeleteWarning(item.naziv ?? "");
+                                                  if (confirm) {
+                                                    await _salaProvider.delete(item.id);
+                                                    _loadData();
+                                                  }
+                                                },
+                                        );
                                       },
                                     ),
                                   ],
