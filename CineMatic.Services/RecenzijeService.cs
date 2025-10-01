@@ -175,5 +175,32 @@ namespace CineMatic.Services
 
             return models;
         }
+
+        public async Task<List<Model.Recenzije>> GetByFilmIdAndRatingAsync(int filmId, int? ocjena = null)
+        {
+            var query = _context.Recenzijes
+                .Include(x => x.Korisnik)
+                .Include(x => x.Film)
+                .Where(x => x.FilmId == filmId);
+
+            if (ocjena.HasValue)
+            {
+                query = query.Where(x => x.Ocjena == ocjena.Value);
+            }
+
+            var entities = await query.ToListAsync();
+
+            var models = _mapper.Map<List<Model.Recenzije>>(entities);
+
+            for (int i = 0; i < entities.Count; i++)
+            {
+                if (entities[i].Korisnik?.Slika != null)
+                {
+                    models[i].Korisnik.SlikaBase64 = Convert.ToBase64String(entities[i].Korisnik.Slika);
+                }
+            }
+
+            return models;
+        }
     }
 }

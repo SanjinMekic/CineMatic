@@ -25,6 +25,13 @@ namespace CineMatic.API.Controllers
             return Ok(result);
         }
 
+        [HttpGet("ByFilmAndRating/{filmId}")]
+        public async Task<IActionResult> GetByFilmAndRating(int filmId, [FromQuery] int? ocjena)
+        {
+            var result = await _service.GetByFilmIdAndRatingAsync(filmId, ocjena);
+            return Ok(result);
+        }
+
         [HttpGet("prosjecnaOcjena/{filmId}")]
         public IActionResult GetAverageRating(int filmId)
         {

@@ -34,7 +34,7 @@ class _RecenzijeScreenState extends State<RecenzijeScreen> {
   Future<void> _loadRecenzije() async {
     setState(() => _isLoading = true);
     final provider = context.read<RecenzijaProvider>();
-    final result = await provider.getByFilm(widget.filmId);
+    final result = await provider.getByFilmAndRating(widget.filmId, _selectedOcjena);
     setState(() {
       _recenzije = result;
       _isLoading = false;
@@ -147,10 +147,11 @@ class _RecenzijeScreenState extends State<RecenzijeScreen> {
           Spacer(),
           DropdownButton<int?>(
             value: _selectedOcjena,
-            onChanged: (value) {
+            onChanged: (value) async {
               setState(() {
                 _selectedOcjena = value;
               });
+              await _loadRecenzije();
             },
             items: [
               DropdownMenuItem<int?>(
@@ -179,10 +180,6 @@ class _RecenzijeScreenState extends State<RecenzijeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final prikazaneRecenzije = _selectedOcjena == null
-        ? _recenzije
-        : _recenzije.where((r) => r.ocjena == _selectedOcjena).toList();
-
     return Scaffold(
       appBar: AppBar(
         title: Text('Recenzije za film: ${widget.filmNaziv ?? ""}'),
@@ -196,7 +193,7 @@ class _RecenzijeScreenState extends State<RecenzijeScreen> {
                 children: [
                   _buildAverageRatingWithFilter(),
                   Expanded(
-                    child: prikazaneRecenzije.isEmpty
+                    child: _recenzije.isEmpty
                         ? Center(
                             child: Text(
                               "Nema recenzija za ovaj film${_selectedOcjena != null ? " sa odabranom ocjenom." : "."}",
@@ -204,10 +201,10 @@ class _RecenzijeScreenState extends State<RecenzijeScreen> {
                             ),
                           )
                         : ListView.separated(
-                            itemCount: prikazaneRecenzije.length,
+                            itemCount: _recenzije.length,
                             separatorBuilder: (_, __) => SizedBox(height: 18),
                             itemBuilder: (context, index) {
-                              final r = prikazaneRecenzije[index];
+                              final r = _recenzije[index];
                               return Card(
                                 elevation: 4,
                                 shape: RoundedRectangleBorder(

@@ -12,6 +12,7 @@ namespace CineMatic.Services
     public interface IRecenzijeService : ICRUDService<Recenzije, RecenzijeSearchObject, RecenzijeInsertRequest, RecenzijeUpdateRequest>
     {
         Task<List<Recenzije>> GetByFilmIdAsync(int filmId);
+        Task<List<Recenzije>> GetByFilmIdAndRatingAsync(int filmId, int? ocjena);
         double? ProsjecnaOcjena(int movieId);
         bool OcijenjenoPrije(int userId, int movieId);
     }
