@@ -112,7 +112,7 @@ namespace CineMatic.Services
                 Name = user.Ime,
                 Role = role,
                 Password = plainPassword,
-
+                korisnickoIme = user.KorisnickoIme
             };
 
             string serializedMessage = JsonSerializer.Serialize(message);

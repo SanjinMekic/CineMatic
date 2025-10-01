@@ -125,6 +125,7 @@ namespace CineMatic.EmailService
                     <h2>Pozdrav, Admin {user.Name},</h2>
                     <p>Vas administratorski racun u CineMatic sistemu je uspjesno kreiran.</p>
                     <p>Sada mozete upravljati korisnicima, filmovima i projekcijama.</p>
+                    <p><strong>Vase korisnicko ime je: {user.korisnickoIme}</strong></p>
                     <p><strong>Vasa lozinka za prijavu je: {user.Password}</strong></p>
                     <p>Iz sigurnosnih razloga obavezno promijenite lozinku nakon prve prijave.</p>
                     <p><strong>Vas CineMatic tim</strong></p>
@@ -140,6 +141,7 @@ namespace CineMatic.EmailService
                     <h2>Pozdrav, {user.Name},</h2>
                     <p>Vas blagajnicki racun u CineMatic sistemu je uspjesno kreiran.</p>
                     <p>Sada mozete upravljati prodajom karata i pomagati nasim posjetiocima.</p>
+                    <p><strong>Vase korisnicko ime je: {user.korisnickoIme}</strong></p>
                     <p><strong>Vasa lozinka za prijavu je: {user.Password}</strong></p>
                     <p>Iz sigurnosnih razloga obavezno promijenite lozinku nakon prve prijave.</p>
                     <p><strong>Vas CineMatic tim</strong></p>

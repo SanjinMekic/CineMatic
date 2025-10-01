@@ -10,5 +10,6 @@ namespace CineMatic.Model.Messages
         public string Name { get; set; }
         public int Role { get; set; }
         public string Password { get; set; }
+        public string korisnickoIme { get; set; }
     }
 }
