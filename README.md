@@ -19,7 +19,7 @@ Sistem obuhvata desktop aplikaciju za administratore i mobilnu aplikaciju za kor
 
 #### 🔹 Desktop aplikacija (admin)
 
-1. Extractovati arhivu: fit-build-2025-xx-xx-desktop
+1. Extractovati arhivu: fit-build-2025-10-01-desktop
 
 2. U folderu Release pokrenuti fajl: cinematic_desktop.exe
 
@@ -31,7 +31,7 @@ Sistem obuhvata desktop aplikaciju za administratore i mobilnu aplikaciju za kor
 
 1. Prije instalacije provjeriti da na emulatoru/uređaju nije instalirana stara verzija aplikacije. Ako jeste → deinstalirati.
 
-2. Extractovati arhivu: fit-build-2025-xx-xx-mobile
+2. Extractovati arhivu: fit-build-2025-10-01-mobile
 
 3. U folderu flutter-apk nalazi se fajl: app-release.apk
    → prevući na emulator ili fizički uređaj i sačekati da se aplikacija instalira.
