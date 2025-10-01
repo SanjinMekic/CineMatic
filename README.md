@@ -56,7 +56,7 @@ Sistem obuhvata desktop aplikaciju za administratore i mobilnu aplikaciju za kor
 
 - username: blagajnik
 - password: blagajnik
-  → Preporuka: koristiti fizički uređaj radi testiranja modula za skeniranje i poništavanje QR kod karti
+- Preporuka: koristiti fizički uređaj radi testiranja modula za skeniranje i poništavanje QR kod karti
 
 ---
 
