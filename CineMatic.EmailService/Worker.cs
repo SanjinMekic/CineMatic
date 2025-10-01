@@ -21,7 +21,7 @@ namespace CineMatic.EmailService
 
             //var factory = new ConnectionFactory()
             //{
-            //    HostName = "localhost",      // RabbitMQ radi u Dockeru na tvojoj masini
+            //    HostName = "localhost",      // RabbitMQ u Dockeru na masini
             //    Port = 5672,                 // Standardni AMQP port
             //    UserName = "guest",          // Default username
             //    Password = "guest",          // Default password
@@ -96,7 +96,6 @@ namespace CineMatic.EmailService
             emailMessage.From.Add(new MailboxAddress("CineMatic", "noreply@cinematic.com"));
             emailMessage.To.Add(new MailboxAddress(user.Name, user.Email));
 
-            // 📌 Sadržaj na osnovu role
             string subject;
             string body;
 

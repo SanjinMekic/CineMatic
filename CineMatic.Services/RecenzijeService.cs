@@ -163,10 +163,8 @@ namespace CineMatic.Services
         .Where(x => x.FilmId == filmId)
         .ToListAsync();
 
-            // Mapiraj u modele
             var models = _mapper.Map<List<Model.Recenzije>>(entities);
 
-            // Dodaj base64 slike korisnika
             for (int i = 0; i < entities.Count; i++)
             {
                 if (entities[i].Korisnik?.Slika != null)

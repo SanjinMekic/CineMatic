@@ -107,7 +107,6 @@ namespace CineMatic.Services
 
             Mapper.Map(request, entity);
 
-            // OVO DODAJ:
             if (!string.IsNullOrEmpty(request.SlikaBase64))
                 entity.Slika = Convert.FromBase64String(request.SlikaBase64);
 

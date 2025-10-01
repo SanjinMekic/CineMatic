@@ -722,7 +722,7 @@ namespace CineMatic.Services
                             Naziv = g.Naziv
                         }).ToList()
                     } : null,
-                    // Dodaj mapiranje za salu i način projekcije:
+
                     Sala = r.Projekcija.Sala != null ? new Model.Sale
                     {
                         Id = r.Projekcija.Sala.Id,
