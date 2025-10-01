@@ -111,25 +111,19 @@ class _DodajFilmScreenState extends State<DodajFilmScreen> {
       setState(() {
         _slikaError = true;
       });
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Slika je obavezna.")));
       return;
     }
     if (_dobnaRestrikcijaId == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Odaberite dobnu restrikciju.")));
       return;
     }
     if (_odabraniGlumci.isEmpty ||
         _odabraniReziseri.isEmpty ||
         _odabraniZanrovi.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Odaberite barem jednog glumca, režisera i žanr."),
-        ),
-      );
+      setState(() {
+        _glumciError = _odabraniGlumci.isEmpty;
+        _reziseriError = _odabraniReziseri.isEmpty;
+        _zanroviError = _odabraniZanrovi.isEmpty;
+      });
       return;
     }
 
