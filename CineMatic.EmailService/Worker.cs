@@ -19,22 +19,24 @@ namespace CineMatic.EmailService
             _logger = logger;
             _configuration = configuration;
 
-            var factory = new ConnectionFactory()
-            {
-                HostName = "localhost",      // RabbitMQ radi u Dockeru na tvojoj masini
-                Port = 5672,                 // Standardni AMQP port
-                UserName = "guest",          // Default username
-                Password = "guest",          // Default password
-                RequestedHeartbeat = TimeSpan.FromSeconds(60),
-                AutomaticRecoveryEnabled = true
-            };
-
             //var factory = new ConnectionFactory()
             //{
-            //    HostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "rabbitmq",
+            //    HostName = "localhost",      // RabbitMQ radi u Dockeru na tvojoj masini
+            //    Port = 5672,                 // Standardni AMQP port
+            //    UserName = "guest",          // Default username
+            //    Password = "guest",          // Default password
             //    RequestedHeartbeat = TimeSpan.FromSeconds(60),
             //    AutomaticRecoveryEnabled = true
             //};
+
+            var factory = new ConnectionFactory()
+            {
+                HostName = Environment.GetEnvironmentVariable("RABBITMQ_HOST") ?? "rabbitmq",
+                UserName = Environment.GetEnvironmentVariable("RABBITMQ_USERNAME") ?? "guest",
+                Password = Environment.GetEnvironmentVariable("RABBITMQ_PASSWORD") ?? "guest",
+                RequestedHeartbeat = TimeSpan.FromSeconds(60),
+                AutomaticRecoveryEnabled = true
+            };
 
             int retryCount = 0;
             const int maxRetries = 5;
@@ -163,9 +165,9 @@ namespace CineMatic.EmailService
 
             using (var client = new SmtpClient())
             {
-                var smtpServer = _configuration["Email:SmtpServer"];
-                var smtpPort = int.Parse(_configuration["Email:SmtpPort"]);
-                var emailUsername = _configuration["Email:Username"];
+                var smtpServer = Environment.GetEnvironmentVariable("EMAIL_SMTP_SERVER") ?? _configuration["Email:SmtpServer"];
+                var smtpPort = int.Parse(Environment.GetEnvironmentVariable("EMAIL_SMTP_PORT") ?? _configuration["Email:SmtpPort"]);
+                var emailUsername = Environment.GetEnvironmentVariable("EMAIL_USERNAME") ?? _configuration["Email:Username"];
                 var emailPassword = Environment.GetEnvironmentVariable("EMAIL_PASSWORD");
 
                 try

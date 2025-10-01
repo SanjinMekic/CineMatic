@@ -13,14 +13,14 @@ abstract class BaseProvider<T> with ChangeNotifier {
 
   BaseProvider(String endpoint) {
     _endpoint = endpoint;
-    _baseUrl = const String.fromEnvironment("baseUrl",
-        defaultValue: "http://192.168.1.9:5219/");
+    // _baseUrl = const String.fromEnvironment("baseUrl",
+    //     defaultValue: "http://192.168.1.9:5219/");
 
-    // const apiHost =
-    //     String.fromEnvironment("API_HOST", defaultValue: "10.0.2.2");
-    // const apiPort = String.fromEnvironment("API_PORT", defaultValue: "5199");
+    const apiHost =
+        String.fromEnvironment("API_HOST", defaultValue: "10.0.2.2");
+    const apiPort = String.fromEnvironment("API_PORT", defaultValue: "5199");
 
-    // _baseUrl = "http://$apiHost:$apiPort/";
+    _baseUrl = "http://$apiHost:$apiPort/";
   }
 
   String get baseUrl => _baseUrl ?? "";

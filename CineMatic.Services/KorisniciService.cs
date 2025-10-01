@@ -146,7 +146,7 @@ namespace CineMatic.Services
 
             if (lastRole == 1 || lastRole == 2 || lastRole == 3)
             {
-                //PublishRegistrationEvent(model, plainPassword);
+                PublishRegistrationEvent(model, plainPassword);
             }
 
             return model;

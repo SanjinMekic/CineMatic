@@ -17,10 +17,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 Env.Load("../.env");
 
-builder.WebHost.ConfigureKestrel(options =>
-{
-    options.ListenAnyIP(5219); // http bez https-a
-});
+//builder.WebHost.ConfigureKestrel(options =>
+//{
+//    options.ListenAnyIP(5219); // http bez https-a
+//});
 
 builder.Services.AddSingleton<IConnectionFactory>(sp =>
 {
@@ -129,8 +129,8 @@ using (var scope = app.Services.CreateScope())
     var services = scope.ServiceProvider;
     try
     {
-        //var context = services.GetRequiredService<Ib210083Context>();
-        //context.Database.Migrate();
+        var context = services.GetRequiredService<Ib210083Context>();
+        context.Database.Migrate();
         var adminUserSeeder = services.GetRequiredService<IUserAdminSeed>();
         await adminUserSeeder.Ucitaj();
         var imageSeeder = services.GetRequiredService<IImageSeeder>();
