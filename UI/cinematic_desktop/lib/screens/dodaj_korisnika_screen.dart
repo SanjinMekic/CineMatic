@@ -23,6 +23,7 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
   List<Uloga> _uloge = [];
   bool _isLoading = true;
   String? _korisnickoImeError;
+  bool _isSaving = false; // Dodano za disable dugmeta
 
   final _lozinkaController = TextEditingController();
   final _lozinkaPotvrdaController = TextEditingController();
@@ -82,6 +83,10 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
     if (!_formKey.currentState!.validate()) return;
     _formKey.currentState!.save();
 
+    setState(() {
+      _isSaving = true; // Disable dugme
+    });
+
     final provider = Provider.of<KorisnikProvider>(context, listen: false);
 
     if (widget.korisnik == null) {
@@ -89,6 +94,7 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
       if (zauzeto) {
         setState(() {
           _korisnickoImeError = "Korisničko ime je zauzeto!";
+          _isSaving = false; // Omogući dugme
         });
         return;
       }
@@ -119,6 +125,7 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
     }
 
     if (mounted) Navigator.of(context).pop(true);
+    // Dugme ostaje disabled dok se ne ode na prethodni screen
   }
 
   @override
@@ -293,7 +300,7 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
                               ),
                               const SizedBox(width: 12),
                               ElevatedButton(
-                                onPressed: _save,
+                                onPressed: _isSaving ? null : _save,
                                 child: Text("Sačuvaj"),
                               ),
                             ],

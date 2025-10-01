@@ -72,19 +72,45 @@ class _DodajProjekcijuScreenState extends State<DodajProjekcijuScreen> {
     final now = DateTime.now();
     final picked = await showDatePicker(
       context: context,
-      initialDate: _datum ?? now,
-      firstDate: DateTime(2000, 1, 1),
+      initialDate: _datum != null && _datum!.isAfter(now) ? _datum! : now,
+      firstDate: DateTime(now.year, now.month, now.day),
       lastDate: DateTime(now.year + 5),
     );
     if (picked != null) setState(() => _datum = picked);
   }
 
   Future<void> _pickTime() async {
+    final now = DateTime.now();
+    final today = _datum != null &&
+        _datum!.year == now.year &&
+        _datum!.month == now.month &&
+        _datum!.day == now.day;
+
+    final initialTime = _vrijeme ?? TimeOfDay.now();
+
     final picked = await showTimePicker(
       context: context,
-      initialTime: _vrijeme ?? TimeOfDay.now(),
+      initialTime: initialTime,
     );
-    if (picked != null) setState(() => _vrijeme = picked);
+
+    if (picked != null) {
+      if (today) {
+        final pickedDateTime = DateTime(
+          _datum!.year,
+          _datum!.month,
+          _datum!.day,
+          picked.hour,
+          picked.minute,
+        );
+        if (pickedDateTime.isBefore(now)) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Nije moguće odabrati vrijeme u prošlosti za današnji datum.")),
+          );
+          return;
+        }
+      }
+      setState(() => _vrijeme = picked);
+    }
   }
 
   Future<void> _save() async {

@@ -21,6 +21,8 @@ class _RecenzijeScreenState extends State<RecenzijeScreen> {
   double? _averageRating;
   KorisnikProvider? _korisnikProvider;
 
+  int? _selectedOcjena;
+
   @override
   void initState() {
     super.initState();
@@ -124,8 +126,7 @@ class _RecenzijeScreenState extends State<RecenzijeScreen> {
     );
   }
 
-  Widget _buildAverageRating() {
-    if (_averageRating == null) return SizedBox.shrink();
+  Widget _buildAverageRatingWithFilter() {
     return Padding(
       padding: const EdgeInsets.only(bottom: 18.0),
       child: Row(
@@ -135,13 +136,41 @@ class _RecenzijeScreenState extends State<RecenzijeScreen> {
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           ...List.generate(
-            _averageRating!.round(),
+            _averageRating?.round() ?? 0,
             (i) => Icon(Icons.star, color: Colors.amber, size: 22),
           ),
           const SizedBox(width: 8),
           Text(
-            _averageRating!.toStringAsFixed(2),
+            _averageRating?.toStringAsFixed(2) ?? "-",
             style: TextStyle(fontSize: 17),
+          ),
+          Spacer(),
+          DropdownButton<int?>(
+            value: _selectedOcjena,
+            onChanged: (value) {
+              setState(() {
+                _selectedOcjena = value;
+              });
+            },
+            items: [
+              DropdownMenuItem<int?>(
+                value: null,
+                child: Text("Sve recenzije"),
+              ),
+              ...List.generate(
+                5,
+                (i) => DropdownMenuItem<int?>(
+                  value: 5 - i,
+                  child: Row(
+                    children: [
+                      ...List.generate(5 - i, (j) => Icon(Icons.star, color: Colors.amber, size: 18)),
+                      const SizedBox(width: 6),
+                      Text("${5 - i}"),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -150,113 +179,122 @@ class _RecenzijeScreenState extends State<RecenzijeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final prikazaneRecenzije = _selectedOcjena == null
+        ? _recenzije
+        : _recenzije.where((r) => r.ocjena == _selectedOcjena).toList();
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Recenzije za film: ${widget.filmNaziv ?? ""}'),
       ),
       body: _isLoading
           ? Center(child: CircularProgressIndicator())
-          : _recenzije.isEmpty
-              ? Center(child: Text("Nema recenzija za ovaj film."))
-              : Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildAverageRating(),
-                      Expanded(
-  child: ListView.separated(
-    itemCount: _recenzije.length,
-    separatorBuilder: (_, __) => SizedBox(height: 18),
-    itemBuilder: (context, index) {
-      final r = _recenzije[index];
-      return Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(18.0),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildAvatar(r),
-              const SizedBox(width: 18),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (r.ocjena != null)
-                      Row(
-                        children: List.generate(
-                          r.ocjena!,
-                          (i) => Icon(Icons.star, color: Colors.amber, size: 20),
-                        ),
-                      ),
-                    _buildKorisnikNaslov(r),
-                    if (r.komentar != null && r.komentar!.isNotEmpty)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 4.0),
-                        child: Text(
-                          r.komentar!,
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ),
-                    if (r.datumIvrijeme != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 2.0),
-                        child: Text(
-                          DateFormat('dd.MM.yyyy. HH:mm').format(r.datumIvrijeme!),
-                          style: TextStyle(fontSize: 13, color: Colors.grey[600]),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              const SizedBox(width: 16),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
+          : Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Tooltip(
-                    message: "Obriši recenziju",
-                    child: IconButton(
-                      icon: Icon(Icons.delete, color: Colors.red),
-                      onPressed: () async {
-                        final potvrdi = await showDialog<bool>(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: Text("Potvrda brisanja"),
-                            content: Text("Da li ste sigurni da želite obrisati ovu recenziju?"),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.of(context).pop(false),
-                                child: Text("Otkaži"),
-                              ),
-                              TextButton(
-                                onPressed: () => Navigator.of(context).pop(true),
-                                child: Text("Obriši", style: TextStyle(color: Colors.red)),
-                              ),
-                            ],
+                  _buildAverageRatingWithFilter(),
+                  Expanded(
+                    child: prikazaneRecenzije.isEmpty
+                        ? Center(
+                            child: Text(
+                              "Nema recenzija za ovaj film${_selectedOcjena != null ? " sa odabranom ocjenom." : "."}",
+                              style: TextStyle(fontSize: 17, color: Colors.grey[700]),
+                            ),
+                          )
+                        : ListView.separated(
+                            itemCount: prikazaneRecenzije.length,
+                            separatorBuilder: (_, __) => SizedBox(height: 18),
+                            itemBuilder: (context, index) {
+                              final r = prikazaneRecenzije[index];
+                              return Card(
+                                elevation: 4,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(18.0),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      _buildAvatar(r),
+                                      const SizedBox(width: 18),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            if (r.ocjena != null)
+                                              Row(
+                                                children: List.generate(
+                                                  r.ocjena!,
+                                                  (i) => Icon(Icons.star, color: Colors.amber, size: 20),
+                                                ),
+                                              ),
+                                            _buildKorisnikNaslov(r),
+                                            if (r.komentar != null && r.komentar!.isNotEmpty)
+                                              Padding(
+                                                padding: const EdgeInsets.only(top: 4.0),
+                                                child: Text(
+                                                  r.komentar!,
+                                                  style: TextStyle(fontSize: 16),
+                                                ),
+                                              ),
+                                            if (r.datumIvrijeme != null)
+                                              Padding(
+                                                padding: const EdgeInsets.only(top: 2.0),
+                                                child: Text(
+                                                  DateFormat('dd.MM.yyyy. HH:mm').format(r.datumIvrijeme!),
+                                                  style: TextStyle(fontSize: 13, color: Colors.grey[600]),
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Column(
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          Tooltip(
+                                            message: "Obriši recenziju",
+                                            child: IconButton(
+                                              icon: Icon(Icons.delete, color: Colors.red),
+                                              onPressed: () async {
+                                                final potvrdi = await showDialog<bool>(
+                                                  context: context,
+                                                  builder: (context) => AlertDialog(
+                                                    title: Text("Potvrda brisanja"),
+                                                    content: Text("Da li ste sigurni da želite obrisati ovu recenziju?"),
+                                                    actions: [
+                                                      TextButton(
+                                                        onPressed: () => Navigator.of(context).pop(false),
+                                                        child: Text("Otkaži"),
+                                                      ),
+                                                      TextButton(
+                                                        onPressed: () => Navigator.of(context).pop(true),
+                                                        child: Text("Obriši", style: TextStyle(color: Colors.red)),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                );
+                                                if (potvrdi == true) {
+                                                  await _obrisiRecenziju(r.id!);
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
                           ),
-                        );
-                        if (potvrdi == true) {
-                          await _obrisiRecenziju(r.id!);
-                        }
-                      },
-                    ),
                   ),
                 ],
               ),
-            ],
-          ),
-        ),
-      );
-    },
-  ),
-),
-                    ],
-                  ),
-                ),
+            ),
     );
   }
 }
