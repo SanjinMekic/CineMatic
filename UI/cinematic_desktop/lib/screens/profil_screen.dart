@@ -64,11 +64,27 @@ class _ProfilScreenState extends State<ProfilScreen> {
     }
   }
 
+  String? _korisnickoImeError;
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
     _formKey.currentState!.save();
 
     final provider = Provider.of<KorisnikProvider>(context, listen: false);
+
+    if (_korisnickoIme != null && _korisnickoIme != _korisnik!.korisnickoIme) {
+      final zauzeto = await provider.korisnickoImeZauzeto(_korisnickoIme!);
+      if (zauzeto) {
+        setState(() {
+          _korisnickoImeError = "Korisničko ime je zauzeto!";
+        });
+        return;
+      } else {
+        setState(() {
+          _korisnickoImeError = null;
+        });
+      }
+    }
+
     await provider.update(_korisnik!.id, {
       'ime': _ime,
       'prezime': _prezime,
@@ -277,6 +293,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
                                   labelText: "Korisničko ime",
                                   border: OutlineInputBorder(),
                                   prefixIcon: Icon(Icons.account_circle),
+                                  errorText: _korisnickoImeError,
                                 ),
                                 validator:
                                     (v) =>
@@ -455,7 +472,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   SizedBox(
-                                    width: !isAdmin ? 180 : double.infinity,
+                                    width: 180,
                                     child: ElevatedButton.icon(
                                       icon: Icon(Icons.edit, size: 22),
                                       label: Padding(
