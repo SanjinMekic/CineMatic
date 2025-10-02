@@ -122,6 +122,9 @@ class _ProfilScreenState extends State<ProfilScreen> {
     });
 
     if (korisnickoImePromijenjeno || lozinkaPromijenjena) {
+      AuthProvider.username = null;
+      AuthProvider.password = null;
+      AuthProvider.korisnikId = null;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => LoginPage()),
       );
@@ -233,6 +236,9 @@ class _ProfilScreenState extends State<ProfilScreen> {
     if (confirm == true) {
       final provider = Provider.of<KorisnikProvider>(context, listen: false);
       await provider.delete(_korisnik!.id);
+      AuthProvider.username = null;
+      AuthProvider.password = null;
+      AuthProvider.korisnikId = null;
       Navigator.of(
         context,
       ).pushReplacement(MaterialPageRoute(builder: (_) => LoginPage()));

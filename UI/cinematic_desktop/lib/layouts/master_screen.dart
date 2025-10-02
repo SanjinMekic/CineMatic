@@ -1,3 +1,4 @@
+import 'package:cinematic_desktop/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:cinematic_desktop/screens/pocetna_screen.dart';
 import 'package:cinematic_desktop/screens/filmovi_screen.dart';
@@ -198,6 +199,9 @@ class _MasterScreenState extends State<MasterScreen> {
               leading: Icon(Icons.logout),
               title: Text("Odjava"),
               onTap: () {
+                AuthProvider.username = null;
+                AuthProvider.password = null;
+                AuthProvider.korisnikId = null;
                 Navigator.of(context).pushAndRemoveUntil(
                   MaterialPageRoute(builder: (context) => LoginPage()),
                   (route) => false,
