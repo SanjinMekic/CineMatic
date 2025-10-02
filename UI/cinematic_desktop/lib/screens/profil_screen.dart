@@ -65,13 +65,16 @@ class _ProfilScreenState extends State<ProfilScreen> {
   }
 
   String? _korisnickoImeError;
-  Future<void> _save() async {
+ Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
     _formKey.currentState!.save();
 
     final provider = Provider.of<KorisnikProvider>(context, listen: false);
 
-    if (_korisnickoIme != null && _korisnickoIme != _korisnik!.korisnickoIme) {
+    bool korisnickoImePromijenjeno = _korisnickoIme != null && _korisnickoIme != _korisnik!.korisnickoIme;
+    bool lozinkaPromijenjena = _lozinka != null && _lozinka!.isNotEmpty;
+
+    if (korisnickoImePromijenjeno) {
       final zauzeto = await provider.korisnickoImeZauzeto(_korisnickoIme!);
       if (zauzeto) {
         setState(() {
@@ -85,18 +88,47 @@ class _ProfilScreenState extends State<ProfilScreen> {
       }
     }
 
+    if (korisnickoImePromijenjeno || lozinkaPromijenjena) {
+      final potvrda = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text("Potvrda izmjene"),
+          content: Text(
+            "Mijenjanje korisničkog imena ili šifre zahtijeva da se ponovo prijavite na aplikaciju.\n\nDa li ste sigurni da želite nastaviti?"
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: Text("Otkaži"),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: Text("Nastavi"),
+            ),
+          ],
+        ),
+      );
+      if (potvrda != true) return;
+    }
+
     await provider.update(_korisnik!.id, {
       'ime': _ime,
       'prezime': _prezime,
       'email': _email,
       'korisnickoIme': _korisnickoIme,
       'slikaBase64': _slikaBase64,
-      'lozinka': _lozinka?.isNotEmpty == true ? _lozinka : null,
-      'lozinkaPotvrda':
-          _lozinkaPotvrda?.isNotEmpty == true ? _lozinkaPotvrda : null,
+      'lozinka': lozinkaPromijenjena ? _lozinka : null,
+      'lozinkaPotvrda': lozinkaPromijenjena ? _lozinkaPotvrda : null,
     });
-    setState(() => _isEditing = false);
-    _fetchKorisnik();
+
+    if (korisnickoImePromijenjeno || lozinkaPromijenjena) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => LoginPage()),
+      );
+    } else {
+      setState(() => _isEditing = false);
+      _fetchKorisnik();
+    }
   }
 
   Future<void> _deleteProfile() async {

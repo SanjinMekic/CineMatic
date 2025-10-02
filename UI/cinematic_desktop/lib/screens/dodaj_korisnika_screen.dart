@@ -84,17 +84,18 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
     _formKey.currentState!.save();
 
     setState(() {
-      _isSaving = true; // Disable dugme
+      _isSaving = true;
     });
 
     final provider = Provider.of<KorisnikProvider>(context, listen: false);
 
-    if (widget.korisnik == null) {
-      final zauzeto = await provider.korisnickoImeZauzeto(_korisnickoIme ?? "");
-      if (zauzeto) {
+    if (_korisnickoIme != null) {
+      final zauzeto = await provider.korisnickoImeZauzeto(_korisnickoIme!);
+      final editingOwnUsername = widget.korisnik != null && _korisnickoIme == widget.korisnik!.korisnickoIme;
+      if (zauzeto && !editingOwnUsername) {
         setState(() {
           _korisnickoImeError = "Korisničko ime je zauzeto!";
-          _isSaving = false; // Omogući dugme
+          _isSaving = false;
         });
         return;
       }
@@ -125,7 +126,6 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
     }
 
     if (mounted) Navigator.of(context).pop(true);
-    // Dugme ostaje disabled dok se ne ode na prethodni screen
   }
 
   @override
