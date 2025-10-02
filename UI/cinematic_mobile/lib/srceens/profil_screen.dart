@@ -28,6 +28,8 @@ class _ProfilScreenState extends State<ProfilScreen> {
   String? _slikaBase64;
   String? _slikaError;
 
+  String? _korisnickoImeError;
+
   @override
   void initState() {
     super.initState();
@@ -76,9 +78,31 @@ class _ProfilScreenState extends State<ProfilScreen> {
     }
   }
 
-  Future<void> _save() async {
+  Future<bool> _provjeriKorisnickoImeZauzeto(String korisnickoIme) async {
+    final provider = Provider.of<KorisnikProvider>(context, listen: false);
+    if (korisnickoIme == _korisnik?.korisnickoIme) return false;
+    return await provider.korisnickoImeZauzeto(korisnickoIme);
+  }
+
+  
+
+   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
     _formKey.currentState!.save();
+
+    setState(() {
+      _korisnickoImeError = null;
+    });
+
+    if (_korisnickoIme != null && _korisnickoIme!.trim().isNotEmpty) {
+      final zauzeto = await _provjeriKorisnickoImeZauzeto(_korisnickoIme!.trim());
+      if (zauzeto) {
+        setState(() {
+          _korisnickoImeError = "Korisničko ime je zauzeto, molimo unesite drugo.";
+        });
+        return;
+      }
+    }
 
     final provider = Provider.of<KorisnikProvider>(context, listen: false);
     await provider.update(_korisnik!.id, {
@@ -186,7 +210,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
                     builder: (context) => AlertDialog(
                       title: const Text("Jeste li sigurni?"),
                       content: const Text(
-                        "Ova akcija je nepovratna. Da li zaista želite obrisati svoj korisnički nalog?",
+                        "Da li zaista želite obrisati svoj korisnički nalog?",
                       ),
                       actions: [
                         TextButton(
@@ -302,6 +326,14 @@ class _ProfilScreenState extends State<ProfilScreen> {
                             v == null || v.isEmpty ? "Obavezno polje" : null,
                         onSaved: (v) => _korisnickoIme = v,
                       ),
+                       if (_korisnickoImeError != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 6.0),
+                          child: Text(
+                            _korisnickoImeError!,
+                            style: const TextStyle(color: Colors.red, fontSize: 14),
+                          ),
+                        ),
                       const SizedBox(height: 12),
                       TextFormField(
                         initialValue: _email,
