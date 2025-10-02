@@ -28,6 +28,8 @@ class _RecenzijeScreenState extends State<RecenzijeScreen> {
 
   Map<int, Korisnik?> _korisniciRecenzija = {};
 
+  String? _komentarError;
+
   @override
   void initState() {
     super.initState();
@@ -47,16 +49,19 @@ class _RecenzijeScreenState extends State<RecenzijeScreen> {
         vecKomentarisano = await provider.vecOcijenjeno(mojId, widget.filmId);
         if (vecKomentarisano) {
           moja = result.firstWhere(
-  (rec) => rec.korisnikId == mojId,
-  orElse: () => Recenzija(),
-);
-if (moja.id == null) {
-  moja = null;
-}
+            (rec) => rec.korisnikId == mojId,
+            orElse: () => Recenzija(),
+          );
+          if (moja.id == null) {
+            moja = null;
+          }
         }
       }
 
-      final korisnikProvider = Provider.of<KorisnikProvider>(context, listen: false);
+      final korisnikProvider = Provider.of<KorisnikProvider>(
+        context,
+        listen: false,
+      );
       Map<int, Korisnik?> korisnici = {};
       for (var rec in result) {
         if (rec.korisnikId != null) {
@@ -100,10 +105,20 @@ if (moja.id == null) {
   }
 
   Future<void> _posaljiRecenziju({bool edit = false}) async {
-    if (_komentarController.text.trim().isEmpty) return;
+    if (_komentarController.text.trim().isEmpty) {
+      setState(() {
+        _komentarError = "Unesite komentar";
+      });
+      return;
+    }
+    setState(() {
+      _komentarError = null;
+    });
     if (AuthProvider.korisnikId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Morate biti prijavljeni da biste ostavili recenziju.")),
+        const SnackBar(
+          content: Text("Morate biti prijavljeni da biste ostavili recenziju."),
+        ),
       );
       return;
     }
@@ -130,7 +145,13 @@ if (moja.id == null) {
       await _fetchRecenzije();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(edit ? "Recenzija uspješno izmijenjena!" : "Recenzija uspješno dodana!")),
+          SnackBar(
+            content: Text(
+              edit
+                  ? "Recenzija uspješno izmijenjena!"
+                  : "Recenzija uspješno dodana!",
+            ),
+          ),
         );
       }
     } catch (e) {
@@ -160,9 +181,9 @@ if (moja.id == null) {
       _novaOcjena = 5;
       await _fetchRecenzije();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Recenzija obrisana!")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("Recenzija obrisana!")));
       }
     } catch (e) {
       if (mounted) {
@@ -181,286 +202,451 @@ if (moja.id == null) {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Recenzije filma")),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SafeArea(
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  return SingleChildScrollView(
-                    padding: const EdgeInsets.all(16),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minHeight: constraints.maxHeight,
-                      ),
-                      child: IntrinsicHeight(
-                        child: Column(
-                          children: [
-                            Card(
-                              color: Colors.blue[50],
-                              elevation: 3,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    const Icon(Icons.star, color: Colors.amber, size: 32),
-                                    const SizedBox(width: 10),
-                                    Text(
-                                      _ukupnaOcjena.toStringAsFixed(2),
-                                      style: const TextStyle(
-                                        fontSize: 28,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.blue,
+      body:
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : SafeArea(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SingleChildScrollView(
+                      padding: const EdgeInsets.all(16),
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight,
+                        ),
+                        child: IntrinsicHeight(
+                          child: Column(
+                            children: [
+                              Card(
+                                color: Colors.blue[50],
+                                elevation: 3,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 18,
+                                    horizontal: 16,
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(
+                                        Icons.star,
+                                        color: Colors.amber,
+                                        size: 32,
                                       ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Text(
-                                      "(${_recenzije.length} recenzija)",
-                                      style: const TextStyle(fontSize: 16, color: Colors.black54),
-                                    ),
-                                  ],
+                                      const SizedBox(width: 10),
+                                      Text(
+                                        _ukupnaOcjena.toStringAsFixed(2),
+                                        style: const TextStyle(
+                                          fontSize: 28,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.blue,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Text(
+                                        "(${_recenzije.length} recenzija)",
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          color: Colors.black54,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(height: 18),
-                            Card(
-                              elevation: 2,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                              child: Padding(
-                                padding: const EdgeInsets.all(14),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      "Dodaj/uredi svoju recenziju",
-                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
-                                    ),
-                                    const SizedBox(height: 10),
-                                    Row(
-                                      children: [
-                                        const Text("Ocjena:", style: TextStyle(fontSize: 15)),
-                                        const SizedBox(width: 10),
-                                        for (int i = 1; i <= 5; i++)
-                                          IconButton(
-                                            icon: Icon(
-                                              i <= _novaOcjena ? Icons.star : Icons.star_border,
-                                              color: Colors.amber,
-                                            ),
-                                            onPressed: _saljeSe
-                                                ? null
-                                                : () {
-                                                    setState(() {
-                                                      _novaOcjena = i.toDouble();
-                                                    });
-                                                  },
-                                          ),
-                                      ],
-                                    ),
-                                    TextField(
-                                      controller: _komentarController,
-                                      enabled: !_saljeSe && (_mojaRecenzija == null || _mojaRecenzija != null),
-                                      maxLines: 3,
-                                      maxLength: 300,
-                                      decoration: const InputDecoration(
-                                        labelText: "Komentar",
-                                        border: OutlineInputBorder(),
+                              const SizedBox(height: 18),
+                              Card(
+                                elevation: 2,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(14),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        "Dodaj/uredi svoju recenziju",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 17,
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    if (_mojaRecenzija != null)
+                                      const SizedBox(height: 10),
                                       Row(
                                         children: [
-                                          Expanded(
-                                            child: ElevatedButton.icon(
-                                              icon: const Icon(Icons.save),
-                                              label: const Text("Izmijeni recenziju"),
-                                              onPressed: _saljeSe
-                                                  ? null
-                                                  : () => _posaljiRecenziju(edit: true),
-                                            ),
+                                          const Text(
+                                            "Ocjena:",
+                                            style: TextStyle(fontSize: 15),
                                           ),
                                           const SizedBox(width: 10),
-                                          ElevatedButton.icon(
-                                            icon: const Icon(Icons.delete),
-                                            label: const Text("Obriši"),
-                                            style: ElevatedButton.styleFrom(
-                                              backgroundColor: Colors.red,
-                                              foregroundColor: Colors.white,
+                                          for (int i = 1; i <= 5; i++)
+                                            IconButton(
+                                              icon: Icon(
+                                                i <= _novaOcjena
+                                                    ? Icons.star
+                                                    : Icons.star_border,
+                                                color: Colors.amber,
+                                              ),
+                                              onPressed:
+                                                  _saljeSe
+                                                      ? null
+                                                      : () {
+                                                        setState(() {
+                                                          _novaOcjena =
+                                                              i.toDouble();
+                                                        });
+                                                      },
                                             ),
-                                            onPressed: _saljeSe ? null : _obrisiRecenziju,
-                                          ),
                                         ],
-                                      )
-                                    else
-                                      SizedBox(
-                                        width: double.infinity,
-                                        child: ElevatedButton.icon(
-                                          icon: const Icon(Icons.send),
-                                          label: const Text("Pošalji recenziju"),
-                                          onPressed: _saljeSe
-                                              ? null
-                                              : (_mojaRecenzija != null
-                                                  ? null
-                                                  : _posaljiRecenziju),
-                                        ),
                                       ),
-                                    if (_mojaRecenzija != null)
-                                      Padding(
-                                        padding: const EdgeInsets.only(top: 8.0),
-                                        child: Text(
-                                          "Već ste komentarisali ovaj film. Možete urediti ili obrisati svoju recenziju.",
-                                          style: TextStyle(color: Colors.blue[700], fontSize: 13),
+                                      TextField(
+                                        controller: _komentarController,
+                                        enabled:
+                                            !_saljeSe &&
+                                            (_mojaRecenzija == null ||
+                                                _mojaRecenzija != null),
+                                        maxLines: 3,
+                                        maxLength: 300,
+                                        decoration: InputDecoration(
+                                          labelText: "Komentar",
+                                          border: OutlineInputBorder(),
+                                          errorText: _komentarError,
                                         ),
+                                        onChanged: (_) {
+                                          if (_komentarError != null &&
+                                              _komentarController.text
+                                                  .trim()
+                                                  .isNotEmpty) {
+                                            setState(() {
+                                              _komentarError = null;
+                                            });
+                                          }
+                                        },
                                       ),
-                                    if (_mojaRecenzija == null)
-                                      Padding(
-                                        padding: const EdgeInsets.only(top: 8.0),
-                                        child: Text(
-                                          "",
-                                          style: TextStyle(color: Colors.blue[700], fontSize: 13),
+                                      const SizedBox(height: 8),
+                                      if (_mojaRecenzija != null)
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: ElevatedButton.icon(
+                                                icon: const Icon(Icons.save),
+                                                label: const Text(
+                                                  "Izmijeni recenziju",
+                                                ),
+                                                onPressed:
+                                                    _saljeSe
+                                                        ? null
+                                                        : () =>
+                                                            _posaljiRecenziju(
+                                                              edit: true,
+                                                            ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 10),
+                                            ElevatedButton.icon(
+                                              icon: const Icon(Icons.delete),
+                                              label: const Text("Obriši"),
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: Colors.red,
+                                                foregroundColor: Colors.white,
+                                              ),
+                                              onPressed:
+                                                  _saljeSe
+                                                      ? null
+                                                      : _obrisiRecenziju,
+                                            ),
+                                          ],
+                                        )
+                                      else
+                                        SizedBox(
+                                          width: double.infinity,
+                                          child: ElevatedButton.icon(
+                                            icon: const Icon(Icons.send),
+                                            label: const Text(
+                                              "Pošalji recenziju",
+                                            ),
+                                            onPressed:
+                                                _saljeSe
+                                                    ? null
+                                                    : (_mojaRecenzija != null
+                                                        ? null
+                                                        : _posaljiRecenziju),
+                                          ),
                                         ),
-                                      ),
-                                  ],
+                                      if (_mojaRecenzija != null)
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            top: 8.0,
+                                          ),
+                                          child: Text(
+                                            "Već ste komentarisali ovaj film. Možete urediti ili obrisati svoju recenziju.",
+                                            style: TextStyle(
+                                              color: Colors.blue[700],
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                        ),
+                                      if (_mojaRecenzija == null)
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            top: 8.0,
+                                          ),
+                                          child: Text(
+                                            "",
+                                            style: TextStyle(
+                                              color: Colors.blue[700],
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(height: 18),
-                            SizedBox(
-                              height: 350,
-                              child: _recenzije.isEmpty
-                                  ? const Center(child: Text("Nema recenzija za ovaj film."))
-                                  : ListView.separated(
-                                      shrinkWrap: true,
-                                      physics: const NeverScrollableScrollPhysics(),
-                                      itemCount: _recenzije.length,
-                                      separatorBuilder: (_, __) => const SizedBox(height: 14),
-                                      itemBuilder: (context, index) {
-                                        final r = _recenzije[index];
-                                        final korisnik = r.korisnikId != null ? _korisniciRecenzija[r.korisnikId!] : null;
-                                        final datum = r.datumIvrijeme != null
-                                            ? DateFormat('dd.MM.yyyy. HH:mm').format(r.datumIvrijeme!)
-                                            : "";
+                              const SizedBox(height: 18),
+                              SizedBox(
+                                height: 350,
+                                child:
+                                    _recenzije.isEmpty
+                                        ? const Center(
+                                          child: Text(
+                                            "Nema recenzija za ovaj film.",
+                                          ),
+                                        )
+                                        : ListView.separated(
+                                          shrinkWrap: true,
+                                          physics:
+                                              const NeverScrollableScrollPhysics(),
+                                          itemCount: _recenzije.length,
+                                          separatorBuilder:
+                                              (_, __) =>
+                                                  const SizedBox(height: 14),
+                                          itemBuilder: (context, index) {
+                                            final r = _recenzije[index];
+                                            final korisnik =
+                                                r.korisnikId != null
+                                                    ? _korisniciRecenzija[r
+                                                        .korisnikId!]
+                                                    : null;
+                                            final datum =
+                                                r.datumIvrijeme != null
+                                                    ? DateFormat(
+                                                      'dd.MM.yyyy. HH:mm',
+                                                    ).format(r.datumIvrijeme!)
+                                                    : "";
 
-                                        bool isObrisan = korisnik?.obrisan == true;
+                                            bool isObrisan =
+                                                korisnik?.obrisan == true;
 
-                                        ImageProvider? imageProvider;
-                                        if (isObrisan) {
-                                          imageProvider = null;
-                                        } else if (korisnik?.slikaBase64 != null && korisnik!.slikaBase64!.isNotEmpty) {
-                                          try {
-                                            final base64Str = korisnik.slikaBase64!.contains(',')
-                                                ? korisnik.slikaBase64!.split(',').last
-                                                : korisnik.slikaBase64!;
-                                            imageProvider = MemoryImage(base64Decode(base64Str));
-                                          } catch (e) {
-                                            imageProvider = null;
-                                          }
-                                        }
+                                            ImageProvider? imageProvider;
+                                            if (isObrisan) {
+                                              imageProvider = null;
+                                            } else if (korisnik?.slikaBase64 !=
+                                                    null &&
+                                                korisnik!
+                                                    .slikaBase64!
+                                                    .isNotEmpty) {
+                                              try {
+                                                final base64Str =
+                                                    korisnik.slikaBase64!
+                                                            .contains(',')
+                                                        ? korisnik.slikaBase64!
+                                                            .split(',')
+                                                            .last
+                                                        : korisnik.slikaBase64!;
+                                                imageProvider = MemoryImage(
+                                                  base64Decode(base64Str),
+                                                );
+                                              } catch (e) {
+                                                imageProvider = null;
+                                              }
+                                            }
 
-                                        final isMyReview = r.korisnikId == AuthProvider.korisnikId;
+                                            final isMyReview =
+                                                r.korisnikId ==
+                                                AuthProvider.korisnikId;
 
-                                        return Card(
-                                          elevation: 2,
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(14),
-                                            child: Row(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                CircleAvatar(
-                                                  radius: 26,
-                                                  backgroundColor: isObrisan ? Colors.red[100] : Colors.blue[100],
-                                                  backgroundImage: imageProvider,
-                                                  child: isObrisan
-                                                      ? Icon(Icons.person_off, size: 28, color: Colors.red)
-                                                      : (imageProvider == null
-                                                          ? Icon(Icons.person, size: 28, color: Colors.blue)
-                                                          : null),
+                                            return Card(
+                                              elevation: 2,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(14),
+                                              ),
+                                              child: Padding(
+                                                padding: const EdgeInsets.all(
+                                                  14,
                                                 ),
-                                                const SizedBox(width: 14),
-                                                Expanded(
-                                                  child: Column(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                    children: [
-                                                      Row(
-                                                        children: [
+                                                child: Row(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    CircleAvatar(
+                                                      radius: 26,
+                                                      backgroundColor:
                                                           isObrisan
-                                                            ? Text(
-                                                                "Obrisan nalog",
-                                                                style: const TextStyle(
-                                                                  fontWeight: FontWeight.bold,
-                                                                  fontSize: 16,
-                                                                  color: Colors.red,
-                                                                ),
+                                                              ? Colors.red[100]
+                                                              : Colors
+                                                                  .blue[100],
+                                                      backgroundImage:
+                                                          imageProvider,
+                                                      child:
+                                                          isObrisan
+                                                              ? Icon(
+                                                                Icons
+                                                                    .person_off,
+                                                                size: 28,
+                                                                color:
+                                                                    Colors.red,
                                                               )
-                                                            : Text(
-                                                                "${korisnik?.ime ?? "Obrisan nalog"} ${korisnik?.prezime ?? ""}",
+                                                              : (imageProvider ==
+                                                                      null
+                                                                  ? Icon(
+                                                                    Icons
+                                                                        .person,
+                                                                    size: 28,
+                                                                    color:
+                                                                        Colors
+                                                                            .blue,
+                                                                  )
+                                                                  : null),
+                                                    ),
+                                                    const SizedBox(width: 14),
+                                                    Expanded(
+                                                      child: Column(
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Row(
+                                                            children: [
+                                                              isObrisan
+                                                                  ? Text(
+                                                                    "Obrisan nalog",
+                                                                    style: const TextStyle(
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                      fontSize:
+                                                                          16,
+                                                                      color:
+                                                                          Colors
+                                                                              .red,
+                                                                    ),
+                                                                  )
+                                                                  : Text(
+                                                                    "${korisnik?.ime ?? "Obrisan nalog"} ${korisnik?.prezime ?? ""}",
+                                                                    style: const TextStyle(
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                      fontSize:
+                                                                          16,
+                                                                    ),
+                                                                  ),
+                                                              const SizedBox(
+                                                                width: 8,
+                                                              ),
+                                                              Icon(
+                                                                Icons.star,
+                                                                color:
+                                                                    Colors
+                                                                        .amber,
+                                                                size: 18,
+                                                              ),
+                                                              Text(
+                                                                "${r.ocjena ?? "-"}",
                                                                 style: const TextStyle(
-                                                                  fontWeight: FontWeight.bold,
-                                                                  fontSize: 16,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold,
+                                                                  fontSize: 15,
                                                                 ),
                                                               ),
-                                                          const SizedBox(width: 8),
-                                                          Icon(Icons.star, color: Colors.amber, size: 18),
-                                                          Text(
-                                                            "${r.ocjena ?? "-"}",
-                                                            style: const TextStyle(
-                                                              fontWeight: FontWeight.bold,
-                                                              fontSize: 15,
-                                                            ),
-                                                          ),
-                                                          if (isMyReview)
-                                                            Padding(
-                                                              padding: const EdgeInsets.only(left: 8.0),
-                                                              child: Container(
-                                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                                                decoration: BoxDecoration(
-                                                                  color: Colors.blue[100],
-                                                                  borderRadius: BorderRadius.circular(8),
-                                                                ),
-                                                                child: const Text(
-                                                                  "Vaša recenzija",
-                                                                  style: TextStyle(
-                                                                    color: Colors.blue,
-                                                                    fontSize: 12,
-                                                                    fontWeight: FontWeight.bold,
+                                                              if (isMyReview)
+                                                                Padding(
+                                                                  padding:
+                                                                      const EdgeInsets.only(
+                                                                        left:
+                                                                            8.0,
+                                                                      ),
+                                                                  child: Container(
+                                                                    padding: const EdgeInsets.symmetric(
+                                                                      horizontal:
+                                                                          8,
+                                                                      vertical:
+                                                                          2,
+                                                                    ),
+                                                                    decoration: BoxDecoration(
+                                                                      color:
+                                                                          Colors
+                                                                              .blue[100],
+                                                                      borderRadius:
+                                                                          BorderRadius.circular(
+                                                                            8,
+                                                                          ),
+                                                                    ),
+                                                                    child: const Text(
+                                                                      "Vaša recenzija",
+                                                                      style: TextStyle(
+                                                                        color:
+                                                                            Colors.blue,
+                                                                        fontSize:
+                                                                            12,
+                                                                        fontWeight:
+                                                                            FontWeight.bold,
+                                                                      ),
+                                                                    ),
                                                                   ),
                                                                 ),
+                                                            ],
+                                                          ),
+                                                          if (datum.isNotEmpty)
+                                                            Padding(
+                                                              padding:
+                                                                  const EdgeInsets.only(
+                                                                    top: 2.0,
+                                                                    bottom: 6,
+                                                                  ),
+                                                              child: Text(
+                                                                datum,
+                                                                style: const TextStyle(
+                                                                  fontSize: 13,
+                                                                  color:
+                                                                      Colors
+                                                                          .grey,
+                                                                ),
                                                               ),
                                                             ),
+                                                          Text(
+                                                            r.komentar ?? "",
+                                                            style:
+                                                                const TextStyle(
+                                                                  fontSize: 15,
+                                                                ),
+                                                          ),
                                                         ],
                                                       ),
-                                                      if (datum.isNotEmpty)
-                                                        Padding(
-                                                          padding: const EdgeInsets.only(top: 2.0, bottom: 6),
-                                                          child: Text(
-                                                            datum,
-                                                            style: const TextStyle(fontSize: 13, color: Colors.grey),
-                                                          ),
-                                                        ),
-                                                      Text(
-                                                        r.komentar ?? "",
-                                                        style: const TextStyle(fontSize: 15),
-                                                      ),
-                                                    ],
-                                                  ),
+                                                    ),
+                                                  ],
                                                 ),
-                                              ],
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                            ),
-                          ],
+                                              ),
+                                            );
+                                          },
+                                        ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
-            ),
     );
   }
 }

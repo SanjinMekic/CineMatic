@@ -336,9 +336,7 @@ class _RezervacijeScreenState extends State<RezervacijeScreen> {
                                         const SizedBox(width: 6),
                                         Expanded(
                                           child: Text(
-                                            "Sjedista: ${sjedista.isNotEmpty ? sjedista.map((s) => s.naziv ?? '').join(', ') : '-'}",
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
+                                            "Sjedista: ${sjedista.isNotEmpty ? sjedista.map((s) => s.naziv ?? '').join(', ') : '-'}"
                                           ),
                                         ),
                                       ],
@@ -352,8 +350,6 @@ class _RezervacijeScreenState extends State<RezervacijeScreen> {
                                         Expanded(
                                           child: Text(
                                             "Hrana i piće: ${_formatHranaPiceSaKolicinama(r, hranaPice)}",
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
                                       ],
