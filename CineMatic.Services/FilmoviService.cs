@@ -113,6 +113,19 @@ namespace CineMatic.Services
             };
         }
 
+        public override void Delete(int id)
+        {
+            bool imaAktivnih = Context.Projekcijes
+                .Any(p => p.Stanje == "active" && p.FilmId == id);
+
+            if (imaAktivnih)
+            {
+                throw new InvalidOperationException("Ne može se obrisati jer postoje aktivne projekcije koje prikazuju ovaj film!");
+            }
+
+            base.Delete(id);
+        }
+
         public override Model.Filmovi GetById(int id)
         {
             var entity = Context.Filmovis.Include(f => f.DobnaRestrikcija)

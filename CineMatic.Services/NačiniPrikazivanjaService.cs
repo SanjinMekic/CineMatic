@@ -27,5 +27,18 @@ namespace CineMatic.Services
 
             return filteredQuery;
         }
+
+        public override void Delete(int id)
+        {
+            bool imaAktivnih = Context.Projekcijes
+                .Any(p => p.Stanje == "active" && p.NačinProjekcijeId == id);
+
+            if (imaAktivnih)
+            {
+                throw new InvalidOperationException("Ne može se obrisati jer postoje aktivne projekcije koje koriste ovaj način projekcije!");
+            }
+
+            base.Delete(id);
+        }
     }
 }

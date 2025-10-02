@@ -309,6 +309,11 @@ namespace CineMatic.Services
             if (entity == null)
                 throw new KeyNotFoundException($"Korisnik sa ID {id} nije pronađen.");
 
+            if(entity.KorisnickoIme == "admin")
+            {
+                throw new Exception("Sistemski administrator ne moze biti obrisan!");
+            }
+
             if (entity.Obrisan == true)
                 return;
 
