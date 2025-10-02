@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:cinematic_desktop/models/korisnik.dart';
 import 'package:cinematic_desktop/providers/auth_provider.dart';
 import 'package:cinematic_desktop/providers/korisnik_provider.dart';
+import 'package:cinematic_desktop/screens/login_screen.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -82,265 +83,459 @@ class _ProfilScreenState extends State<ProfilScreen> {
     _fetchKorisnik();
   }
 
+  Future<void> _deleteProfile() async {
+    String? enteredPassword;
+    String? passwordError;
+
+    bool passwordOk = false;
+
+    passwordOk =
+        await showDialog<bool>(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) {
+            return StatefulBuilder(
+              builder: (context, setState) {
+                return AlertDialog(
+                  title: Text("Potvrda brisanja profila"),
+                  content: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text("Unesite šifru za potvrdu brisanja profila:"),
+                      const SizedBox(height: 12),
+                      TextField(
+                        obscureText: true,
+                        autofocus: true,
+                        decoration: InputDecoration(
+                          labelText: "Šifra",
+                          border: OutlineInputBorder(),
+                        ),
+                        onChanged: (v) {
+                          enteredPassword = v;
+                          if (passwordError != null) {
+                            setState(() => passwordError = null);
+                          }
+                        },
+                      ),
+                      if (passwordError != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            passwordError!,
+                            style: TextStyle(color: Colors.red, fontSize: 13),
+                          ),
+                        ),
+                    ],
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: Text("Otkaži"),
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        final provider = Provider.of<AuthProvider>(
+                          context,
+                          listen: false,
+                        );
+                        final korisnickoIme = _korisnik?.korisnickoIme ?? "";
+                        final korisnik = await provider.login(
+                          korisnickoIme,
+                          enteredPassword ?? "",
+                        );
+                        if (korisnik != null) {
+                          Navigator.of(context).pop(true);
+                        } else {
+                          setState(() {
+                            passwordError = "Pogrešna šifra. Pokušajte ponovo.";
+                          });
+                        }
+                      },
+                      child: Text("Potvrdi"),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+        ) ??
+        false;
+
+    if (!passwordOk) return;
+
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text("Upozorenje"),
+            content: Text("Da li ste sigurni da želite obrisati svoj profil?"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text("Otkaži"),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Text("Obriši", style: TextStyle(color: Colors.red)),
+              ),
+            ],
+          ),
+    );
+
+    if (confirm == true) {
+      final provider = Provider.of<KorisnikProvider>(context, listen: false);
+      await provider.delete(_korisnik!.id);
+      Navigator.of(
+        context,
+      ).pushReplacement(MaterialPageRoute(builder: (_) => LoginPage()));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
+    final isAdmin = _korisnik?.korisnickoIme == "admin";
+
     return Scaffold(
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(32),
-          child: _isEditing
-              ? Form(
-                  key: _formKey,
-                  child: Center(
-                    child: Container(
-                      constraints: BoxConstraints(maxWidth: 480),
-                      child: ListView(
-                        shrinkWrap: true,
-                        children: [
-                          GestureDetector(
-                            onTap: _pickImage,
-                            child: CircleAvatar(
-                              radius: 70,
-                              backgroundImage: _slikaBase64 != null
-                                  ? MemoryImage(base64Decode(_slikaBase64!))
-                                  : null,
-                              child: _slikaBase64 == null
-                                  ? Icon(Icons.person, size: 70)
-                                  : null,
+          child:
+              _isEditing
+                  ? Form(
+                    key: _formKey,
+                    child: Center(
+                      child: Container(
+                        constraints: BoxConstraints(maxWidth: 480),
+                        child: ListView(
+                          shrinkWrap: true,
+                          children: [
+                            GestureDetector(
+                              onTap: _pickImage,
+                              child: CircleAvatar(
+                                radius: 70,
+                                backgroundImage:
+                                    _slikaBase64 != null
+                                        ? MemoryImage(
+                                          base64Decode(_slikaBase64!),
+                                        )
+                                        : null,
+                                child:
+                                    _slikaBase64 == null
+                                        ? Icon(Icons.person, size: 70)
+                                        : null,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 24),
-                          Text(
-                            "Uredi profil",
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 26,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blueGrey[800],
+                            const SizedBox(height: 24),
+                            Text(
+                              "Uredi profil",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.blueGrey[800],
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 24),
-                          TextFormField(
-                            initialValue: _ime,
-                            decoration: InputDecoration(
-                              labelText: "Ime",
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.person),
+                            const SizedBox(height: 24),
+                            TextFormField(
+                              initialValue: _ime,
+                              decoration: InputDecoration(
+                                labelText: "Ime",
+                                border: OutlineInputBorder(),
+                                prefixIcon: Icon(Icons.person),
+                              ),
+                              validator:
+                                  (v) =>
+                                      v == null || v.isEmpty
+                                          ? "Obavezno polje"
+                                          : null,
+                              onSaved: (v) => _ime = v,
                             ),
-                            validator: (v) =>
-                                v == null || v.isEmpty ? "Obavezno polje" : null,
-                            onSaved: (v) => _ime = v,
-                          ),
-                          const SizedBox(height: 16),
-                          TextFormField(
-                            initialValue: _prezime,
-                            decoration: InputDecoration(
-                              labelText: "Prezime",
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.person_outline),
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              initialValue: _prezime,
+                              decoration: InputDecoration(
+                                labelText: "Prezime",
+                                border: OutlineInputBorder(),
+                                prefixIcon: Icon(Icons.person_outline),
+                              ),
+                              validator:
+                                  (v) =>
+                                      v == null || v.isEmpty
+                                          ? "Obavezno polje"
+                                          : null,
+                              onSaved: (v) => _prezime = v,
                             ),
-                            validator: (v) =>
-                                v == null || v.isEmpty ? "Obavezno polje" : null,
-                            onSaved: (v) => _prezime = v,
-                          ),
-                          const SizedBox(height: 16),
-                          TextFormField(
-                            initialValue: _korisnickoIme,
-                            decoration: InputDecoration(
-                              labelText: "Korisničko ime",
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.account_circle),
+                            const SizedBox(height: 16),
+                            if (!isAdmin)
+                              TextFormField(
+                                initialValue: _korisnickoIme,
+                                decoration: InputDecoration(
+                                  labelText: "Korisničko ime",
+                                  border: OutlineInputBorder(),
+                                  prefixIcon: Icon(Icons.account_circle),
+                                ),
+                                validator:
+                                    (v) =>
+                                        v == null || v.isEmpty
+                                            ? "Obavezno polje"
+                                            : null,
+                                onSaved: (v) => _korisnickoIme = v,
+                              ),
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              initialValue: _email,
+                              decoration: InputDecoration(
+                                labelText: "Email",
+                                border: OutlineInputBorder(),
+                                prefixIcon: Icon(Icons.email),
+                              ),
+                              validator:
+                                  (v) =>
+                                      v == null || v.isEmpty
+                                          ? "Obavezno polje"
+                                          : null,
+                              onSaved: (v) => _email = v,
                             ),
-                            validator: (v) =>
-                                v == null || v.isEmpty ? "Obavezno polje" : null,
-                            onSaved: (v) => _korisnickoIme = v,
-                          ),
-                          const SizedBox(height: 16),
-                          TextFormField(
-                            initialValue: _email,
-                            decoration: InputDecoration(
-                              labelText: "Email",
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.email),
-                            ),
-                            validator: (v) =>
-                                v == null || v.isEmpty ? "Obavezno polje" : null,
-                            onSaved: (v) => _email = v,
-                          ),
-                          const SizedBox(height: 24),
-                          TextFormField(
-                            decoration: InputDecoration(
-                              labelText: "Nova lozinka",
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.lock),
-                            ),
-                            obscureText: true,
-                            onChanged: (v) => _lozinka = v,
-                            validator: (v) {
-                              if (v != null &&
-                                  v.isNotEmpty &&
-                                  (_lozinkaPotvrda == null ||
-                                      _lozinkaPotvrda!.isEmpty)) {
-                                return "Unesite potvrdu lozinke";
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 16),
-                          TextFormField(
-                            decoration: InputDecoration(
-                              labelText: "Potvrda lozinke",
-                              border: OutlineInputBorder(),
-                              prefixIcon: Icon(Icons.lock_outline),
-                            ),
-                            obscureText: true,
-                            onChanged: (v) => _lozinkaPotvrda = v,
-                            validator: (v) {
-                              if ((_lozinka != null && _lozinka!.isNotEmpty)) {
-                                if (v == null || v.isEmpty) {
+                            const SizedBox(height: 24),
+                            TextFormField(
+                              decoration: InputDecoration(
+                                labelText: "Nova lozinka",
+                                border: OutlineInputBorder(),
+                                prefixIcon: Icon(Icons.lock),
+                              ),
+                              obscureText: true,
+                              onChanged: (v) => _lozinka = v,
+                              validator: (v) {
+                                if (v != null &&
+                                    v.isNotEmpty &&
+                                    (_lozinkaPotvrda == null ||
+                                        _lozinkaPotvrda!.isEmpty)) {
                                   return "Unesite potvrdu lozinke";
                                 }
-                                if (v != _lozinka) {
-                                  return "Lozinke se ne podudaraju";
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              decoration: InputDecoration(
+                                labelText: "Potvrda lozinke",
+                                border: OutlineInputBorder(),
+                                prefixIcon: Icon(Icons.lock_outline),
+                              ),
+                              obscureText: true,
+                              onChanged: (v) => _lozinkaPotvrda = v,
+                              validator: (v) {
+                                if ((_lozinka != null &&
+                                    _lozinka!.isNotEmpty)) {
+                                  if (v == null || v.isEmpty) {
+                                    return "Unesite potvrdu lozinke";
+                                  }
+                                  if (v != _lozinka) {
+                                    return "Lozinke se ne podudaraju";
+                                  }
                                 }
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 32),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              TextButton(
-                                onPressed: () =>
-                                    setState(() => _isEditing = false),
-                                child: Text("Otkaži"),
-                              ),
-                              const SizedBox(width: 16),
-                              ElevatedButton(
-                                onPressed: _save,
-                                style: ElevatedButton.styleFrom(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 32, vertical: 14),
-                                  textStyle: TextStyle(fontSize: 16),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                ),
-                                child: Text("Sačuvaj"),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                        ],
-                      ),
-                    ),
-                  ),
-                )
-              : Center(
-                  child: Container(
-                    constraints: BoxConstraints(maxWidth: 500),
-                    child: Card(
-                      elevation: 8,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(32),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 48,
-                          horizontal: 48,
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            CircleAvatar(
-                              radius: 80,
-                              backgroundImage: _korisnik?.slikaBase64 != null
-                                  ? MemoryImage(
-                                      base64Decode(_korisnik!.slikaBase64!),
-                                    )
-                                  : null,
-                              child: _korisnik?.slikaBase64 == null
-                                  ? Icon(Icons.person, size: 80)
-                                  : null,
+                                return null;
+                              },
                             ),
                             const SizedBox(height: 32),
-                            Text(
-                              "${_korisnik?.ime ?? ""} ${_korisnik?.prezime ?? ""}",
-                              style: TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blueGrey[900],
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: 12),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                Icon(Icons.account_circle,
-                                    size: 22, color: Colors.grey[600]),
-                                const SizedBox(width: 8),
-                                Text(
-                                  _korisnik?.korisnickoIme ?? "",
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    color: Colors.grey[700],
+                                TextButton(
+                                  onPressed:
+                                      () => setState(() => _isEditing = false),
+                                  child: Text("Otkaži"),
+                                ),
+                                const SizedBox(width: 16),
+                                ElevatedButton(
+                                  onPressed: _save,
+                                  style: ElevatedButton.styleFrom(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 32,
+                                      vertical: 14,
+                                    ),
+                                    textStyle: TextStyle(fontSize: 16),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
                                   ),
+                                  child: Text("Sačuvaj"),
                                 ),
                               ],
                             ),
                             const SizedBox(height: 10),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.email,
-                                    size: 22, color: Colors.grey[600]),
-                                const SizedBox(width: 8),
-                                Text(
-                                  _korisnik?.email ?? "",
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    color: Colors.grey[800],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 32),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton.icon(
-                                icon: Icon(Icons.edit, size: 22),
-                                label: Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 12.0),
-                                  child: Text(
-                                    "Uredi profil",
-                                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                                  ),
-                                ),
-                                onPressed: () => setState(() => _isEditing = true),
-                                style: ElevatedButton.styleFrom(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 0,
-                                    vertical: 16,
-                                  ),
-                                  textStyle: TextStyle(fontSize: 18),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                ),
-                              ),
-                            ),
                           ],
                         ),
                       ),
                     ),
+                  )
+                  : Center(
+                    child: Container(
+                      constraints: BoxConstraints(maxWidth: 500),
+                      child: Card(
+                        elevation: 8,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(32),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 48,
+                            horizontal: 48,
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              CircleAvatar(
+                                radius: 80,
+                                backgroundImage:
+                                    _korisnik?.slikaBase64 != null
+                                        ? MemoryImage(
+                                          base64Decode(_korisnik!.slikaBase64!),
+                                        )
+                                        : null,
+                                child:
+                                    _korisnik?.slikaBase64 == null
+                                        ? Icon(Icons.person, size: 80)
+                                        : null,
+                              ),
+                              const SizedBox(height: 32),
+                              Text(
+                                "${_korisnik?.ime ?? ""} ${_korisnik?.prezime ?? ""}",
+                                style: TextStyle(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blueGrey[900],
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: 12),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.account_circle,
+                                    size: 22,
+                                    color: Colors.grey[600],
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    _korisnik?.korisnickoIme ?? "",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.grey[700],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.email,
+                                    size: 22,
+                                    color: Colors.grey[600],
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    _korisnik?.email ?? "",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      color: Colors.grey[800],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 32),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    width: !isAdmin ? 180 : double.infinity,
+                                    child: ElevatedButton.icon(
+                                      icon: Icon(Icons.edit, size: 22),
+                                      label: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 12.0,
+                                        ),
+                                        child: Text(
+                                          "Uredi profil",
+                                          style: TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      onPressed:
+                                          () =>
+                                              setState(() => _isEditing = true),
+                                      style: ElevatedButton.styleFrom(
+                                        padding: EdgeInsets.symmetric(
+                                          horizontal: 0,
+                                          vertical: 10,
+                                        ),
+                                        textStyle: TextStyle(fontSize: 18),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  if (!isAdmin) ...[
+                                    const SizedBox(width: 16),
+                                    SizedBox(
+                                      width: 180,
+                                      child: ElevatedButton.icon(
+                                        icon: Icon(
+                                          Icons.delete,
+                                          size: 22,
+                                          color: Colors.red,
+                                        ),
+                                        label: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 12.0,
+                                          ),
+                                          child: Text(
+                                            "Obriši profil",
+                                            style: TextStyle(
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.red,
+                                            ),
+                                          ),
+                                        ),
+                                        onPressed: _deleteProfile,
+                                        style: ElevatedButton.styleFrom(
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: 0,
+                                            vertical: 10,
+                                          ),
+                                          textStyle: TextStyle(fontSize: 18),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                          ),
+                                          foregroundColor: Colors.red,
+                                          side: BorderSide(color: Colors.red),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
         ),
       ),
     );

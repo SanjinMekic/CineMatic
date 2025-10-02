@@ -1,3 +1,4 @@
+import 'package:cinematic_desktop/providers/auth_provider.dart';
 import 'package:cinematic_desktop/providers/dobna_restrikcija_provider.dart';
 import 'package:cinematic_desktop/providers/faq_kategorija_provider.dart';
 import 'package:cinematic_desktop/providers/faq_provider.dart';
@@ -77,6 +78,9 @@ void main() {
         ),
         ChangeNotifierProvider<RezervacijaProvider>(
           create: (_) => RezervacijaProvider(),
+        ),
+        ChangeNotifierProvider<AuthProvider>(
+          create: (_) => AuthProvider(),
         ),
       ],
       child: const MyApp(),

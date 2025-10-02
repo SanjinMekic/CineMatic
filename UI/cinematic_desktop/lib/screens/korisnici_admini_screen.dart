@@ -1,4 +1,5 @@
 import 'package:cinematic_desktop/models/korisnik.dart';
+import 'package:cinematic_desktop/providers/auth_provider.dart';
 import 'package:cinematic_desktop/providers/korisnik_provider.dart';
 import 'package:cinematic_desktop/screens/dodaj_korisnika_screen.dart';
 import 'package:flutter/material.dart';
@@ -120,18 +121,40 @@ class _KorisniciAdminiScreenState extends State<KorisniciAdminiScreen> {
       );
       _fetchKorisnici();
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Greška: ${e.toString()}")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Greška: ${e.toString()}")));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final admini = _korisnici.where((k) => _isAdmin(k) && (k.obrisan != true)).toList();
-    final blagajnici = _korisnici.where((k) => _isBlagajnik(k) && !_isAdmin(k) && (k.obrisan != true)).toList();
-    final obicni = _korisnici.where((k) => !_isAdmin(k) && !_isBlagajnik(k) && (k.obrisan != true)).toList();
+    final sistemAdmini =
+        _korisnici
+            .where(
+              (k) =>
+                  _isAdmin(k) &&
+                  (k.korisnickoIme == "admin") &&
+                  (k.obrisan != true),
+            )
+            .toList();
+    final admini =
+        _korisnici.where((k) => _isAdmin(k) && (k.korisnickoIme != "admin") && (k.obrisan != true)).toList();
+    final blagajnici =
+        _korisnici
+            .where(
+              (k) => _isBlagajnik(k) && !_isAdmin(k) && (k.obrisan != true),
+            )
+            .toList();
+    final obicni =
+        _korisnici
+            .where(
+              (k) => !_isAdmin(k) && !_isBlagajnik(k) && (k.obrisan != true),
+            )
+            .toList();
     final obrisani = _korisnici.where((k) => k.obrisan == true).toList();
+
+    final isSistemAdminLoggedIn = AuthProvider.username == "admin";
 
     return Scaffold(
       body:
@@ -142,85 +165,85 @@ class _KorisniciAdminiScreenState extends State<KorisniciAdminiScreen> {
                 child: ListView(
                   children: [
                     Card(
-  margin: EdgeInsets.only(bottom: 24),
-  child: Padding(
-    padding: const EdgeInsets.all(16),
-    child: Column(
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _imeController,
-                decoration: InputDecoration(
-                  labelText: "Ime",
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-            SizedBox(width: 12),
-            Expanded(
-              child: TextField(
-                controller: _prezimeController,
-                decoration: InputDecoration(
-                  labelText: "Prezime",
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _korisnickoImeController,
-                decoration: InputDecoration(
-                  labelText: "Korisničko ime",
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-            SizedBox(width: 12),
-            Expanded(
-              child: TextField(
-                controller: _emailController,
-                decoration: InputDecoration(
-                  labelText: "Email",
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-          ],
-        ),
-        SizedBox(height: 12),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            ElevatedButton.icon(
-              icon: Icon(Icons.search),
-              label: Text("Pretraži"),
-              onPressed: _fetchKorisnici,
-            ),
-            const SizedBox(width: 8),
-            ElevatedButton.icon(
-              icon: Icon(Icons.clear),
-              label: Text("Očisti filtere"),
-              onPressed: () {
-                _imeController.clear();
-                _prezimeController.clear();
-                _korisnickoImeController.clear();
-                _emailController.clear();
-                _fetchKorisnici();
-              },
-            ),
-          ],
-        ),
-      ],
-    ),
-  ),
-),
+                      margin: EdgeInsets.only(bottom: 24),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: _imeController,
+                                    decoration: InputDecoration(
+                                      labelText: "Ime",
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: 12),
+                                Expanded(
+                                  child: TextField(
+                                    controller: _prezimeController,
+                                    decoration: InputDecoration(
+                                      labelText: "Prezime",
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 12),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: _korisnickoImeController,
+                                    decoration: InputDecoration(
+                                      labelText: "Korisničko ime",
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: 12),
+                                Expanded(
+                                  child: TextField(
+                                    controller: _emailController,
+                                    decoration: InputDecoration(
+                                      labelText: "Email",
+                                      border: OutlineInputBorder(),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 12),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                ElevatedButton.icon(
+                                  icon: Icon(Icons.search),
+                                  label: Text("Pretraži"),
+                                  onPressed: _fetchKorisnici,
+                                ),
+                                const SizedBox(width: 8),
+                                ElevatedButton.icon(
+                                  icon: Icon(Icons.clear),
+                                  label: Text("Očisti filtere"),
+                                  onPressed: () {
+                                    _imeController.clear();
+                                    _prezimeController.clear();
+                                    _korisnickoImeController.clear();
+                                    _emailController.clear();
+                                    _fetchKorisnici();
+                                  },
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                     ElevatedButton.icon(
                       icon: Icon(Icons.person_add),
                       label: Text("Dodaj admina/blagajnika/korisnika"),
@@ -235,18 +258,19 @@ class _KorisniciAdminiScreenState extends State<KorisniciAdminiScreen> {
                     ),
                     const SizedBox(height: 24),
                     Text(
-                      "Administratori",
+                      "Sistem administrator",
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
+                        color: Colors.blue[900],
                       ),
                     ),
                     const SizedBox(height: 8),
-                    admini.isEmpty
-                        ? const Text("Nema administratora.")
+                    sistemAdmini.isEmpty
+                        ? const Text("Nema sistem administratora.")
                         : Column(
                           children:
-                              admini
+                              sistemAdmini
                                   .map(
                                     (k) => ListTile(
                                       leading: CircleAvatar(
@@ -275,6 +299,68 @@ class _KorisniciAdminiScreenState extends State<KorisniciAdminiScreen> {
                                   )
                                   .toList(),
                         ),
+                    const SizedBox(height: 24),
+                    Text(
+                      "Administratori",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    admini.isEmpty
+                        ? const Text("Nema administratora.")
+                        : Column(
+                            children: admini
+                                .map(
+                                  (k) => ListTile(
+                                    leading: CircleAvatar(
+                                      backgroundImage: k.slikaBase64 != null
+                                          ? MemoryImage(base64Decode(k.slikaBase64!))
+                                          : null,
+                                      child: k.slikaBase64 == null
+                                          ? Icon(Icons.person)
+                                          : null,
+                                    ),
+                                    title: Text(
+                                      "${k.ime ?? ""} ${k.prezime ?? ""}",
+                                    ),
+                                    subtitle: Text(k.korisnickoIme ?? ""),
+                                    trailing: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          k.email ?? "",
+                                          style: TextStyle(
+                                            color: Colors.grey[700],
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        if (isSistemAdminLoggedIn) ...[
+      const SizedBox(width: 8),
+      IconButton(
+        icon: Icon(
+          Icons.edit,
+          color: Colors.blue,
+        ),
+        tooltip: "Uredi administratora",
+        onPressed: () => _editKorisnik(k),
+      ),
+      IconButton(
+        icon: Icon(
+          Icons.delete,
+          color: Colors.red,
+        ),
+        tooltip: "Obriši administratora",
+        onPressed: () => _deleteKorisnik(k),
+      ),
+    ],
+                                      ],
+                                    ),
+                                  ),
+                                )
+                                .toList(),
+                          ),
                     const SizedBox(height: 32),
                     Text(
                       "Blagajnici",
@@ -416,68 +502,104 @@ class _KorisniciAdminiScreenState extends State<KorisniciAdminiScreen> {
                     obrisani.isEmpty
                         ? const Text("Nema obrisanih korisnika.")
                         : Column(
-                          children: obrisani
-                              .map(
-                                (k) => ListTile(
-                                  leading: CircleAvatar(
-                                    backgroundImage: k.slikaBase64 != null
-                                        ? MemoryImage(base64Decode(k.slikaBase64!))
-                                        : null,
-                                    child: k.slikaBase64 == null
-                                        ? Icon(Icons.person)
-                                        : null,
-                                  ),
-                                  title: Text(
-                                    "${k.ime ?? ""} ${k.prezime ?? ""}",
-                                    style: TextStyle(color: Colors.red[700]),
-                                  ),
-                                  subtitle: Text(k.korisnickoIme ?? ""),
-                                  trailing: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        k.email ?? "",
+                          children:
+                              obrisani
+                                  .map(
+                                    (k) => ListTile(
+                                      leading: CircleAvatar(
+                                        backgroundImage:
+                                            k.slikaBase64 != null
+                                                ? MemoryImage(
+                                                  base64Decode(k.slikaBase64!),
+                                                )
+                                                : null,
+                                        child:
+                                            k.slikaBase64 == null
+                                                ? Icon(Icons.person)
+                                                : null,
+                                      ),
+                                      title: Text(
+                                        "${k.ime ?? ""} ${k.prezime ?? ""}",
                                         style: TextStyle(
-                                          color: Colors.grey[700],
+                                          color: Colors.red[700],
                                         ),
                                       ),
-                                      const SizedBox(width: 8),
-                                      ElevatedButton.icon(
-                                        icon: Icon(Icons.check_circle, color: Colors.white),
-                                        label: Text("Aktiviraj"),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.green,
-                                          foregroundColor: Colors.white,
-                                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                        ),
-                                        onPressed: () async {
-                                          final potvrdi = await showDialog<bool>(
-                                            context: context,
-                                            builder: (context) => AlertDialog(
-                                              title: Text("Aktiviraj korisnika"),
-                                              content: Text("Da li ste sigurni da želite aktivirati korisnika \"${k.ime ?? ""} ${k.prezime ?? ""}\"?"),
-                                              actions: [
-                                                TextButton(
-                                                  onPressed: () => Navigator.of(context).pop(false),
-                                                  child: Text("Otkaži"),
-                                                ),
-                                                TextButton(
-                                                  onPressed: () => Navigator.of(context).pop(true),
-                                                  child: Text("Aktiviraj", style: TextStyle(color: Colors.green)),
-                                                ),
-                                              ],
+                                      subtitle: Text(k.korisnickoIme ?? ""),
+                                      trailing: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            k.email ?? "",
+                                            style: TextStyle(
+                                              color: Colors.grey[700],
                                             ),
-                                          );
-                                          if (potvrdi == true) {
-                                            await _aktivirajObrisanogKorisnika(k);
-                                          }
-                                        },
+                                          ),
+                                          const SizedBox(width: 8),
+                                          ElevatedButton.icon(
+                                            icon: Icon(
+                                              Icons.check_circle,
+                                              color: Colors.white,
+                                            ),
+                                            label: Text("Aktiviraj"),
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Colors.green,
+                                              foregroundColor: Colors.white,
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: 12,
+                                                vertical: 8,
+                                              ),
+                                            ),
+                                            onPressed: () async {
+                                              final potvrdi = await showDialog<
+                                                bool
+                                              >(
+                                                context: context,
+                                                builder:
+                                                    (context) => AlertDialog(
+                                                      title: Text(
+                                                        "Aktiviraj korisnika",
+                                                      ),
+                                                      content: Text(
+                                                        "Da li ste sigurni da želite aktivirati korisnika \"${k.ime ?? ""} ${k.prezime ?? ""}\"?",
+                                                      ),
+                                                      actions: [
+                                                        TextButton(
+                                                          onPressed:
+                                                              () =>
+                                                                  Navigator.of(
+                                                                    context,
+                                                                  ).pop(false),
+                                                          child: Text("Otkaži"),
+                                                        ),
+                                                        TextButton(
+                                                          onPressed:
+                                                              () =>
+                                                                  Navigator.of(
+                                                                    context,
+                                                                  ).pop(true),
+                                                          child: Text(
+                                                            "Aktiviraj",
+                                                            style: TextStyle(
+                                                              color:
+                                                                  Colors.green,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                              );
+                                              if (potvrdi == true) {
+                                                await _aktivirajObrisanogKorisnika(
+                                                  k,
+                                                );
+                                              }
+                                            },
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                                ),
-                              )
-                              .toList(),
+                                    ),
+                                  )
+                                  .toList(),
                         ),
                   ],
                 ),
