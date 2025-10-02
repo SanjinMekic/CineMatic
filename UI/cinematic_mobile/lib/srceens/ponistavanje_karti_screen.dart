@@ -243,76 +243,50 @@ class _PonistavanjeKartiScreenState extends State<PonistavanjeKartiScreen> {
               else ...[
                 Expanded(
                   flex: 4,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Center(
-                        child:
-                            _loading
-                                ? const CircularProgressIndicator()
-                                : scannedCode == null
-                                ? const Text(
-                                  'Kliknite na dugme ispod da otvorite kameru i skenirate QR kod karte, ili da ručno poništite kartu.',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(fontSize: 18),
-                                )
-                                : Text(
-                                  'QR kod: $scannedCode',
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Center(
+                          child:
+                              _loading
+                                  ? const CircularProgressIndicator()
+                                  : scannedCode == null
+                                  ? const Text(
+                                    'Kliknite na dugme ispod da otvorite kameru i skenirate QR kod karte, ili da ručno poništite kartu.',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(fontSize: 18),
+                                  )
+                                  : Text(
+                                    'QR kod: $scannedCode',
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                      ),
-                      const SizedBox(height: 24),
-                      Center(
-                        child: Column(
-                          children: [
-                            ElevatedButton.icon(
-                              icon: const Icon(Icons.qr_code_scanner),
-                              label: const Text('Otvori kameru'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 14,
-                                  horizontal: 24,
-                                ),
-                                textStyle: const TextStyle(
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              onPressed: _otvoriKameru,
-                            ),
-                            const SizedBox(height: 12),
-                            ElevatedButton.icon(
-                              icon: const Icon(Icons.edit),
-                              label: const Text('Poništi kartu ručno'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.orange,
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 14,
-                                  horizontal: 24,
-                                ),
-                                textStyle: const TextStyle(
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              onPressed: _ponistiKartuRucnoDialog,
-                            ),
-                          ],
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 24),
+                        Center(
+                          child: Column(
+                            children: [
+                              ElevatedButton.icon(
+                                icon: const Icon(Icons.qr_code_scanner),
+                                label: const Text('Otvori kameru'),
+                                // ...style i onPressed...
+                                onPressed: _otvoriKameru,
+                              ),
+                              const SizedBox(height: 12),
+                              ElevatedButton.icon(
+                                icon: const Icon(Icons.edit),
+                                label: const Text('Poništi kartu ručno'),
+                                // ...style i onPressed...
+                                onPressed: _ponistiKartuRucnoDialog,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
