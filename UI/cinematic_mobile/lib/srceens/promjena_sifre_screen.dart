@@ -1,5 +1,6 @@
 import 'package:cinematic_mobile/providers/auth_provider.dart';
 import 'package:cinematic_mobile/providers/korisnik_provider.dart';
+import 'package:cinematic_mobile/srceens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -29,50 +30,87 @@ class _PromjenaSifreScreenState extends State<PromjenaSifreScreen> {
   }
 
   Future<void> _promijeniSifru() async {
-    setState(() {
-      _staraSifraError = null;
-      _error = null;
-    });
+  setState(() {
+    _staraSifraError = null;
+    _error = null;
+  });
 
-    if (!_formKey.currentState!.validate()) return;
+  if (!_formKey.currentState!.validate()) return;
 
-    setState(() {
-      _isLoading = true;
-    });
+  final potvrda = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text("Potvrda izmjene šifre"),
+      content: const Text("Da li ste sigurni da želite izmijeniti šifru?"),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: const Text("Odustani"),
+        ),
+        ElevatedButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          child: const Text("Izmijeni"),
+        ),
+      ],
+    ),
+  );
+  if (potvrda != true) return;
 
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final korisnikProvider = Provider.of<KorisnikProvider>(context, listen: false);
-    final korisnikId = AuthProvider.korisnikId;
-    final username = AuthProvider.username;
+  setState(() {
+    _isLoading = true;
+  });
 
-    try {
-      final user = await authProvider.login(username!, _staraSifraController.text);
-      if (user == null) {
-        setState(() {
-          _staraSifraError = "Stara šifra nije ispravna.";
-        });
-        return;
-      }
-      await korisnikProvider.update(korisnikId!, {
-        'lozinka': _novaSifraController.text,
-        'lozinkaPotvrda': _potvrdaNoveSifreController.text,
-      });
-      if (mounted) {
-        Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Šifra uspješno promijenjena.")),
-        );
-      }
-    } catch (e) {
+  final authProvider = Provider.of<AuthProvider>(context, listen: false);
+  final korisnikProvider = Provider.of<KorisnikProvider>(context, listen: false);
+  final korisnikId = AuthProvider.korisnikId;
+  final username = AuthProvider.username;
+
+  try {
+    final user = await authProvider.login(username!, _staraSifraController.text);
+    if (user == null) {
       setState(() {
-        _error = "Greška: ${e.toString()}";
+        _staraSifraError = "Stara šifra nije ispravna.";
       });
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      return;
     }
+    await korisnikProvider.update(korisnikId!, {
+      'lozinka': _novaSifraController.text,
+      'lozinkaPotvrda': _potvrdaNoveSifreController.text,
+    });
+    if (mounted) {
+      await showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text("Promjena šifre"),
+          content: const Text(
+            "Šifra je uspješno promijenjena. Bit ćete preusmjereni na login ekran.",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("U redu"),
+            ),
+          ],
+        ),
+      );
+      AuthProvider.username = null;
+      AuthProvider.password = null;
+      AuthProvider.korisnikId = null;
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+        (route) => false,
+      );
+    }
+  } catch (e) {
+    setState(() {
+      _error = "Greška: ${e.toString()}";
+    });
+  } finally {
+    setState(() {
+      _isLoading = false;
+    });
   }
+}
 
   @override
   Widget build(BuildContext context) {
