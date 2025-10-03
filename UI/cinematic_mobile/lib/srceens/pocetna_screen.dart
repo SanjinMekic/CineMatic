@@ -192,10 +192,13 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
   Widget build(BuildContext context) {
     final Map<int, Projekcija> jedinstveniFilmovi = {};
     final aktivneProjekcije = _projekcije
-        .where((p) =>
-            p.stanje?.toLowerCase() == "aktivna" ||
-            p.stanje?.toLowerCase() == "active")
-        .toList();
+    .where((p) {
+      final stanjeOk = p.stanje?.toLowerCase() == "aktivna" || p.stanje?.toLowerCase() == "active";
+      final datumProjekcije = p.datumIvrijeme;
+      final datumOk = datumProjekcije != null && datumProjekcije.isAfter(DateTime.now());
+      return stanjeOk && datumOk;
+    })
+    .toList();
     for (var p in aktivneProjekcije) {
       final film = p.film;
       if (film != null && film.id != null && !jedinstveniFilmovi.containsKey(film.id)) {

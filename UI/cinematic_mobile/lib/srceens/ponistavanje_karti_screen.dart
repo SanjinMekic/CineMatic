@@ -98,7 +98,7 @@ class _PonistavanjeKartiScreenState extends State<PonistavanjeKartiScreen> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Text(
-                      'Ako ste na emulatoru ili nemate pristup kameri, možete poništiti kartu ručno.\n\nSkenirajte QR kod na drugom uređaju i pročitajte rezervacija ID, pa ga ovdje unesite.',
+                      'Ako ste na emulatoru sa otežanim pristupom skeniranju ili nemate pristup kameri na ovom uređaju, možete poništiti kartu ručno.\n\nSkenirajte QR kod na drugom uređaju i pročitajte "Rezervacija ID", pa ga ovdje unesite.',
                       style: TextStyle(fontSize: 15),
                     ),
                     const SizedBox(height: 14),
