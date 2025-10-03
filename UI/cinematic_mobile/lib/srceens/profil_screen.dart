@@ -85,89 +85,93 @@ class _ProfilScreenState extends State<ProfilScreen> {
     return await provider.korisnickoImeZauzeto(korisnickoIme);
   }
 
-Future<void> _save() async {
-  if (!_formKey.currentState!.validate()) return;
-  _formKey.currentState!.save();
+  Future<void> _save() async {
+    if (!_formKey.currentState!.validate()) return;
+    _formKey.currentState!.save();
 
-  final potvrda = await showDialog<bool>(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: const Text("Potvrda izmjene profila"),
-      content: const Text("Da li ste sigurni da želite sačuvati izmjene profila?"),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(false),
-          child: const Text("Odustani"),
-        ),
-        ElevatedButton(
-          onPressed: () => Navigator.of(context).pop(true),
-          child: const Text("Sačuvaj"),
-        ),
-      ],
-    ),
-  );
-  if (potvrda != true) return;
-
-  setState(() {
-    _korisnickoImeError = null;
-  });
-
-  bool korisnickoImePromijenjeno =
-      _korisnickoIme != null &&
-      _korisnickoIme!.trim().isNotEmpty &&
-      _korisnickoIme != _korisnik?.korisnickoIme;
-
-  if (_korisnickoIme != null && _korisnickoIme!.trim().isNotEmpty) {
-    final zauzeto = await _provjeriKorisnickoImeZauzeto(
-      _korisnickoIme!.trim(),
+    final potvrda = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text("Potvrda izmjene profila"),
+            content: const Text(
+              "Da li ste sigurni da želite sačuvati izmjene profila?",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text("Odustani"),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text("Sačuvaj"),
+              ),
+            ],
+          ),
     );
-    if (zauzeto) {
-      setState(() {
-        _korisnickoImeError =
-            "Korisničko ime je zauzeto, molimo unesite drugo.";
-      });
+    if (potvrda != true) return;
+
+    setState(() {
+      _korisnickoImeError = null;
+    });
+
+    bool korisnickoImePromijenjeno =
+        _korisnickoIme != null &&
+        _korisnickoIme!.trim().isNotEmpty &&
+        _korisnickoIme != _korisnik?.korisnickoIme;
+
+    if (_korisnickoIme != null && _korisnickoIme!.trim().isNotEmpty) {
+      final zauzeto = await _provjeriKorisnickoImeZauzeto(
+        _korisnickoIme!.trim(),
+      );
+      if (zauzeto) {
+        setState(() {
+          _korisnickoImeError =
+              "Korisničko ime je zauzeto, molimo unesite drugo.";
+        });
+        return;
+      }
+    }
+
+    final provider = Provider.of<KorisnikProvider>(context, listen: false);
+    await provider.update(_korisnik!.id, {
+      'ime': _ime,
+      'prezime': _prezime,
+      'email': _email,
+      'korisnickoIme': _korisnickoIme,
+      'slikaBase64': _slikaBase64,
+    });
+
+    if (korisnickoImePromijenjeno) {
+      await showDialog(
+        context: context,
+        builder:
+            (context) => AlertDialog(
+              title: const Text("Promjena korisničkog imena"),
+              content: const Text(
+                "Promjena korisničkog imena zahtijeva ponovnu prijavu. Bit ćete preusmjereni na login ekran.",
+              ),
+              actions: [
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: const Text("U redu"),
+                ),
+              ],
+            ),
+      );
+      AuthProvider.username = null;
+      AuthProvider.password = null;
+      AuthProvider.korisnikId = null;
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const LoginPage()),
+        (route) => false,
+      );
       return;
     }
+
+    setState(() => _isEditing = false);
+    await _fetchKorisnik();
   }
-
-  final provider = Provider.of<KorisnikProvider>(context, listen: false);
-  await provider.update(_korisnik!.id, {
-    'ime': _ime,
-    'prezime': _prezime,
-    'email': _email,
-    'korisnickoIme': _korisnickoIme,
-    'slikaBase64': _slikaBase64,
-  });
-
-  if (korisnickoImePromijenjeno) {
-    await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Promjena korisničkog imena"),
-        content: const Text(
-          "Promjena korisničkog imena zahtijeva ponovnu prijavu. Bit ćete preusmjereni na login ekran.",
-        ),
-        actions: [
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text("U redu"),
-          ),
-        ],
-      ),
-    );
-    AuthProvider.username = null;
-    AuthProvider.password = null;
-    AuthProvider.korisnikId = null;
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (context) => const LoginPage()),
-      (route) => false,
-    );
-    return;
-  }
-
-  setState(() => _isEditing = false);
-  await _fetchKorisnik();
-}
 
   void _logout() {
     AuthProvider.username = null;
@@ -358,11 +362,14 @@ Future<void> _save() async {
                             border: OutlineInputBorder(),
                             prefixIcon: Icon(Icons.person),
                           ),
-                          validator:
-                              (v) =>
-                                  v == null || v.isEmpty
-                                      ? "Obavezno polje"
-                                      : null,
+                          validator: (v) {
+                            if (v == null || v.trim().isEmpty)
+                              return "Obavezno polje";
+                            final imeRegex = RegExp(r'^[A-Za-zČčĆćŠšĐđŽž]+$');
+                            if (!imeRegex.hasMatch(v.trim()))
+                              return "Ime mora sadržavati samo slova";
+                            return null;
+                          },
                           onSaved: (v) => _ime = v,
                         ),
                         const SizedBox(height: 12),
@@ -373,11 +380,16 @@ Future<void> _save() async {
                             border: OutlineInputBorder(),
                             prefixIcon: Icon(Icons.person_outline),
                           ),
-                          validator:
-                              (v) =>
-                                  v == null || v.isEmpty
-                                      ? "Obavezno polje"
-                                      : null,
+                          validator: (v) {
+                            if (v == null || v.trim().isEmpty)
+                              return "Obavezno polje";
+                            final prezimeRegex = RegExp(
+                              r'^[A-Za-zČčĆćŠšĐđŽž]+$',
+                            );
+                            if (!prezimeRegex.hasMatch(v.trim()))
+                              return "Prezime mora sadržavati samo slova";
+                            return null;
+                          },
                           onSaved: (v) => _prezime = v,
                         ),
                         const SizedBox(height: 12),
@@ -414,11 +426,15 @@ Future<void> _save() async {
                             border: OutlineInputBorder(),
                             prefixIcon: Icon(Icons.email),
                           ),
-                          validator:
-                              (v) =>
-                                  v == null || v.isEmpty
-                                      ? "Obavezno polje"
-                                      : null,
+                          validator: (v) {
+                            if (v == null || v.isEmpty) return "Obavezno polje";
+                            final emailRegex = RegExp(
+                              r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                            );
+                            if (!emailRegex.hasMatch(v.trim()))
+                              return "Unesite validan email";
+                            return null;
+                          },
                           onSaved: (v) => _email = v,
                         ),
                         const SizedBox(height: 20),
