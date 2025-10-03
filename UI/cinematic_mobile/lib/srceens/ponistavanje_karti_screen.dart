@@ -258,7 +258,7 @@ class _PonistavanjeKartiScreenState extends State<PonistavanjeKartiScreen> {
                                     style: TextStyle(fontSize: 18),
                                   )
                                   : Text(
-                                    'QR kod: $scannedCode',
+                                    '$scannedCode',
                                     style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
