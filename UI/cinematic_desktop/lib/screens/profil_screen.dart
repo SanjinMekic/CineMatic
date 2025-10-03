@@ -28,6 +28,9 @@ class _ProfilScreenState extends State<ProfilScreen> {
   String? _lozinkaPotvrda;
   String? _slikaBase64;
 
+  String? _staraLozinka;
+String? _staraLozinkaError;
+
   @override
   void initState() {
     super.initState();
@@ -66,75 +69,91 @@ class _ProfilScreenState extends State<ProfilScreen> {
 
   String? _korisnickoImeError;
   Future<void> _save() async {
-    if (!_formKey.currentState!.validate()) return;
-    _formKey.currentState!.save();
+  if (!_formKey.currentState!.validate()) return;
+  _formKey.currentState!.save();
 
-    final provider = Provider.of<KorisnikProvider>(context, listen: false);
+  final provider = Provider.of<KorisnikProvider>(context, listen: false);
 
-    bool korisnickoImePromijenjeno =
-        _korisnickoIme != null && _korisnickoIme != _korisnik!.korisnickoIme;
-    bool lozinkaPromijenjena = _lozinka != null && _lozinka!.isNotEmpty;
+  bool korisnickoImePromijenjeno =
+      _korisnickoIme != null && _korisnickoIme != _korisnik!.korisnickoIme;
+  bool lozinkaPromijenjena = _lozinka != null && _lozinka!.isNotEmpty;
 
-    if (korisnickoImePromijenjeno) {
-      final zauzeto = await provider.korisnickoImeZauzeto(_korisnickoIme!);
-      if (zauzeto) {
-        setState(() {
-          _korisnickoImeError = "Korisničko ime je zauzeto!";
-        });
-        return;
-      } else {
-        setState(() {
-          _korisnickoImeError = null;
-        });
-      }
-    }
-
-    if (korisnickoImePromijenjeno || lozinkaPromijenjena) {
-      final potvrda = await showDialog<bool>(
-        context: context,
-        builder:
-            (context) => AlertDialog(
-              title: Text("Potvrda izmjene"),
-              content: Text(
-                "Mijenjanje korisničkog imena ili šifre zahtijeva da se ponovo prijavite na aplikaciju.\n\nDa li ste sigurni da želite nastaviti?",
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: Text("Otkaži"),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(true),
-                  child: Text("Nastavi"),
-                ),
-              ],
-            ),
-      );
-      if (potvrda != true) return;
-    }
-
-    await provider.update(_korisnik!.id, {
-      'ime': _ime,
-      'prezime': _prezime,
-      'email': _email,
-      'korisnickoIme': _korisnickoIme,
-      'slikaBase64': _slikaBase64,
-      'lozinka': lozinkaPromijenjena ? _lozinka : null,
-      'lozinkaPotvrda': lozinkaPromijenjena ? _lozinkaPotvrda : null,
-    });
-
-    if (korisnickoImePromijenjeno || lozinkaPromijenjena) {
-      AuthProvider.username = null;
-      AuthProvider.password = null;
-      AuthProvider.korisnikId = null;
-      Navigator.of(
-        context,
-      ).pushReplacement(MaterialPageRoute(builder: (_) => LoginPage()));
+  if (korisnickoImePromijenjeno) {
+    final zauzeto = await provider.korisnickoImeZauzeto(_korisnickoIme!);
+    if (zauzeto) {
+      setState(() {
+        _korisnickoImeError = "Korisničko ime je zauzeto!";
+      });
+      return;
     } else {
-      setState(() => _isEditing = false);
-      _fetchKorisnik();
+      setState(() {
+        _korisnickoImeError = null;
+      });
     }
   }
+
+  if (lozinkaPromijenjena) {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final korisnickoIme = _korisnik?.korisnickoIme ?? "";
+    final korisnik = await authProvider.login(korisnickoIme, _staraLozinka ?? "");
+    if (korisnik == null) {
+      setState(() {
+        _staraLozinkaError = "Stara lozinka nije ispravna!";
+      });
+      _formKey.currentState!.validate();
+      return;
+    } else {
+      setState(() {
+        _staraLozinkaError = null;
+      });
+    }
+  }
+
+  if (korisnickoImePromijenjeno || lozinkaPromijenjena) {
+    final potvrda = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Potvrda izmjene"),
+        content: Text(
+          "Mijenjanje korisničkog imena ili šifre zahtijeva da se ponovo prijavite na aplikaciju.\n\nDa li ste sigurni da želite nastaviti?",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text("Otkaži"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text("Nastavi"),
+          ),
+        ],
+      ),
+    );
+    if (potvrda != true) return;
+  }
+
+  await provider.update(_korisnik!.id, {
+    'ime': _ime,
+    'prezime': _prezime,
+    'email': _email,
+    'korisnickoIme': _korisnickoIme,
+    'slikaBase64': _slikaBase64,
+    'lozinka': lozinkaPromijenjena ? _lozinka : null,
+    'lozinkaPotvrda': lozinkaPromijenjena ? _lozinkaPotvrda : null,
+  });
+
+  if (korisnickoImePromijenjeno || lozinkaPromijenjena) {
+    AuthProvider.username = null;
+    AuthProvider.password = null;
+    AuthProvider.korisnikId = null;
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => LoginPage()),
+    );
+  } else {
+    setState(() => _isEditing = false);
+    _fetchKorisnik();
+  }
+}
 
   Future<void> _deleteProfile() async {
     String? enteredPassword;
@@ -375,26 +394,48 @@ class _ProfilScreenState extends State<ProfilScreen> {
                             ),
                             const SizedBox(height: 24),
                             TextFormField(
-                              decoration: InputDecoration(
-                                labelText: "Nova lozinka",
-                                border: OutlineInputBorder(),
-                                prefixIcon: Icon(Icons.lock),
-                              ),
-                              obscureText: true,
-                              onChanged: (v) => _lozinka = v,
-                              validator: (v) {
-                                if (v != null && v.isNotEmpty && v.length < 6) {
-                                  return "Lozinka mora imati najmanje 6 karaktera";
-                                }
-                                if (v != null &&
-                                    v.isNotEmpty &&
-                                    (_lozinkaPotvrda == null ||
-                                        _lozinkaPotvrda!.isEmpty)) {
-                                  return "Unesite potvrdu lozinke";
-                                }
-                                return null;
-                              },
-                            ),
+  decoration: InputDecoration(
+    labelText: "Stara lozinka",
+    border: OutlineInputBorder(),
+    prefixIcon: Icon(Icons.lock_clock),
+    errorText: _staraLozinkaError,
+  ),
+  obscureText: true,
+  onChanged: (v) => _staraLozinka = v,
+  validator: (v) {
+    if (_lozinka != null && _lozinka!.isNotEmpty) {
+      if (v == null || v.isEmpty) {
+        return "Unesite staru lozinku";
+      }
+    }
+    return null;
+  },
+),
+
+const SizedBox(height: 16),
+                            TextFormField(
+  decoration: InputDecoration(
+    labelText: "Nova lozinka",
+    border: OutlineInputBorder(),
+    prefixIcon: Icon(Icons.lock),
+  ),
+  obscureText: true,
+  onChanged: (v) => _lozinka = v,
+  validator: (v) {
+    if (v != null && v.isNotEmpty && v.length < 6) {
+      return "Lozinka mora imati najmanje 6 karaktera";
+    }
+    if (v != null && v.isNotEmpty && _staraLozinka != null && v == _staraLozinka) {
+      return "Nova lozinka ne smije biti ista kao stara";
+    }
+    if (v != null &&
+        v.isNotEmpty &&
+        (_lozinkaPotvrda == null || _lozinkaPotvrda!.isEmpty)) {
+      return "Unesite potvrdu lozinke";
+    }
+    return null;
+  },
+),
                             const SizedBox(height: 16),
                             TextFormField(
                               decoration: InputDecoration(

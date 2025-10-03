@@ -28,6 +28,9 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
   final _lozinkaController = TextEditingController();
   final _lozinkaPotvrdaController = TextEditingController();
 
+  final _novaLozinkaController = TextEditingController();
+  final _novaLozinkaPotvrdaController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
@@ -51,6 +54,8 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
   void dispose() {
     _lozinkaController.dispose();
     _lozinkaPotvrdaController.dispose();
+    _novaLozinkaController.dispose();
+    _novaLozinkaPotvrdaController.dispose();
     super.dispose();
   }
 
@@ -110,15 +115,17 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
       'email': _email,
       'korisnickoIme': _korisnickoIme,
       'slikaBase64': _slikaBase64,
-      if (widget.korisnik == null)
-        'lozinka':
-            _lozinkaController.text.isNotEmpty ? _lozinkaController.text : null,
-      if (widget.korisnik == null)
-        'lozinkaPotvrda':
-            _lozinkaPotvrdaController.text.isNotEmpty
-                ? _lozinkaPotvrdaController.text
-                : null,
       if (_ulogaId != null) 'ulogaId': [_ulogaId!],
+      if (widget.korisnik == null) ...{
+        'lozinka': _lozinkaController.text,
+        'lozinkaPotvrda': _lozinkaPotvrdaController.text,
+      },
+      if (widget.korisnik != null &&
+          _novaLozinkaController.text.isNotEmpty &&
+          _novaLozinkaPotvrdaController.text.isNotEmpty) ...{
+        'lozinka': _novaLozinkaController.text,
+        'lozinkaPotvrda': _novaLozinkaPotvrdaController.text,
+      },
     };
 
     if (widget.korisnik == null) {
@@ -307,6 +314,42 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
                                   if (_lozinkaController.text.isNotEmpty &&
                                       v != _lozinkaController.text) {
                                     return "Lozinke se ne podudaraju";
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ],
+                            if (widget.korisnik != null) ...[
+                              const SizedBox(height: 16),
+                              TextFormField(
+                                controller: _novaLozinkaController,
+                                decoration: InputDecoration(
+                                  labelText: "Nova lozinka",
+                                ),
+                                obscureText: true,
+                                validator: (v) {
+                                  if (v != null &&
+                                      v.isNotEmpty &&
+                                      v.length < 6) {
+                                    return "Lozinka mora imati najmanje 6 karaktera";
+                                  }
+                                  return null;
+                                },
+                              ),
+                              TextFormField(
+                                controller: _novaLozinkaPotvrdaController,
+                                decoration: InputDecoration(
+                                  labelText: "Potvrda nove lozinke",
+                                ),
+                                obscureText: true,
+                                validator: (v) {
+                                  if (_novaLozinkaController.text.isNotEmpty) {
+                                    if (v == null || v.isEmpty) {
+                                      return "Obavezno polje";
+                                    }
+                                    if (v != _novaLozinkaController.text) {
+                                      return "Lozinke se ne podudaraju";
+                                    }
                                   }
                                   return null;
                                 },
