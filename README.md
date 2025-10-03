@@ -57,6 +57,7 @@ Sistem obuhvata desktop aplikaciju za administratore i mobilnu aplikaciju za kor
 - username: blagajnik
 - password: blagajnik
 - Preporuka: koristiti fizički uređaj radi testiranja modula za skeniranje i poništavanje QR kod karti, ukoliko ne postoji ta mogućnost, postoji opcija za ručno poništavanje karte.
+- Napomena: ukoliko koristite Android Studio emulator, moguće je u sklopu opcije "Extended Controls", u sekciji "Camera" upravljati sa "Virtual scene images", gdje je moguće napraviti screenshot QR koda rezervacije i postaviti ga na "zid" virtualne scene, te na taj način simulirati skeniranje QR koda bez fizičkog uređaja.
 
 ---
 
