@@ -42,31 +42,47 @@ class _PocetnaScreenState extends State<PocetnaScreen> {
   }
 
   Future<void> _loadProjekcije() async {
-    setState(() => _isLoading = true);
-    final provider = context.read<ProjekcijaProvider>();
-    final filter = <String, dynamic>{
-      "isFilmoviIncluded": true,
-      "isNačiniProjekcijeIncluded": true,
-      "isSaleIncluded": true,
-      "isŽanroviIncluded": true,
-    };
+  setState(() => _isLoading = true);
+  final provider = context.read<ProjekcijaProvider>();
+  final filter = <String, dynamic>{
+    "isFilmoviIncluded": true,
+    "isNačiniProjekcijeIncluded": true,
+    "isSaleIncluded": true,
+    "isŽanroviIncluded": true,
+  };
 
-    if (_nazivController.text.isNotEmpty) {
-      filter["Naziv"] = _nazivController.text;
-    }
-    if (_odabraniZanrId != null) {
-      filter["ZanrId"] = _odabraniZanrId;
-    }
-    if (prikaziAktivne && _odabraniDatum != null) {
-      filter["Datum"] = DateFormat('yyyy-MM-dd').format(_odabraniDatum!);
-    }
+  if (_nazivController.text.isNotEmpty) {
+    filter["Naziv"] = _nazivController.text;
+  }
+  if (_odabraniZanrId != null) {
+    filter["ZanrId"] = _odabraniZanrId;
+  }
+  if (prikaziAktivne && _odabraniDatum != null) {
+    filter["Datum"] = DateFormat('yyyy-MM-dd').format(_odabraniDatum!);
+  }
 
-    final result = await provider.get(filter: filter);
+  final result = await provider.get(filter: filter);
+
+  if (prikaziAktivne) {
+    for (final p in result.result) {
+      if ((p.stanje?.toLowerCase() == "aktivna" || p.stanje?.toLowerCase() == "active") &&
+          p.datumIvrijeme != null &&
+          p.datumIvrijeme!.isBefore(DateTime.now())) {
+        await _sakrijProjekciju(p);
+      }
+    }
+    final refreshed = await provider.get(filter: filter);
+    setState(() {
+      _projekcije = refreshed.result;
+      _isLoading = false;
+    });
+  } else {
     setState(() {
       _projekcije = result.result;
       _isLoading = false;
     });
   }
+}
 
   Future<void> _sakrijProjekciju(Projekcija projekcija) async {
     final provider = context.read<ProjekcijaProvider>();
