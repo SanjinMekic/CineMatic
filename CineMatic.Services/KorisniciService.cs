@@ -183,6 +183,31 @@ namespace CineMatic.Services
                 throw new Exception("Lozinka i LozinkaPotvrda moraju biti iste!");
             }
 
+            if (string.IsNullOrEmpty(request.Lozinka) || request.Lozinka.Length < 6)
+            {
+                throw new Exception("Lozinka mora imati najmanje 6 karaktera!");
+            }
+
+            if (string.IsNullOrEmpty(request.Ime) || !System.Text.RegularExpressions.Regex.IsMatch(request.Ime, @"^[A-Za-zČčĆćŠšĐđŽž]+$"))
+            {
+                throw new Exception("Ime mora sadržavati samo slova!");
+            }
+
+            if (string.IsNullOrEmpty(request.Prezime) || !System.Text.RegularExpressions.Regex.IsMatch(request.Prezime, @"^[A-Za-zČčĆćŠšĐđŽž]+$"))
+            {
+                throw new Exception("Prezime mora sadržavati samo slova!");
+            }
+
+            if (string.IsNullOrEmpty(request.Email) || !System.Text.RegularExpressions.Regex.IsMatch(request.Email, @"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$"))
+            {
+                throw new Exception("Unesite validan email!");
+            }
+
+            if (Context.Korisnicis.Any(u => u.KorisnickoIme == request.KorisnickoIme))
+            {
+                throw new Exception("Korisničko ime je već zauzeto!");
+            }
+
             entity.PasswordSalt = GenerateSalt();
             entity.PasswordHash = GenerateHash(entity.PasswordSalt, request.LozinkaPotvrda);
 
@@ -226,13 +251,29 @@ namespace CineMatic.Services
 
         public override void BeforeUpdate(KorisniciUpdateRequest request, Database.Korisnici entity)
         {
-            base.BeforeUpdate(request, entity);
+            if (!string.IsNullOrEmpty(request.Ime) && !System.Text.RegularExpressions.Regex.IsMatch(request.Ime, @"^[A-Za-zČčĆćŠšĐđŽž]+$"))
+                throw new Exception("Ime mora sadržavati samo slova!");
+
+            if (!string.IsNullOrEmpty(request.Prezime) && !System.Text.RegularExpressions.Regex.IsMatch(request.Prezime, @"^[A-Za-zČčĆćŠšĐđŽž]+$"))
+                throw new Exception("Prezime mora sadržavati samo slova!");
+
+            if (!string.IsNullOrEmpty(request.Email) && !System.Text.RegularExpressions.Regex.IsMatch(request.Email, @"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$"))
+                throw new Exception("Unesite validan email!");
+
+            if (!string.IsNullOrEmpty(request.KorisnickoIme))
+            {
+                var postoji = Context.Korisnicis.Any(u => u.KorisnickoIme == request.KorisnickoIme && u.Id != entity.Id);
+                if (postoji)
+                    throw new Exception("Korisničko ime je već zauzeto!");
+            }
+
             if (request.Lozinka != null)
             {
                 if (request.Lozinka != request.LozinkaPotvrda)
-                {
                     throw new Exception("Lozinka i LozinkaPotvrda moraju biti iste!");
-                }
+
+                if (request.Lozinka.Length < 6)
+                    throw new Exception("Lozinka mora imati najmanje 6 karaktera!");
 
                 entity.PasswordSalt = GenerateSalt();
                 entity.PasswordHash = GenerateHash(entity.PasswordSalt, request.Lozinka);
@@ -246,7 +287,6 @@ namespace CineMatic.Services
             if (request.UlogaId != null)
             {
                 Context.Entry(entity).Collection(e => e.Ulogas).Load();
-
                 entity.Ulogas.Clear();
 
                 foreach (var ulogaId in request.UlogaId)
@@ -258,6 +298,8 @@ namespace CineMatic.Services
                     entity.Ulogas.Add(uloga);
                 }
             }
+
+            base.BeforeUpdate(request, entity);
         }
 
         public Model.Korisnici Login(string username, string password)

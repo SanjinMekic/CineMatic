@@ -111,6 +111,12 @@ namespace CineMatic.Services
 
         public override void BeforeInsert(RežiseriInsertRequest request, Režiseri entity)
         {
+            if (string.IsNullOrEmpty(request.Ime) || !System.Text.RegularExpressions.Regex.IsMatch(request.Ime, @"^[A-Za-zČčĆćŠšĐđŽž]+$"))
+                throw new Exception("Ime mora sadržavati samo slova!");
+
+            if (string.IsNullOrEmpty(request.Prezime) || !System.Text.RegularExpressions.Regex.IsMatch(request.Prezime, @"^[A-Za-zČčĆćŠšĐđŽž]+$"))
+                throw new Exception("Prezime mora sadržavati samo slova!");
+
             if (!string.IsNullOrEmpty(request.SlikaBase64))
             {
                 entity.Slika = Convert.FromBase64String(request.SlikaBase64);
@@ -119,6 +125,12 @@ namespace CineMatic.Services
 
         public override void BeforeUpdate(RežiseriUpdateRequest request, Režiseri entity)
         {
+            if (!string.IsNullOrEmpty(request.Ime) && !System.Text.RegularExpressions.Regex.IsMatch(request.Ime, @"^[A-Za-zČčĆćŠšĐđŽž]+$"))
+                throw new Exception("Ime mora sadržavati samo slova!");
+
+            if (!string.IsNullOrEmpty(request.Prezime) && !System.Text.RegularExpressions.Regex.IsMatch(request.Prezime, @"^[A-Za-zČčĆćŠšĐđŽž]+$"))
+                throw new Exception("Prezime mora sadržavati samo slova!");
+
             if (!string.IsNullOrEmpty(request.SlikaBase64))
             {
                 entity.Slika = Convert.FromBase64String(request.SlikaBase64);
