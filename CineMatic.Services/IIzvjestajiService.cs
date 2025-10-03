@@ -13,6 +13,7 @@ namespace CineMatic.Services
         Task<decimal> GetTotalCinemaIncomeAsync();
         Task<decimal> GetFoodAndDrinkIncome();
         Task<int> GetAdminCountAsync();
+        Task<int> GetBlagajnikCountAsync();
         Task<List<TopKorisnik>> GetTop5CustomersAsync();
         Task<List<BrojSjedistaPoFilmu>> GetTop5WatchedMoviesAsync();
     }

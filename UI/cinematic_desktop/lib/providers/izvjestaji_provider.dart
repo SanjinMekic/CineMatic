@@ -29,6 +29,17 @@ class IzvjestajiProvider extends BaseProvider<dynamic> {
     }
   }
 
+  Future<int> getBrojBlagajnika() async {
+    final url = Uri.parse('${baseUrl}Izvjestaji/brojBlagajnika');
+    final response = await http.get(url, headers: createHeaders());
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['blagajnikCount'] ?? data['BlagajnikCount'] ?? 0;
+    } else {
+      throw Exception('Greška pri dohvatu broja administratora');
+    }
+  }
+
   Future<double> getUkupnaZarada() async {
     final url = Uri.parse('${baseUrl}Izvjestaji/ukupnaZarada');
     final response = await http.get(url, headers: createHeaders());

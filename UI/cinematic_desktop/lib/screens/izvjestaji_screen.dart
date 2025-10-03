@@ -19,6 +19,7 @@ class IzvjestajiScreen extends StatefulWidget {
 class _IzvjestajiScreenState extends State<IzvjestajiScreen> {
   int? brojKorisnika;
   int? brojAdmina;
+  int? brojBlagajnika;
   double? ukupnaZarada;
   double? ukupnaZaradaHranaPice;
   List<TopKorisnik> topKorisnici = [];
@@ -40,6 +41,7 @@ class _IzvjestajiScreenState extends State<IzvjestajiScreen> {
       final provider = context.read<IzvjestajiProvider>();
       final broj = await provider.getBrojKorisnika();
       final admina = await provider.getBrojAdmina();
+      final blagajnika = await provider.getBrojBlagajnika(); // <-- dodaj ovo
       final zarada = await provider.getUkupnaZarada();
       final zaradaHranaPice = await provider.getUkupnaZaradaHranaPice();
       final top = await provider.getTop5Korisnika();
@@ -47,6 +49,7 @@ class _IzvjestajiScreenState extends State<IzvjestajiScreen> {
       setState(() {
         brojKorisnika = broj;
         brojAdmina = admina;
+        brojBlagajnika = blagajnika; // <-- dodaj ovo
         ukupnaZarada = zarada;
         ukupnaZaradaHranaPice = zaradaHranaPice;
         topKorisnici = top;
@@ -57,6 +60,7 @@ class _IzvjestajiScreenState extends State<IzvjestajiScreen> {
       setState(() {
         brojKorisnika = null;
         brojAdmina = null;
+        brojBlagajnika = null;
         ukupnaZarada = null;
         ukupnaZaradaHranaPice = null;
         topKorisnici = [];
@@ -109,9 +113,27 @@ class _IzvjestajiScreenState extends State<IzvjestajiScreen> {
                     pw.Container(
                       width: _cardWidth,
                       child: _pdfCard(
+                        title: "Blagajnici",
+                        value: brojBlagajnika?.toString() ?? "-",
+                        color: PdfColors.blue,
+                        font: font,
+                        fontSize: 10,
+                        valueFontSize: 16,
+                        padding: 8,
+                      ),
+                    ),
+                  ],
+                ),
+                pw.SizedBox(height: 8),
+                pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.center,
+                  children: [
+                    pw.Container(
+                      width: _cardWidth * 2 + 8,
+                      child: _pdfCard(
                         title: "Administratori",
                         value: brojAdmina?.toString() ?? "-",
-                        color: PdfColors.orange,
+                        color: PdfColors.blue,
                         font: font,
                         fontSize: 10,
                         valueFontSize: 16,
@@ -521,10 +543,27 @@ class _IzvjestajiScreenState extends State<IzvjestajiScreen> {
                               ),
                               SizedBox(width: 12),
                               _card(
-                                title: "Administratori",
-                                value: brojAdmina?.toString() ?? "-",
-                                color: Colors.orange,
-                                bgColor: Colors.orange[50]!,
+                                title: "Blagajnici",
+                                value: brojBlagajnika?.toString() ?? "-",
+                                color: Colors.blue,
+                                bgColor: Colors.blue[50]!,
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 12),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width:
+                                    _cardWidth * 2 +
+                                    12, // širina kao dvije kartice
+                                child: _card(
+                                  title: "Administratori",
+                                  value: brojAdmina?.toString() ?? "-",
+                                  color: Colors.blue,
+                                  bgColor: Colors.blue[50]!,
+                                ),
                               ),
                             ],
                           ),

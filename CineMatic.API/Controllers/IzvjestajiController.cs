@@ -30,6 +30,13 @@ namespace CineMatic.API.Controllers
             return Ok(new { AdminCount = adminCount });
         }
 
+        [HttpGet("brojBlagajnika")]
+        public async Task<IActionResult> GetBlagajnikCount()
+        {
+            var blagajnikCount = await _izvjestajiService.GetBlagajnikCountAsync();
+            return Ok(new { BlagajnikCount = blagajnikCount });
+        }
+
         [HttpGet("ukupnaZarada")]
         public async Task<IActionResult> GetTotalCinemaIncome()
         {

@@ -35,6 +35,15 @@ namespace CineMatic.Services
             return brojAdmina;
         }
 
+        public async Task<int> GetBlagajnikCountAsync()
+        {
+            var brojAdmina = await _context.Korisnicis
+                .Where(u => u.Ulogas.Any(r => r.Naziv == "Blagajnik"))
+                .CountAsync();
+
+            return brojAdmina;
+        }
+
         public async Task<decimal> GetFoodAndDrinkIncome()
         {
             var ukupnaCijena = await _context.RezervacijeHraneIpićas
