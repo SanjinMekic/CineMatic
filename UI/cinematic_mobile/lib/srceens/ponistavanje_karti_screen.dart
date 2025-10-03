@@ -14,8 +14,10 @@ class PonistavanjeKartiScreen extends StatefulWidget {
 
 class _PonistavanjeKartiScreenState extends State<PonistavanjeKartiScreen> {
   String? scannedCode;
+  int? rezervacijaId;
   bool _kameraAktivna = false;
   bool _loading = false;
+  bool _ponistena = false;
 
   void _onDetect(BarcodeCapture capture) async {
     final code = capture.barcodes.first.rawValue;
@@ -23,43 +25,55 @@ class _PonistavanjeKartiScreenState extends State<PonistavanjeKartiScreen> {
       setState(() {
         scannedCode = code;
         _kameraAktivna = false;
-        _loading = true;
+        _loading = false;
+        _ponistena = false;
       });
 
       final regex = RegExp(r'Rezervacija ID:\s*(\d+)');
       final match = regex.firstMatch(code);
-      int? rezervacijaId;
       if (match != null && match.groupCount >= 1) {
         rezervacijaId = int.tryParse(match.group(1)!);
+      } else {
+        rezervacijaId = null;
       }
+    }
+  }
 
-      final rezervacijaProvider = Provider.of<RezervacijaProvider>(
-        context,
-        listen: false,
+  Future<void> _ponistiKartu() async {
+    if (rezervacijaId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Neispravan QR kod! ID nije pronađen.')),
       );
-      try {
-        if (rezervacijaId == null) {
-          throw Exception("Neispravan QR kod! ID nije pronađen.");
-        }
-        await rezervacijaProvider.ponistiKartu(rezervacijaId);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Karta je uspješno poništena!')),
-        );
-      } catch (e) {
-        String errorMsg = e.toString();
-        if (errorMsg.startsWith('Exception: ')) {
-          errorMsg = errorMsg.replaceFirst('Exception: ', '');
-        }
-        errorMsg = errorMsg.trim();
-
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(errorMsg)));
-      } finally {
-        setState(() {
-          _loading = false;
-        });
+      return;
+    }
+    setState(() {
+      _loading = true;
+    });
+    final rezervacijaProvider = Provider.of<RezervacijaProvider>(
+      context,
+      listen: false,
+    );
+    try {
+      await rezervacijaProvider.ponistiKartu(rezervacijaId!);
+      setState(() {
+        _ponistena = true;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Karta je uspješno poništena!')),
+      );
+    } catch (e) {
+      String errorMsg = e.toString();
+      if (errorMsg.startsWith('Exception: ')) {
+        errorMsg = errorMsg.replaceFirst('Exception: ', '');
       }
+      errorMsg = errorMsg.trim();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(errorMsg)),
+      );
+    } finally {
+      setState(() {
+        _loading = false;
+      });
     }
   }
 
@@ -67,6 +81,8 @@ class _PonistavanjeKartiScreenState extends State<PonistavanjeKartiScreen> {
     setState(() {
       _kameraAktivna = true;
       scannedCode = null;
+      rezervacijaId = null;
+      _ponistena = false;
     });
   }
 
@@ -248,22 +264,40 @@ class _PonistavanjeKartiScreenState extends State<PonistavanjeKartiScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Center(
-                          child:
-                              _loading
-                                  ? const CircularProgressIndicator()
-                                  : scannedCode == null
+                          child: _loading
+                              ? const CircularProgressIndicator()
+                              : scannedCode == null
                                   ? const Text(
-                                    'Kliknite na dugme ispod da otvorite kameru i skenirate QR kod karte, ili da ručno poništite kartu.',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(fontSize: 18),
-                                  )
-                                  : Text(
-                                    '$scannedCode',
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
+                                      'Kliknite na dugme ispod da otvorite kameru i skenirate QR kod karte, ili da ručno poništite kartu.',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(fontSize: 18),
+                                    )
+                                  : Column(
+                                      children: [
+                                        Text(
+                                          '$scannedCode',
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 16),
+                                        if (!_ponistena)
+                                          ElevatedButton.icon(
+                                            icon: const Icon(Icons.cancel),
+                                            label: const Text('Poništi kartu'),
+                                            onPressed: _ponistiKartu,
+                                          )
+                                        else
+                                          const Text(
+                                            'Karta je poništena.',
+                                            style: TextStyle(
+                                              color: Colors.red,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                      ],
                                     ),
-                                  ),
                         ),
                         const SizedBox(height: 24),
                         Center(
@@ -272,14 +306,12 @@ class _PonistavanjeKartiScreenState extends State<PonistavanjeKartiScreen> {
                               ElevatedButton.icon(
                                 icon: const Icon(Icons.qr_code_scanner),
                                 label: const Text('Otvori kameru'),
-                                // ...style i onPressed...
                                 onPressed: _otvoriKameru,
                               ),
                               const SizedBox(height: 12),
                               ElevatedButton.icon(
                                 icon: const Icon(Icons.edit),
                                 label: const Text('Poništi kartu ručno'),
-                                // ...style i onPressed...
                                 onPressed: _ponistiKartuRucnoDialog,
                               ),
                             ],
