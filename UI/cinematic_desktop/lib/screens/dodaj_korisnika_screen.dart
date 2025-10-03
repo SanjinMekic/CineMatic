@@ -23,7 +23,7 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
   List<Uloga> _uloge = [];
   bool _isLoading = true;
   String? _korisnickoImeError;
-  bool _isSaving = false; // Dodano za disable dugmeta
+  bool _isSaving = false;
 
   final _lozinkaController = TextEditingController();
   final _lozinkaPotvrdaController = TextEditingController();
@@ -38,7 +38,8 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
         _email = widget.korisnik!.email;
         _korisnickoIme = widget.korisnik!.korisnickoIme;
         _slikaBase64 = widget.korisnik!.slikaBase64;
-        if (widget.korisnik!.ulogas != null && widget.korisnik!.ulogas!.isNotEmpty) {
+        if (widget.korisnik!.ulogas != null &&
+            widget.korisnik!.ulogas!.isNotEmpty) {
           _ulogaId = widget.korisnik!.ulogas!.first.id;
         }
         setState(() {});
@@ -91,7 +92,9 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
 
     if (_korisnickoIme != null) {
       final zauzeto = await provider.korisnickoImeZauzeto(_korisnickoIme!);
-      final editingOwnUsername = widget.korisnik != null && _korisnickoIme == widget.korisnik!.korisnickoIme;
+      final editingOwnUsername =
+          widget.korisnik != null &&
+          _korisnickoIme == widget.korisnik!.korisnickoIme;
       if (zauzeto && !editingOwnUsername) {
         setState(() {
           _korisnickoImeError = "Korisničko ime je zauzeto!";
@@ -115,8 +118,7 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
             _lozinkaPotvrdaController.text.isNotEmpty
                 ? _lozinkaPotvrdaController.text
                 : null,
-      if (_ulogaId != null)
-        'ulogaId': [_ulogaId!],
+      if (_ulogaId != null) 'ulogaId': [_ulogaId!],
     };
 
     if (widget.korisnik == null) {
@@ -136,182 +138,202 @@ class _DodajKorisnikaScreenState extends State<DodajKorisnikaScreen> {
           widget.korisnik == null ? "Dodaj korisnika" : "Uredi korisnika",
         ),
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Card(
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 32,
-                      horizontal: 40,
+      body:
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
                     ),
-                    child: Form(
-                      key: _formKey,
-                      child: ListView(
-                        shrinkWrap: true,
-                        children: [
-                          GestureDetector(
-                            onTap: _pickImage,
-                            child: Column(
-                              children: [
-                                Stack(
-                                  alignment: Alignment.bottomRight,
-                                  children: [
-                                    CircleAvatar(
-                                      radius: 48,
-                                      backgroundImage: _slikaBase64 != null
-                                          ? MemoryImage(
-                                              base64Decode(_slikaBase64!),
-                                            )
-                                          : null,
-                                      child: _slikaBase64 == null
-                                          ? Icon(Icons.person, size: 48)
-                                          : null,
-                                    ),
-                                    Positioned(
-                                      right: 0,
-                                      bottom: 0,
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        padding: EdgeInsets.all(2),
-                                        child: Icon(
-                                          Icons.add_circle,
-                                          color: Colors.blue,
-                                          size: 24,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 32,
+                        horizontal: 40,
+                      ),
+                      child: Form(
+                        key: _formKey,
+                        child: ListView(
+                          shrinkWrap: true,
+                          children: [
+                            GestureDetector(
+                              onTap: _pickImage,
+                              child: Column(
+                                children: [
+                                  Stack(
+                                    alignment: Alignment.bottomRight,
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 48,
+                                        backgroundImage:
+                                            _slikaBase64 != null
+                                                ? MemoryImage(
+                                                  base64Decode(_slikaBase64!),
+                                                )
+                                                : null,
+                                        child:
+                                            _slikaBase64 == null
+                                                ? Icon(Icons.person, size: 48)
+                                                : null,
+                                      ),
+                                      Positioned(
+                                        right: 0,
+                                        bottom: 0,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            shape: BoxShape.circle,
+                                          ),
+                                          padding: EdgeInsets.all(2),
+                                          child: Icon(
+                                            Icons.add_circle,
+                                            color: Colors.blue,
+                                            size: 24,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              initialValue: _ime,
+                              decoration: InputDecoration(labelText: "Ime"),
+                              validator: (v) {
+                                if (v == null || v.isEmpty)
+                                  return "Obavezno polje";
+                                final imeRegex = RegExp(
+                                  r'^[A-Za-zČčĆćŠšĐđŽž]+$',
+                                );
+                                if (!imeRegex.hasMatch(v))
+                                  return "Ime može sadržavati samo slova";
+                                return null;
+                              },
+                              onSaved: (v) => _ime = v,
+                            ),
+                            TextFormField(
+                              initialValue: _prezime,
+                              decoration: InputDecoration(labelText: "Prezime"),
+                              validator: (v) {
+                                if (v == null || v.isEmpty)
+                                  return "Obavezno polje";
+                                final prezimeRegex = RegExp(
+                                  r'^[A-Za-zČčĆćŠšĐđŽž]+$',
+                                );
+                                if (!prezimeRegex.hasMatch(v))
+                                  return "Prezime može sadržavati samo slova";
+                                return null;
+                              },
+                              onSaved: (v) => _prezime = v,
+                            ),
+                            TextFormField(
+                              initialValue: _korisnickoIme,
+                              decoration: InputDecoration(
+                                labelText: "Korisničko ime",
+                                errorText: _korisnickoImeError,
+                              ),
+                              validator:
+                                  (v) =>
+                                      v == null || v.isEmpty
+                                          ? "Obavezno polje"
+                                          : null,
+                              onSaved: (v) => _korisnickoIme = v,
+                            ),
+                            TextFormField(
+                              initialValue: _email,
+                              decoration: InputDecoration(labelText: "Email"),
+                              validator: (v) {
+                                if (v == null || v.isEmpty)
+                                  return "Obavezno polje";
+                                final emailRegex = RegExp(
+                                  r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                                );
+                                if (!emailRegex.hasMatch(v))
+                                  return "Unesite validan email";
+                                return null;
+                              },
+                              onSaved: (v) => _email = v,
+                            ),
+                            DropdownButtonFormField<int>(
+                              value: _ulogaId,
+                              items:
+                                  _uloge
+                                      .map(
+                                        (u) => DropdownMenuItem(
+                                          value: u.id,
+                                          child: Text(u.naziv ?? ""),
+                                        ),
+                                      )
+                                      .toList(),
+                              onChanged: (v) => setState(() => _ulogaId = v),
+                              decoration: InputDecoration(labelText: "Uloga"),
+                              validator:
+                                  (v) => v == null ? "Odaberite ulogu" : null,
+                            ),
+                            if (widget.korisnik == null) ...[
+                              TextFormField(
+                                controller: _lozinkaController,
+                                decoration: InputDecoration(
+                                  labelText: "Lozinka",
+                                ),
+                                obscureText: true,
+                                validator: (v) {
+                                  if (widget.korisnik == null &&
+                                      (v == null || v.isEmpty)) {
+                                    return "Obavezno polje";
+                                  }
+                                  if (v != null && v.length < 6) {
+                                    return "Lozinka mora imati najmanje 6 karaktera";
+                                  }
+                                  return null;
+                                },
+                              ),
+                              TextFormField(
+                                controller: _lozinkaPotvrdaController,
+                                decoration: InputDecoration(
+                                  labelText: "Potvrda lozinke",
+                                ),
+                                obscureText: true,
+                                validator: (v) {
+                                  if (widget.korisnik == null &&
+                                      (v == null || v.isEmpty)) {
+                                    return "Obavezno polje";
+                                  }
+                                  if (_lozinkaController.text.isNotEmpty &&
+                                      v != _lozinkaController.text) {
+                                    return "Lozinke se ne podudaraju";
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ],
+                            const SizedBox(height: 24),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  child: Text("Otkaži"),
+                                ),
+                                const SizedBox(width: 12),
+                                ElevatedButton(
+                                  onPressed: _isSaving ? null : _save,
+                                  child: Text("Sačuvaj"),
                                 ),
                               ],
                             ),
-                          ),
-                          const SizedBox(height: 16),
-                          TextFormField(
-                            initialValue: _ime,
-                            decoration: InputDecoration(labelText: "Ime"),
-                            validator: (v) =>
-                                v == null || v.isEmpty
-                                    ? "Obavezno polje"
-                                    : null,
-                            onSaved: (v) => _ime = v,
-                          ),
-                          TextFormField(
-                            initialValue: _prezime,
-                            decoration: InputDecoration(labelText: "Prezime"),
-                            validator: (v) =>
-                                v == null || v.isEmpty
-                                    ? "Obavezno polje"
-                                    : null,
-                            onSaved: (v) => _prezime = v,
-                          ),
-                          TextFormField(
-                            initialValue: _korisnickoIme,
-                            decoration: InputDecoration(
-                              labelText: "Korisničko ime",
-                              errorText: _korisnickoImeError,
-                            ),
-                            validator: (v) =>
-                                v == null || v.isEmpty
-                                    ? "Obavezno polje"
-                                    : null,
-                            onSaved: (v) => _korisnickoIme = v,
-                          ),
-                          TextFormField(
-                            initialValue: _email,
-                            decoration: InputDecoration(labelText: "Email"),
-                            validator: (v) {
-                              if (v == null || v.isEmpty)
-                                return "Obavezno polje";
-                              final emailRegex = RegExp(
-                                r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                              );
-                              if (!emailRegex.hasMatch(v))
-                                return "Unesite validan email";
-                              return null;
-                            },
-                            onSaved: (v) => _email = v,
-                          ),
-                          DropdownButtonFormField<int>(
-                            value: _ulogaId,
-                            items: _uloge
-                                .map(
-                                  (u) => DropdownMenuItem(
-                                    value: u.id,
-                                    child: Text(u.naziv ?? ""),
-                                  ),
-                                )
-                                .toList(),
-                            onChanged: (v) => setState(() => _ulogaId = v),
-                            decoration: InputDecoration(labelText: "Uloga"),
-                            validator: (v) =>
-                                v == null ? "Odaberite ulogu" : null,
-                          ),
-                          if (widget.korisnik == null) ...[
-                            TextFormField(
-                              controller: _lozinkaController,
-                              decoration: InputDecoration(
-                                labelText: "Lozinka",
-                              ),
-                              obscureText: true,
-                              validator: (v) {
-                                if (widget.korisnik == null &&
-                                    (v == null || v.isEmpty)) {
-                                  return "Obavezno polje";
-                                }
-                                return null;
-                              },
-                            ),
-                            TextFormField(
-                              controller: _lozinkaPotvrdaController,
-                              decoration: InputDecoration(
-                                labelText: "Potvrda lozinke",
-                              ),
-                              obscureText: true,
-                              validator: (v) {
-                                if (widget.korisnik == null &&
-                                    (v == null || v.isEmpty)) {
-                                  return "Obavezno polje";
-                                }
-                                if (_lozinkaController.text.isNotEmpty &&
-                                    v != _lozinkaController.text) {
-                                  return "Lozinke se ne podudaraju";
-                                }
-                                return null;
-                              },
-                            ),
                           ],
-                          const SizedBox(height: 24),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              TextButton(
-                                onPressed: () => Navigator.of(context).pop(),
-                                child: Text("Otkaži"),
-                              ),
-                              const SizedBox(width: 12),
-                              ElevatedButton(
-                                onPressed: _isSaving ? null : _save,
-                                child: Text("Sačuvaj"),
-                              ),
-                            ],
-                          ),
-                        ],
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-          )
     );
   }
 }

@@ -65,13 +65,14 @@ class _ProfilScreenState extends State<ProfilScreen> {
   }
 
   String? _korisnickoImeError;
- Future<void> _save() async {
+  Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
     _formKey.currentState!.save();
 
     final provider = Provider.of<KorisnikProvider>(context, listen: false);
 
-    bool korisnickoImePromijenjeno = _korisnickoIme != null && _korisnickoIme != _korisnik!.korisnickoIme;
+    bool korisnickoImePromijenjeno =
+        _korisnickoIme != null && _korisnickoIme != _korisnik!.korisnickoIme;
     bool lozinkaPromijenjena = _lozinka != null && _lozinka!.isNotEmpty;
 
     if (korisnickoImePromijenjeno) {
@@ -91,22 +92,23 @@ class _ProfilScreenState extends State<ProfilScreen> {
     if (korisnickoImePromijenjeno || lozinkaPromijenjena) {
       final potvrda = await showDialog<bool>(
         context: context,
-        builder: (context) => AlertDialog(
-          title: Text("Potvrda izmjene"),
-          content: Text(
-            "Mijenjanje korisničkog imena ili šifre zahtijeva da se ponovo prijavite na aplikaciju.\n\nDa li ste sigurni da želite nastaviti?"
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
-              child: Text("Otkaži"),
+        builder:
+            (context) => AlertDialog(
+              title: Text("Potvrda izmjene"),
+              content: Text(
+                "Mijenjanje korisničkog imena ili šifre zahtijeva da se ponovo prijavite na aplikaciju.\n\nDa li ste sigurni da želite nastaviti?",
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text("Otkaži"),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: Text("Nastavi"),
+                ),
+              ],
             ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(true),
-              child: Text("Nastavi"),
-            ),
-          ],
-        ),
       );
       if (potvrda != true) return;
     }
@@ -125,9 +127,9 @@ class _ProfilScreenState extends State<ProfilScreen> {
       AuthProvider.username = null;
       AuthProvider.password = null;
       AuthProvider.korisnikId = null;
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => LoginPage()),
-      );
+      Navigator.of(
+        context,
+      ).pushReplacement(MaterialPageRoute(builder: (_) => LoginPage()));
     } else {
       setState(() => _isEditing = false);
       _fetchKorisnik();
@@ -301,11 +303,16 @@ class _ProfilScreenState extends State<ProfilScreen> {
                                 border: OutlineInputBorder(),
                                 prefixIcon: Icon(Icons.person),
                               ),
-                              validator:
-                                  (v) =>
-                                      v == null || v.isEmpty
-                                          ? "Obavezno polje"
-                                          : null,
+                              validator: (v) {
+                                if (v == null || v.isEmpty)
+                                  return "Obavezno polje";
+                                final imeRegex = RegExp(
+                                  r'^[A-Za-zČčĆćŠšĐđŽž]+$',
+                                );
+                                if (!imeRegex.hasMatch(v))
+                                  return "Ime može sadržavati samo slova";
+                                return null;
+                              },
                               onSaved: (v) => _ime = v,
                             ),
                             const SizedBox(height: 16),
@@ -316,13 +323,19 @@ class _ProfilScreenState extends State<ProfilScreen> {
                                 border: OutlineInputBorder(),
                                 prefixIcon: Icon(Icons.person_outline),
                               ),
-                              validator:
-                                  (v) =>
-                                      v == null || v.isEmpty
-                                          ? "Obavezno polje"
-                                          : null,
+                              validator: (v) {
+                                if (v == null || v.isEmpty)
+                                  return "Obavezno polje";
+                                final prezimeRegex = RegExp(
+                                  r'^[A-Za-zČčĆćŠšĐđŽž]+$',
+                                );
+                                if (!prezimeRegex.hasMatch(v))
+                                  return "Prezime može sadržavati samo slova";
+                                return null;
+                              },
                               onSaved: (v) => _prezime = v,
                             ),
+
                             const SizedBox(height: 16),
                             if (!isAdmin)
                               TextFormField(
@@ -348,11 +361,16 @@ class _ProfilScreenState extends State<ProfilScreen> {
                                 border: OutlineInputBorder(),
                                 prefixIcon: Icon(Icons.email),
                               ),
-                              validator:
-                                  (v) =>
-                                      v == null || v.isEmpty
-                                          ? "Obavezno polje"
-                                          : null,
+                              validator: (v) {
+                                if (v == null || v.isEmpty)
+                                  return "Obavezno polje";
+                                final emailRegex = RegExp(
+                                  r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                                );
+                                if (!emailRegex.hasMatch(v))
+                                  return "Unesite validan email";
+                                return null;
+                              },
                               onSaved: (v) => _email = v,
                             ),
                             const SizedBox(height: 24),
@@ -365,6 +383,9 @@ class _ProfilScreenState extends State<ProfilScreen> {
                               obscureText: true,
                               onChanged: (v) => _lozinka = v,
                               validator: (v) {
+                                if (v != null && v.isNotEmpty && v.length < 6) {
+                                  return "Lozinka mora imati najmanje 6 karaktera";
+                                }
                                 if (v != null &&
                                     v.isNotEmpty &&
                                     (_lozinkaPotvrda == null ||

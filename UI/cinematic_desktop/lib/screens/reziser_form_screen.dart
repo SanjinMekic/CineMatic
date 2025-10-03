@@ -47,7 +47,10 @@ class _ReziserFormScreenState extends State<ReziserFormScreen> {
   }
 
   Future<void> _pickImage() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.image, withData: true);
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      withData: true,
+    );
     if (result != null && result.files.single.bytes != null) {
       setState(() {
         _slikaBytes = result.files.single.bytes!;
@@ -83,7 +86,10 @@ class _ReziserFormScreenState extends State<ReziserFormScreen> {
       _slikaError = _slikaBytes == null;
     });
 
-    if (!_formKey.currentState!.validate() || _datumRodjenja == null || _slikaBytes == null) return;
+    if (!_formKey.currentState!.validate() ||
+        _datumRodjenja == null ||
+        _slikaBytes == null)
+      return;
     _formKey.currentState!.save();
     setState(() => _isLoading = true);
 
@@ -113,140 +119,186 @@ class _ReziserFormScreenState extends State<ReziserFormScreen> {
       appBar: AppBar(
         title: Text(widget.item == null ? "Dodaj režisera" : "Uredi režisera"),
       ),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator())
-          : Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Card(
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 40),
-                    child: Form(
-                      key: _formKey,
-                      child: ListView(
-                        shrinkWrap: true,
-                        children: [
-                          GestureDetector(
-                            onTap: _pickImage,
-                            child: Column(
+      body:
+          _isLoading
+              ? Center(child: CircularProgressIndicator())
+              : Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 32,
+                        horizontal: 40,
+                      ),
+                      child: Form(
+                        key: _formKey,
+                        child: ListView(
+                          shrinkWrap: true,
+                          children: [
+                            GestureDetector(
+                              onTap: _pickImage,
+                              child: Column(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 48,
+                                    backgroundImage:
+                                        _slikaBytes != null
+                                            ? MemoryImage(_slikaBytes!)
+                                            : null,
+                                    child:
+                                        _slikaBytes == null
+                                            ? Icon(Icons.add_a_photo, size: 48)
+                                            : null,
+                                  ),
+                                  if (_slikaError)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 8.0),
+                                      child: Text(
+                                        "Slika je obavezna.",
+                                        style: TextStyle(
+                                          color: Colors.red,
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              initialValue: _ime,
+                              decoration: InputDecoration(labelText: "Ime"),
+                              validator: (v) {
+                                if (v == null || v.isEmpty)
+                                  return "Obavezno polje";
+                                final imeRegex = RegExp(
+                                  r'^[A-Za-zČčĆćŠšĐđŽž]+$',
+                                );
+                                if (!imeRegex.hasMatch(v))
+                                  return "Ime može sadržavati samo slova";
+                                return null;
+                              },
+                              onSaved: (v) => _ime = v,
+                            ),
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              initialValue: _prezime,
+                              decoration: InputDecoration(labelText: "Prezime"),
+                              validator: (v) {
+                                if (v == null || v.isEmpty)
+                                  return "Obavezno polje";
+                                final prezimeRegex = RegExp(
+                                  r'^[A-Za-zČčĆćŠšĐđŽž]+$',
+                                );
+                                if (!prezimeRegex.hasMatch(v))
+                                  return "Prezime može sadržavati samo slova";
+                                return null;
+                              },
+                              onSaved: (v) => _prezime = v,
+                            ),
+                            const SizedBox(height: 16),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                CircleAvatar(
-                                  radius: 48,
-                                  backgroundImage: _slikaBytes != null
-                                      ? MemoryImage(_slikaBytes!)
-                                      : null,
-                                  child: _slikaBytes == null
-                                      ? Icon(Icons.add_a_photo, size: 48)
-                                      : null,
-                                ),
-                                if (_slikaError)
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 8.0),
+                                InkWell(
+                                  onTap: _pickDate,
+                                  child: InputDecorator(
+                                    decoration: InputDecoration(
+                                      labelText: "Datum rođenja",
+                                      border: OutlineInputBorder(),
+                                    ),
                                     child: Text(
-                                      "Slika je obavezna.",
+                                      _datumRodjenja == null
+                                          ? "Odaberite datum"
+                                          : "${_datumRodjenja!.day.toString().padLeft(2, '0')}.${_datumRodjenja!.month.toString().padLeft(2, '0')}.${_datumRodjenja!.year}.",
+                                    ),
+                                  ),
+                                ),
+                                if (_datumError != null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      top: 4.0,
+                                      left: 8.0,
+                                    ),
+                                    child: Text(
+                                      _datumError!,
                                       style: TextStyle(
                                         color: Colors.red,
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w500,
+                                        fontSize: 12,
                                       ),
                                     ),
                                   ),
                               ],
                             ),
-                          ),
-                          const SizedBox(height: 16),
-                          TextFormField(
-                            initialValue: _ime,
-                            decoration: InputDecoration(labelText: "Ime"),
-                            validator: (v) => v == null || v.isEmpty ? "Obavezno polje" : null,
-                            onSaved: (v) => _ime = v,
-                          ),
-                          const SizedBox(height: 16),
-                          TextFormField(
-                            initialValue: _prezime,
-                            decoration: InputDecoration(labelText: "Prezime"),
-                            validator: (v) => v == null || v.isEmpty ? "Obavezno polje" : null,
-                            onSaved: (v) => _prezime = v,
-                          ),
-                          const SizedBox(height: 16),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              InkWell(
-                                onTap: _pickDate,
-                                child: InputDecorator(
-                                  decoration: InputDecoration(
-                                    labelText: "Datum rođenja",
-                                    border: OutlineInputBorder(),
-                                  ),
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              initialValue: _opis,
+                              decoration: InputDecoration(labelText: "Opis"),
+                              maxLines: 3,
+                              validator:
+                                  (v) =>
+                                      v == null || v.isEmpty
+                                          ? "Obavezno polje"
+                                          : null,
+                              onSaved: (v) => _opis = v,
+                            ),
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              initialValue: _uspjesi,
+                              decoration: InputDecoration(labelText: "Uspjesi"),
+                              maxLines: 2,
+                              validator:
+                                  (v) =>
+                                      v == null || v.isEmpty
+                                          ? "Obavezno polje"
+                                          : null,
+                              onSaved: (v) => _uspjesi = v,
+                            ),
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              initialValue: _rezisiraniFilmovi,
+                              decoration: InputDecoration(
+                                labelText: "Režisirani filmovi",
+                              ),
+                              maxLines: 2,
+                              validator:
+                                  (v) =>
+                                      v == null || v.isEmpty
+                                          ? "Obavezno polje"
+                                          : null,
+                              onSaved: (v) => _rezisiraniFilmovi = v,
+                            ),
+                            const SizedBox(height: 24),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  child: Text("Otkaži"),
+                                ),
+                                const SizedBox(width: 12),
+                                ElevatedButton(
+                                  onPressed: _save,
                                   child: Text(
-                                    _datumRodjenja == null
-                                        ? "Odaberite datum"
-                                        : "${_datumRodjenja!.day.toString().padLeft(2, '0')}.${_datumRodjenja!.month.toString().padLeft(2, '0')}.${_datumRodjenja!.year}.",
+                                    widget.item == null ? "Dodaj" : "Sačuvaj",
                                   ),
                                 ),
-                              ),
-                              if (_datumError != null)
-                                Padding(
-                                  padding: const EdgeInsets.only(top: 4.0, left: 8.0),
-                                  child: Text(
-                                    _datumError!,
-                                    style: TextStyle(color: Colors.red, fontSize: 12),
-                                  ),
-                                ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          TextFormField(
-                            initialValue: _opis,
-                            decoration: InputDecoration(labelText: "Opis"),
-                            maxLines: 3,
-                            validator: (v) => v == null || v.isEmpty ? "Obavezno polje" : null,
-                            onSaved: (v) => _opis = v,
-                          ),
-                          const SizedBox(height: 16),
-                          TextFormField(
-                            initialValue: _uspjesi,
-                            decoration: InputDecoration(labelText: "Uspjesi"),
-                            maxLines: 2,
-                            validator: (v) => v == null || v.isEmpty ? "Obavezno polje" : null,
-                            onSaved: (v) => _uspjesi = v,
-                          ),
-                          const SizedBox(height: 16),
-                          TextFormField(
-                            initialValue: _rezisiraniFilmovi,
-                            decoration: InputDecoration(labelText: "Režisirani filmovi"),
-                            maxLines: 2,
-                            validator: (v) => v == null || v.isEmpty ? "Obavezno polje" : null,
-                            onSaved: (v) => _rezisiraniFilmovi = v,
-                          ),
-                          const SizedBox(height: 24),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              TextButton(
-                                onPressed: () => Navigator.of(context).pop(),
-                                child: Text("Otkaži"),
-                              ),
-                              const SizedBox(width: 12),
-                              ElevatedButton(
-                                onPressed: _save,
-                                child: Text(widget.item == null ? "Dodaj" : "Sačuvaj"),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 10),
-                        ],
+                              ],
+                            ),
+                            const SizedBox(height: 10),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
     );
   }
 }
