@@ -11,7 +11,7 @@ Sistem obuhvata desktop aplikaciju za administratore i mobilnu aplikaciju za kor
 
 1. Klonirati CineMatic repozitorij.
 
-2. Pozicionirati se u klonirani repozitorij te u terminalu pokrenuti komandu: docker-compose up --build
+2. Pozicionirati se u klonirani repozitorij te u terminalu pokrenuti komandu: docker compose up --build
 
 3. Sačekati da se backend i baza uspješno buildaju. ⏳
 
@@ -19,7 +19,7 @@ Sistem obuhvata desktop aplikaciju za administratore i mobilnu aplikaciju za kor
 
 #### 🔹 Desktop aplikacija (admin)
 
-1. Extractovati arhivu: fit-build-2025-10-01-desktop
+1. Extractovati arhivu: fit-build-2025-10-03-desktop
 
 2. U folderu Release pokrenuti fajl: cinematic_desktop.exe
 
@@ -31,7 +31,7 @@ Sistem obuhvata desktop aplikaciju za administratore i mobilnu aplikaciju za kor
 
 1. Prije instalacije provjeriti da na emulatoru/uređaju nije instalirana stara verzija aplikacije. Ako jeste → deinstalirati.
 
-2. Extractovati arhivu: fit-build-2025-10-01-mobile
+2. Extractovati arhivu: fit-build-2025-10-03-mobile
 
 3. U folderu flutter-apk nalazi se fajl: app-release.apk
    → prevući na emulator ili fizički uređaj i sačekati da se aplikacija instalira.
@@ -57,7 +57,7 @@ Sistem obuhvata desktop aplikaciju za administratore i mobilnu aplikaciju za kor
 - username: blagajnik
 - password: blagajnik
 - Preporuka: koristiti fizički uređaj radi testiranja modula za skeniranje i poništavanje QR kod karti, ukoliko ne postoji ta mogućnost, postoji opcija za ručno poništavanje karte.
-- Napomena: ukoliko koristite Android Studio emulator, moguće je u sklopu opcije "Extended Controls", u sekciji "Camera" upravljati sa "Virtual scene images", gdje je moguće napraviti screenshot QR koda rezervacije i postaviti ga na "zid" virtualne scene, te se možete "prošetati" kroz virtualnu scenu u sklopu kamere držeći shift + WASD, te na taj način simulirati skeniranje QR koda bez fizičkog uređaja.
+- Napomena: ukoliko koristite Android Studio emulator, moguće je u sklopu opcije "Extended Controls", u sekciji "Camera" upravljati sa "Virtual scene images", gdje je moguće napraviti screenshot QR koda rezervacije i postaviti ga na "zid" virtualne scene, te se možete "prošetati" kroz virtualnu scenu u sklopu kamere držeći tipku Shift + W-A-S-D, te na taj način simulirati skeniranje QR koda bez fizičkog uređaja.
 
 ---
 
@@ -81,7 +81,7 @@ CineMatic koristi RabbitMQ mikroservis za automatsko slanje email obavijesti u s
 
 - Registracija novog korisnika na mobilnoj aplikaciji
 
-- Kreiranje novog administratora/blagajnika ili korisnika od strane administratora putem desktop aplikacije (administratori i blagajnici putem emaila dobiju korisničko ime i privremenu lozinku)
+- Kreiranje novog administratora/blagajnika ili korisnika od strane administratora putem desktop aplikacije (administratori i blagajnici putem emaila dobiju korisničko ime i lozinku)
 
 ---
 
