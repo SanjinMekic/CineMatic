@@ -350,4 +350,6 @@ MigrationBackup/
 .ionide/
 
 # env file
-# .env
+.env
+.env.*
+!.env.example
